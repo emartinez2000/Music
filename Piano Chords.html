@@ -303,6 +303,57 @@
             box-shadow: 0 5px 15px rgba(155, 89, 182, 0.4);
         }
 
+        .ai-model-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .model-option {
+            padding: 8px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .model-option:hover {
+            border-color: #9b59b6;
+            background: #f8f9fa;
+        }
+
+        .model-option.active {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            color: white;
+            border-color: #8e44ad;
+        }
+
+        .model-option.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f5f5f5;
+        }
+
+        .ai-status {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+
+        .ai-status.available {
+            color: #27ae60;
+        }
+
+        .ai-status.unavailable {
+            color: #e74c3c;
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -448,6 +499,16 @@
             .chord-name {
                 font-size: 2em;
             }
+            
+            .ai-model-selector {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .model-option {
+                width: 120px;
+                text-align: center;
+            }
         }
     </style>
 </head>
@@ -475,6 +536,28 @@
             <div class="controls">
                 <button class="clear-btn" onclick="clearAll()">Clear All</button>
                 <button class="insights-btn" id="insightsBtn" onclick="getChordInsights()">🧠 AI Insights</button>
+            </div>
+
+            <div class="ai-model-selector" id="aiModelSelector">
+                <div class="model-option active" data-model="claude" onclick="selectAIModel('claude')">
+                    🤖 Claude
+                </div>
+                <div class="model-option" data-model="gpt" onclick="selectAIModel('gpt')">
+                    🧠 GPT
+                </div>
+                <div class="model-option" data-model="gemini" onclick="selectAIModel('gemini')">
+                    💎 Gemini
+                </div>
+            </div>
+
+            <div class="ai-status" id="aiStatus">
+                Claude AI available
+            </div>
+
+            <div style="text-align: center; margin: 10px 0;">
+                <button onclick="testAIConnectivity()" style="padding: 5px 10px; font-size: 0.8em; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; cursor: pointer;">
+                    🔄 Test AI Connection
+                </button>
             </div>
 
             <div class="chord-info" id="chordInfo">
@@ -515,7 +598,114 @@
         const selectedNotes = new Set();
         const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
         let currentChord = null;
+        let selectedAIModel = 'claude';
         
+        // AI Model Configuration
+        const aiModels = {
+            claude: {
+                name: 'Claude',
+                available: false,
+                checkAvailability: () => typeof window.claude !== 'undefined' && typeof window.claude.complete === 'function',
+                generateInsights: async (prompt) => {
+                    if (typeof window.claude !== 'undefined' && typeof window.claude.complete === 'function') {
+                        return await window.claude.complete(prompt);
+                    }
+                    throw new Error('Claude AI not available');
+                }
+            },
+            gpt: {
+                name: 'GPT',
+                available: false,
+                checkAvailability: () => {
+                    return typeof window.openai !== 'undefined' || 
+                           typeof window.gpt !== 'undefined' || 
+                           typeof window.ChatGPT !== 'undefined' ||
+                           typeof window.chatgpt !== 'undefined';
+                },
+                generateInsights: async (prompt) => {
+                    // Try different GPT implementations
+                    if (typeof window.openai !== 'undefined' && typeof window.openai.chat !== 'undefined') {
+                        try {
+                            const response = await window.openai.chat.completions.create({
+                                model: 'gpt-3.5-turbo',
+                                messages: [{ role: 'user', content: prompt }]
+                            });
+                            return response.choices[0].message.content;
+                        } catch (error) {
+                            console.error('OpenAI API error:', error);
+                        }
+                    }
+                    
+                    if (typeof window.gpt !== 'undefined' && typeof window.gpt.complete === 'function') {
+                        try {
+                            return await window.gpt.complete(prompt);
+                        } catch (error) {
+                            console.error('GPT extension error:', error);
+                        }
+                    }
+                    
+                    if (typeof window.ChatGPT !== 'undefined' && typeof window.ChatGPT.sendMessage === 'function') {
+                        try {
+                            return await window.ChatGPT.sendMessage(prompt);
+                        } catch (error) {
+                            console.error('ChatGPT extension error:', error);
+                        }
+                    }
+                    
+                    if (typeof window.chatgpt !== 'undefined' && typeof window.chatgpt.sendMessage === 'function') {
+                        try {
+                            return await window.chatgpt.sendMessage(prompt);
+                        } catch (error) {
+                            console.error('ChatGPT alternative error:', error);
+                        }
+                    }
+                    
+                    throw new Error('GPT AI not available');
+                }
+            },
+            gemini: {
+                name: 'Gemini',
+                available: false,
+                checkAvailability: () => {
+                    return typeof window.gemini !== 'undefined' || 
+                           typeof window.google !== 'undefined' ||
+                           typeof window.Gemini !== 'undefined';
+                },
+                generateInsights: async (prompt) => {
+                    // Try different Gemini implementations
+                    if (typeof window.gemini !== 'undefined' && typeof window.gemini.generateText === 'function') {
+                        try {
+                            const response = await window.gemini.generateText(prompt);
+                            return response.text;
+                        } catch (error) {
+                            console.error('Gemini API error:', error);
+                        }
+                    }
+                    
+                    if (typeof window.google !== 'undefined' && typeof window.google.generativeAI !== 'undefined') {
+                        try {
+                            const genAI = window.google.generativeAI;
+                            const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+                            const result = await model.generateContent(prompt);
+                            return result.response.text();
+                        } catch (error) {
+                            console.error('Google Generative AI error:', error);
+                        }
+                    }
+                    
+                    if (typeof window.Gemini !== 'undefined' && typeof window.Gemini.generateText === 'function') {
+                        try {
+                            return await window.Gemini.generateText(prompt);
+                        } catch (error) {
+                            console.error('Gemini extension error:', error);
+                        }
+                    }
+                    
+                    throw new Error('Gemini AI not available');
+                }
+            }
+        };
+
         // Comprehensive chord database
         const chordDatabase = {
             // Major chords
@@ -896,6 +1086,98 @@
             document.querySelector('.chord-type').textContent = type;
         }
 
+        function selectAIModel(model) {
+            if (!aiModels[model]) return;
+            
+            selectedAIModel = model;
+            
+            // Update UI
+            document.querySelectorAll('.model-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            document.querySelector(`[data-model="${model}"]`).classList.add('active');
+            
+            updateAIStatus();
+        }
+
+        function checkAIAvailability() {
+            Object.keys(aiModels).forEach(model => {
+                aiModels[model].available = aiModels[model].checkAvailability();
+            });
+        }
+
+        function updateAIStatus() {
+            const statusElement = document.getElementById('aiStatus');
+            const currentModel = aiModels[selectedAIModel];
+            
+            if (currentModel.available) {
+                statusElement.textContent = `${currentModel.name} AI available`;
+                statusElement.className = 'ai-status available';
+            } else {
+                statusElement.textContent = `${currentModel.name} AI not available`;
+                statusElement.className = 'ai-status unavailable';
+            }
+            
+            // Update model option styling
+            document.querySelectorAll('.model-option').forEach(option => {
+                const model = option.dataset.model;
+                if (aiModels[model].available) {
+                    option.classList.remove('disabled');
+                } else {
+                    option.classList.add('disabled');
+                }
+            });
+        }
+
+        function getBestAvailableModel() {
+            // Check if selected model is available
+            if (aiModels[selectedAIModel].available) {
+                return selectedAIModel;
+            }
+            
+            // Find first available model
+            for (const [model, config] of Object.entries(aiModels)) {
+                if (config.available) {
+                    return model;
+                }
+            }
+            
+            return null;
+        }
+
+        async function testAIConnectivity() {
+            const statusElement = document.getElementById('aiStatus');
+            statusElement.textContent = 'Testing AI connectivity...';
+            statusElement.className = 'ai-status';
+            
+            try {
+                checkAIAvailability();
+                updateAIStatus();
+                
+                // Test the selected model with a simple prompt
+                const bestModel = getBestAvailableModel();
+                if (bestModel) {
+                    const modelConfig = aiModels[bestModel];
+                    const testPrompt = 'Respond with just "OK" if you can see this message.';
+                    
+                    try {
+                        await modelConfig.generateInsights(testPrompt);
+                        statusElement.textContent = `${modelConfig.name} AI connected and ready`;
+                        statusElement.className = 'ai-status available';
+                    } catch (error) {
+                        statusElement.textContent = `${modelConfig.name} AI detected but not responding`;
+                        statusElement.className = 'ai-status unavailable';
+                    }
+                } else {
+                    statusElement.textContent = 'No AI models available';
+                    statusElement.className = 'ai-status unavailable';
+                }
+            } catch (error) {
+                statusElement.textContent = 'Error testing AI connectivity';
+                statusElement.className = 'ai-status unavailable';
+            }
+        }
+
         async function getChordInsights() {
             if (!currentChord) return;
             
@@ -915,6 +1197,26 @@
             `;
             
             try {
+                // Check AI availability first
+                checkAIAvailability();
+                const bestModel = getBestAvailableModel();
+                
+                if (!bestModel) {
+                    throw new Error('No AI models available');
+                }
+                
+                // Use the best available model
+                const modelToUse = bestModel;
+                const modelConfig = aiModels[modelToUse];
+                
+                // Update loading message to show which AI is being used
+                modalBody.innerHTML = `
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <p>Getting ${modelConfig.name} AI insights for ${currentChord.name}...</p>
+                    </div>
+                `;
+                
                 const prompt = `Provide detailed musical insights about the ${currentChord.name} chord. Please respond with a JSON object containing the following information:
 
 {
@@ -928,11 +1230,18 @@
 
 Make the response informative but accessible to intermediate piano players. Focus on practical musical knowledge.`;
 
-                const response = await window.claude.complete(prompt);
+                const response = await modelConfig.generateInsights(prompt);
                 const insights = JSON.parse(response);
                 
-                // Display the insights
+                // Display the insights with model attribution
                 modalBody.innerHTML = `
+                    <div class="insight-section">
+                        <h3>🤖 Generated by ${modelConfig.name} AI</h3>
+                        <p style="color: #7f8c8d; font-size: 0.9em; margin-bottom: 15px;">
+                            AI-powered musical analysis for ${currentChord.name}
+                        </p>
+                    </div>
+                    
                     <div class="insight-section">
                         <h3>🎵 Sound & Characteristics</h3>
                         <p>${insights.characteristics}</p>
@@ -966,10 +1275,26 @@ Make the response informative but accessible to intermediate piano players. Focu
                 
             } catch (error) {
                 console.error('Error getting insights:', error);
+                
+                let errorMessage = 'Sorry, I couldn\'t generate insights for this chord at the moment.';
+                let suggestionMessage = '';
+                
+                if (error.message === 'No AI models available') {
+                    errorMessage = 'No AI models are currently available.';
+                    suggestionMessage = 'Please check if you have Claude AI or GPT extensions installed and enabled.';
+                } else if (error.message.includes('Claude AI not available')) {
+                    errorMessage = 'Claude AI is not available.';
+                    suggestionMessage = 'Try switching to GPT or install the Claude AI extension.';
+                } else if (error.message.includes('GPT AI not available')) {
+                    errorMessage = 'GPT AI is not available.';
+                    suggestionMessage = 'Try switching to Claude or install a GPT extension.';
+                }
+                
                 modalBody.innerHTML = `
                     <div class="insight-section">
-                        <h3>⚠️ Error</h3>
-                        <p>Sorry, I couldn't generate insights for this chord at the moment. Please try again later.</p>
+                        <h3>⚠️ AI Unavailable</h3>
+                        <p>${errorMessage}</p>
+                        ${suggestionMessage ? `<p style="color: #7f8c8d; font-size: 0.9em; margin-top: 10px;">${suggestionMessage}</p>` : ''}
                         <p style="color: #7f8c8d; font-size: 0.9em; margin-top: 15px;">
                             <strong>Manual Insight:</strong> The ${currentChord.name} chord is a ${getChordDescription(currentChord.type).toLowerCase()}. 
                             Try experimenting with different voicings and inversions to discover its unique sound qualities!
@@ -998,8 +1323,23 @@ Make the response informative but accessible to intermediate piano players. Focu
             }
         });
 
-        // Initialize piano
+        // Initialize AI availability and UI
+        function initializeAI() {
+            checkAIAvailability();
+            updateAIStatus();
+            
+            // If selected model is not available, try to switch to an available one
+            if (!aiModels[selectedAIModel].available) {
+                const availableModel = getBestAvailableModel();
+                if (availableModel) {
+                    selectAIModel(availableModel);
+                }
+            }
+        }
+
+        // Initialize piano and AI
         createPiano();
+        initializeAI();
     </script>
 </body>
 </html>
