@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piano Chord Helper</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            .modal-content {
+                margin: 10% auto;
+                width: 95%;
+                max-height: 70vh;
+            }
+            
+            .modal-body {
+                padding: 20px;
+            }
+            
+            .modal-header {
+                padding: 20px;
+            }
+            
+            .modal-header h2 {
+                font-size: 1.5em;
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .chord-input-section {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .chord-input-section h2 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-weight: 400;
+        }
+
+        .chord-input {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .chord-input input {
+            padding: 15px 20px;
+            font-size: 1.2em;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            min-width: 200px;
+            transition: all 0.3s ease;
+        }
+
+        .chord-input input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .chord-input button {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chord-input button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .piano-container {
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .piano-container h2 {
+            margin-bottom: 30px;
+            color: #2c3e50;
+            font-weight: 400;
+        }
+
+        .piano {
+            display: inline-block;
+            background: #333;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .octave {
+            display: inline-block;
+            position: relative;
+            margin-right: 2px;
+        }
+
+        .white-key {
+            width: 50px;
+            height: 200px;
+            background: #fff;
+            border: 2px solid #ddd;
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            border-radius: 0 0 8px 8px;
+            user-select: none;
+        }
+
+        .white-key:hover {
+            background: #f0f0f0;
+            transform: translateY(2px);
+        }
+
+        .white-key.active {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            transform: translateY(3px);
+            box-shadow: inset 0 3px 10px rgba(0,0,0,0.3);
+        }
+
+        .black-key {
+            width: 35px;
+            height: 130px;
+            background: #222;
+            position: absolute;
+            top: 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 0 0 5px 5px;
+            z-index: 2;
+            user-select: none;
+        }
+
+        .black-key:hover {
+            background: #444;
+            transform: translateY(2px);
+        }
+
+        .black-key.active {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            transform: translateY(3px);
+            box-shadow: inset 0 3px 10px rgba(0,0,0,0.5);
+        }
+
+        .key-label {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .black-key .key-label {
+            color: white;
+            bottom: 15px;
+            font-size: 0.7em;
+        }
+
+        .chord-info {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: center;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .chord-name {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .chord-notes {
+            font-size: 1.3em;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+
+        .chord-type {
+            font-size: 1.1em;
+            color: #95a5a6;
+            font-style: italic;
+        }
+
+        .controls {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .clear-btn {
+            padding: 12px 25px;
+            font-size: 1.1em;
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .clear-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .instructions {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .instructions h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .instructions ul {
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
+
+        .insights-btn {
+            padding: 12px 25px;
+            font-size: 1.1em;
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .insights-btn.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .insights-btn:hover.active {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(155, 89, 182, 0.4);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.8em;
+            font-weight: 300;
+        }
+
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 5px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .close:hover {
+            background-color: rgba(255,255,255,0.2);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 30px;
+            line-height: 1.6;
+            color: #2c3e50;
+        }
+
+        .insight-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #9b59b6;
+        }
+
+        .insight-section h3 {
+            color: #8e44ad;
+            margin-bottom: 12px;
+            font-size: 1.2em;
+        }
+
+        .insight-section p {
+            margin-bottom: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #9b59b6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .chord-input {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .chord-input input {
+                min-width: 250px;
+            }
+            
+            .white-key {
+                width: 40px;
+                height: 160px;
+            }
+            
+            .black-key {
+                width: 28px;
+                height: 110px;
+            }
+            
+            .chord-name {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎹 Piano Chord Helper</h1>
+            <p>Identify chords by clicking keys or enter chord names to see the notes</p>
+        </div>
+        
+        <div class="content">
+            <div class="chord-input-section">
+                <h2>Enter a Chord Name</h2>
+                <div class="chord-input">
+                    <input type="text" id="chordInput" placeholder="e.g., Cmaj7, F#dim, Am" />
+                    <button onclick="findChord()">Show Chord</button>
+                </div>
+            </div>
+
+            <div class="piano-container">
+                <h2>Click the Keys</h2>
+                <div class="piano" id="piano"></div>
+            </div>
+
+            <div class="controls">
+                <button class="clear-btn" onclick="clearAll()">Clear All</button>
+                <button class="insights-btn" id="insightsBtn" onclick="getChordInsights()">🧠 AI Insights</button>
+            </div>
+
+            <div class="chord-info" id="chordInfo">
+                <div class="chord-name">Select notes or enter a chord name</div>
+                <div class="chord-notes">Click piano keys above or type a chord name</div>
+                <div class="chord-type">Ready to help you identify chords!</div>
+            </div>
+
+            <div class="instructions">
+                <h3>How to use:</h3>
+                <ul>
+                    <li><strong>Identify chords:</strong> Click on piano keys to select notes, and the chord name will appear below</li>
+                    <li><strong>Find chord notes:</strong> Type a chord name (like "Cmaj7" or "F#dim") and click "Show Chord"</li>
+                    <li><strong>Supported formats:</strong> C, Cm, C7, Cmaj7, Cdim, Caug, Csus4, C5, C9, C11, C13, etc.</li>
+                    <li><strong>Clear selection:</strong> Use the "Clear All" button to start over</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for AI Insights -->
+    <div id="insightsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalChordName">Chord Insights</h2>
+                <button class="close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Getting AI insights for this chord...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const selectedNotes = new Set();
+        const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        let currentChord = null;
+        
+        // Comprehensive chord database
+        const chordDatabase = {
+            // Major chords
+            'maj': [0, 4, 7],
+            'M': [0, 4, 7],
+            '': [0, 4, 7], // Default major
+            
+            // Minor chords
+            'm': [0, 3, 7],
+            'min': [0, 3, 7],
+            '-': [0, 3, 7],
+            
+            // Power chords (5th chords)
+            '5': [0, 7],
+            'pow': [0, 7],
+            
+            // Dominant 7th
+            '7': [0, 4, 7, 10],
+            'dom7': [0, 4, 7, 10],
+            
+            // Major 7th
+            'maj7': [0, 4, 7, 11],
+            'M7': [0, 4, 7, 11],
+            '△7': [0, 4, 7, 11],
+            
+            // Minor 7th
+            'm7': [0, 3, 7, 10],
+            'min7': [0, 3, 7, 10],
+            '-7': [0, 3, 7, 10],
+            
+            // Diminished
+            'dim': [0, 3, 6],
+            '°': [0, 3, 6],
+            'o': [0, 3, 6],
+            
+            // Diminished 7th
+            'dim7': [0, 3, 6, 9],
+            '°7': [0, 3, 6, 9],
+            'o7': [0, 3, 6, 9],
+            
+            // Half-diminished
+            'm7b5': [0, 3, 6, 10],
+            'ø7': [0, 3, 6, 10],
+            
+            // Augmented
+            'aug': [0, 4, 8],
+            '+': [0, 4, 8],
+            
+            // Suspended
+            'sus2': [0, 2, 7],
+            'sus4': [0, 5, 7],
+            
+            // 6th chords
+            '6': [0, 4, 7, 9],
+            'm6': [0, 3, 7, 9],
+            
+            // 9th chords
+            '9': [0, 4, 7, 10, 14],
+            'maj9': [0, 4, 7, 11, 14],
+            'M9': [0, 4, 7, 11, 14],
+            'm9': [0, 3, 7, 10, 14],
+            'min9': [0, 3, 7, 10, 14],
+            
+            // 11th chords
+            '11': [0, 4, 7, 10, 14, 17],
+            'maj11': [0, 4, 7, 11, 14, 17],
+            'M11': [0, 4, 7, 11, 14, 17],
+            'm11': [0, 3, 7, 10, 14, 17],
+            'min11': [0, 3, 7, 10, 14, 17],
+            
+            // 13th chords
+            '13': [0, 4, 7, 10, 14, 17, 21],
+            'maj13': [0, 4, 7, 11, 14, 17, 21],
+            'M13': [0, 4, 7, 11, 14, 17, 21],
+            'm13': [0, 3, 7, 10, 14, 17, 21],
+            'min13': [0, 3, 7, 10, 14, 17, 21],
+            
+            // Add chords
+            'add9': [0, 4, 7, 14],
+            'madd9': [0, 3, 7, 14],
+            'add11': [0, 4, 7, 17],
+            'madd11': [0, 3, 7, 17],
+            
+            // Altered chords
+            '7#5': [0, 4, 8, 10],
+            '7b5': [0, 4, 6, 10],
+            '7#9': [0, 4, 7, 10, 15],
+            '7b9': [0, 4, 7, 10, 13],
+            '7#11': [0, 4, 7, 10, 18],
+            
+            // Minor variations
+            'm7#5': [0, 3, 8, 10],
+            'm7b5': [0, 3, 6, 10],
+            'mmaj7': [0, 3, 7, 11],
+            'm(maj7)': [0, 3, 7, 11],
+            
+            // Sus variations
+            '7sus2': [0, 2, 7, 10],
+            '7sus4': [0, 5, 7, 10],
+            'maj7sus2': [0, 2, 7, 11],
+            'maj7sus4': [0, 5, 7, 11]
+        };
+
+        // Reverse lookup for chord identification
+        const intervalPatterns = {};
+        Object.keys(chordDatabase).forEach(chordType => {
+            const intervals = chordDatabase[chordType];
+            const key = intervals.slice().sort().join(',');
+            if (!intervalPatterns[key]) {
+                intervalPatterns[key] = [];
+            }
+            intervalPatterns[key].push(chordType);
+        });
+
+        function createPiano() {
+            const piano = document.getElementById('piano');
+            piano.innerHTML = '';
+            
+            // Create 3 octaves starting from C3
+            for (let octave = 3; octave <= 5; octave++) {
+                const octaveDiv = document.createElement('div');
+                octaveDiv.className = 'octave';
+                
+                // White keys
+                const whiteKeyPattern = [0, 2, 4, 5, 7, 9, 11]; // C, D, E, F, G, A, B
+                whiteKeyPattern.forEach((noteIndex, keyIndex) => {
+                    const key = document.createElement('div');
+                    key.className = 'white-key';
+                    const noteName = noteNames[noteIndex];
+                    const fullNoteName = `${noteName}${octave}`;
+                    key.dataset.note = fullNoteName;
+                    key.dataset.noteIndex = noteIndex;
+                    
+                    const label = document.createElement('div');
+                    label.className = 'key-label';
+                    label.textContent = noteName;
+                    key.appendChild(label);
+                    
+                    key.addEventListener('click', () => toggleNote(fullNoteName, key));
+                    octaveDiv.appendChild(key);
+                });
+                
+                // Black keys
+                const blackKeyPattern = [1, 3, 6, 8, 10]; // C#, D#, F#, G#, A#
+                const blackKeyPositions = [0, 1, 3, 4, 5]; // Positions relative to white keys
+                
+                blackKeyPattern.forEach((noteIndex, i) => {
+                    const key = document.createElement('div');
+                    key.className = 'black-key';
+                    const noteName = noteNames[noteIndex];
+                    const fullNoteName = `${noteName}${octave}`;
+                    key.dataset.note = fullNoteName;
+                    key.dataset.noteIndex = noteIndex;
+                    
+                    const label = document.createElement('div');
+                    label.className = 'key-label';
+                    label.textContent = noteName;
+                    key.appendChild(label);
+                    
+                    // Position black keys between white keys
+                    const position = blackKeyPositions[i];
+                    key.style.left = `${(position * 52) + 37}px`;
+                    
+                    key.addEventListener('click', () => toggleNote(fullNoteName, key));
+                    octaveDiv.appendChild(key);
+                });
+                
+                piano.appendChild(octaveDiv);
+            }
+        }
+
+        function toggleNote(noteName, keyElement) {
+            if (selectedNotes.has(noteName)) {
+                selectedNotes.delete(noteName);
+                keyElement.classList.remove('active');
+            } else {
+                selectedNotes.add(noteName);
+                keyElement.classList.add('active');
+            }
+            
+            identifyChord();
+        }
+
+        function identifyChord() {
+            const insightsBtn = document.getElementById('insightsBtn');
+            
+            if (selectedNotes.size === 0) {
+                updateChordInfo('Select notes or enter a chord name', 'Click piano keys above or type a chord name', 'Ready to help you identify chords!');
+                currentChord = null;
+                insightsBtn.classList.remove('active');
+                return;
+            }
+
+            const noteIndexes = Array.from(selectedNotes).map(note => {
+                const noteName = note.slice(0, -1);
+                return noteNames.indexOf(noteName);
+            }).sort((a, b) => a - b);
+
+            if (noteIndexes.length < 2) {
+                const noteName = noteNames[noteIndexes[0]];
+                updateChordInfo(noteName, 'Single note', 'Add more notes to form a chord');
+                currentChord = null;
+                insightsBtn.classList.remove('active');
+                return;
+            }
+
+            // Calculate intervals from the root
+            const root = noteIndexes[0];
+            const intervals = noteIndexes.map(note => (note - root + 12) % 12).sort();
+            
+            // Look up chord pattern
+            const patternKey = intervals.join(',');
+            const possibleChords = intervalPatterns[patternKey];
+            
+            if (possibleChords && possibleChords.length > 0) {
+                const rootNote = noteNames[root];
+                const chordType = possibleChords[0]; // Take the most common chord type
+                const chordName = rootNote + chordType;
+                const notes = intervals.map(interval => noteNames[(root + interval) % 12]).join(', ');
+                const description = getChordDescription(chordType);
+                
+                updateChordInfo(chordName, `Notes: ${notes}`, description);
+                currentChord = { name: chordName, root: rootNote, type: chordType };
+                insightsBtn.classList.add('active');
+            } else {
+                const notes = noteIndexes.map(note => noteNames[note]).join(', ');
+                updateChordInfo('Unknown Chord', `Notes: ${notes}`, 'This combination doesn\'t match a common chord pattern');
+                currentChord = null;
+                insightsBtn.classList.remove('active');
+            }
+        }
+
+        function getChordDescription(chordType) {
+            const descriptions = {
+                'maj': 'Major triad',
+                'M': 'Major triad',
+                '': 'Major triad',
+                'm': 'Minor triad',
+                'min': 'Minor triad',
+                '-': 'Minor triad',
+                '5': 'Power chord (5th)',
+                'pow': 'Power chord (5th)',
+                '7': 'Dominant 7th',
+                'maj7': 'Major 7th',
+                'M7': 'Major 7th',
+                'm7': 'Minor 7th',
+                'dim': 'Diminished triad',
+                'dim7': 'Diminished 7th',
+                'm7b5': 'Half-diminished 7th',
+                'aug': 'Augmented triad',
+                'sus2': 'Suspended 2nd',
+                'sus4': 'Suspended 4th',
+                '6': 'Major 6th',
+                'm6': 'Minor 6th',
+                '9': 'Dominant 9th',
+                'maj9': 'Major 9th',
+                'M9': 'Major 9th',
+                'm9': 'Minor 9th',
+                '11': 'Dominant 11th',
+                'maj11': 'Major 11th',
+                'M11': 'Major 11th',
+                'm11': 'Minor 11th',
+                '13': 'Dominant 13th',
+                'maj13': 'Major 13th',
+                'M13': 'Major 13th',
+                'm13': 'Minor 13th',
+                'add9': 'Add 9th',
+                'madd9': 'Minor add 9th',
+                'add11': 'Add 11th',
+                'madd11': 'Minor add 11th',
+                '7#5': 'Dominant 7th sharp 5',
+                '7b5': 'Dominant 7th flat 5',
+                '7#9': 'Dominant 7th sharp 9',
+                '7b9': 'Dominant 7th flat 9',
+                '7#11': 'Dominant 7th sharp 11',
+                'mmaj7': 'Minor major 7th',
+                'm(maj7)': 'Minor major 7th',
+                '7sus2': 'Dominant 7th sus2',
+                '7sus4': 'Dominant 7th sus4'
+            };
+            return descriptions[chordType] || 'Complex chord';
+        }
+
+        function findChord() {
+            const input = document.getElementById('chordInput').value.trim();
+            const insightsBtn = document.getElementById('insightsBtn');
+            
+            if (!input) return;
+
+            const result = parseChordName(input);
+            if (!result) {
+                updateChordInfo('Invalid Chord', `"${input}" is not recognized`, 'Try formats like: C, Cm, C7, Cmaj7, F#dim');
+                currentChord = null;
+                insightsBtn.classList.remove('active');
+                return;
+            }
+
+            const { root, chordType } = result;
+            const intervals = chordDatabase[chordType];
+            
+            if (intervals) {
+                // Clear previous selection
+                clearSelection();
+                
+                // Calculate and select notes
+                const rootIndex = noteNames.indexOf(root);
+                const chordNotes = intervals.map(interval => {
+                    const noteIndex = (rootIndex + interval) % 12;
+                    return noteNames[noteIndex];
+                });
+                
+                // Select notes on piano (looking for any octave)
+                chordNotes.forEach(noteName => {
+                    for (let octave = 3; octave <= 5; octave++) {
+                        const fullNoteName = `${noteName}${octave}`;
+                        const keyElement = document.querySelector(`[data-note="${fullNoteName}"]`);
+                        if (keyElement && !selectedNotes.has(fullNoteName)) {
+                            selectedNotes.add(fullNoteName);
+                            keyElement.classList.add('active');
+                            break; // Only select first occurrence
+                        }
+                    }
+                });
+                
+                const chordName = root + chordType;
+                const description = getChordDescription(chordType);
+                updateChordInfo(chordName, `Notes: ${chordNotes.join(', ')}`, description);
+                currentChord = { name: chordName, root: root, type: chordType };
+                insightsBtn.classList.add('active');
+            } else {
+                updateChordInfo('Unknown Chord Type', `Chord type "${chordType}" not found`, 'Try common types like maj7, m, dim, sus4');
+                currentChord = null;
+                insightsBtn.classList.remove('active');
+            }
+        }
+
+        function parseChordName(chordName) {
+            // Remove spaces and convert to standard format
+            chordName = chordName.replace(/\s/g, '');
+
+            // Match root note (with optional sharp/flat)
+            const rootMatch = chordName.match(/^([A-G][#b]?)/);
+            if (!rootMatch) return null;
+
+            const root = rootMatch[1];
+            const chordType = chordName.slice(root.length);
+
+            // Convert flats to sharps for consistency
+            const normalizedRoot = root.replace('Db', 'C#').replace('Eb', 'D#').replace('Gb', 'F#')
+                                      .replace('Ab', 'G#').replace('Bb', 'A#');
+
+            // Check if chord type exists
+            if (chordDatabase.hasOwnProperty(chordType)) {
+                return { root: normalizedRoot, chordType };
+            }
+
+            return null;
+        }
+
+        function clearAll() {
+            clearSelection();
+            document.getElementById('chordInput').value = '';
+            updateChordInfo('Select notes or enter a chord name', 'Click piano keys above or type a chord name', 'Ready to help you identify chords!');
+            currentChord = null;
+            document.getElementById('insightsBtn').classList.remove('active');
+        }
+
+        function clearSelection() {
+            selectedNotes.clear();
+            document.querySelectorAll('.white-key, .black-key').forEach(key => {
+                key.classList.remove('active');
+            });
+        }
+
+        function updateChordInfo(name, notes, type) {
+            document.querySelector('.chord-name').textContent = name;
+            document.querySelector('.chord-notes').textContent = notes;
+            document.querySelector('.chord-type').textContent = type;
+        }
+
+        async function getChordInsights() {
+            if (!currentChord) return;
+            
+            const modal = document.getElementById('insightsModal');
+            const modalChordName = document.getElementById('modalChordName');
+            const modalBody = document.getElementById('modalBody');
+            
+            modalChordName.textContent = `${currentChord.name} - AI Insights`;
+            modal.style.display = 'block';
+            
+            // Show loading state
+            modalBody.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Getting AI insights for ${currentChord.name}...</p>
+                </div>
+            `;
+            
+            try {
+                const prompt = `Provide detailed musical insights about the ${currentChord.name} chord. Please respond with a JSON object containing the following information:
+
+{
+  "characteristics": "Describe the sound characteristics and mood of this chord (warm, bright, tense, etc.)",
+  "keyAspects": "Key musical aspects and what makes this chord unique or interesting",
+  "commonUsage": "Where this chord is commonly used in music (genres, contexts, functions)",
+  "famousSongs": "3-4 famous songs (classic rock, pop, jazz, or other genres) that prominently feature this chord, with brief mentions of how it's used",
+  "progressions": "Common chord progressions that include this chord, with Roman numeral analysis where relevant",
+  "tips": "Practical tips for pianists on playing this chord, voicings, or musical applications"
+}
+
+Make the response informative but accessible to intermediate piano players. Focus on practical musical knowledge.`;
+
+                const response = await window.claude.complete(prompt);
+                const insights = JSON.parse(response);
+                
+                // Display the insights
+                modalBody.innerHTML = `
+                    <div class="insight-section">
+                        <h3>🎵 Sound & Characteristics</h3>
+                        <p>${insights.characteristics}</p>
+                    </div>
+                    
+                    <div class="insight-section">
+                        <h3>🔍 Key Aspects</h3>
+                        <p>${insights.keyAspects}</p>
+                    </div>
+                    
+                    <div class="insight-section">
+                        <h3>🎸 Common Usage</h3>
+                        <p>${insights.commonUsage}</p>
+                    </div>
+                    
+                    <div class="insight-section">
+                        <h3>🎤 Famous Songs</h3>
+                        <p>${insights.famousSongs}</p>
+                    </div>
+                    
+                    <div class="insight-section">
+                        <h3>🎼 Chord Progressions</h3>
+                        <p>${insights.progressions}</p>
+                    </div>
+                    
+                    <div class="insight-section">
+                        <h3>💡 Piano Tips</h3>
+                        <p>${insights.tips}</p>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Error getting insights:', error);
+                modalBody.innerHTML = `
+                    <div class="insight-section">
+                        <h3>⚠️ Error</h3>
+                        <p>Sorry, I couldn't generate insights for this chord at the moment. Please try again later.</p>
+                        <p style="color: #7f8c8d; font-size: 0.9em; margin-top: 15px;">
+                            <strong>Manual Insight:</strong> The ${currentChord.name} chord is a ${getChordDescription(currentChord.type).toLowerCase()}. 
+                            Try experimenting with different voicings and inversions to discover its unique sound qualities!
+                        </p>
+                    </div>
+                `;
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('insightsModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('insightsModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Handle Enter key in chord input
+        document.getElementById('chordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                findChord();
+            }
+        });
+
+        // Initialize piano
+        createPiano();
+    </script>
+</body>
+</html>
