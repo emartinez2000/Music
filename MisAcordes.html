@@ -50,6 +50,7 @@
             color: white;
             padding: 30px;
             text-align: center;
+            position: relative;
         }
 
         .header h1 {
@@ -61,6 +62,51 @@
         .header p {
             opacity: 0.9;
             font-size: 1.1em;
+        }
+
+        .help-btn {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            padding: 10px 20px;
+            font-size: 1em;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .help-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .notation-toggle {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            padding: 10px 20px;
+            font-size: 1em;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notation-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         .content {
@@ -422,8 +468,27 @@
                 padding: 20px;
             }
             
+            .header {
+                padding: 50px 20px 20px;
+            }
+            
             .header h1 {
-                font-size: 2em;
+                font-size: 1.5em;
+                margin-top: 10px;
+            }
+            
+            .notation-toggle {
+                top: 10px;
+                left: 10px;
+                padding: 8px 12px;
+                font-size: 0.85em;
+            }
+            
+            .help-btn {
+                top: 10px;
+                right: 10px;
+                padding: 8px 12px;
+                font-size: 0.85em;
             }
             
             .chord-input {
@@ -455,8 +520,12 @@
 <body>
     <div class="container">
         <div class="header">
+            <button class="notation-toggle" onclick="toggleNotation()">
+                <span id="notationIcon">🎵</span>
+                <span id="notationText">Do Re Mi</span>
+            </button>
             <h1>🎹 Piano Chord Helper</h1>
-            <p>Identify chords by clicking keys or enter chord names to see the notes</p>
+            <button class="help-btn" onclick="showHelp()">❓ Help</button>
         </div>
         
         <div class="content">
@@ -483,16 +552,46 @@
                 <div class="chord-notes">Click piano keys above or type a chord name</div>
                 <div class="chord-type">Ready to help you identify chords!</div>
             </div>
+        </div>
+    </div>
 
-            <div class="instructions">
-                <h3>How to use:</h3>
-                <ul>
-                    <li><strong>Identify chords:</strong> Click on piano keys to select notes, and the chord name will appear below</li>
-                    <li><strong>Find chord notes:</strong> Type a chord name (like "Cmaj7" or "F#dim") and click "Show Chord"</li>
-                    <li><strong>Supported formats:</strong> C, Cm, C7, Cmaj7, Cdim, Caug, Csus4, C5, C9, C11, C13, etc.</li>
-                    <li><strong>Chord Information:</strong> Click "📚 Chord Info" to learn about the chord's characteristics, usage, and famous songs</li>
-                    <li><strong>Clear selection:</strong> Use the "Clear All" button to start over</li>
-                </ul>
+    <!-- Modal for Help -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>❓ How to Use</h2>
+                <button class="close" onclick="closeHelpModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="insight-section">
+                    <h3>🎵 Musical Notation</h3>
+                    <p>Click the "🎵 Do Re Mi" or "🎵 C D E" button in the top-left corner to switch between Italian notation (Do, Re, Mi, Fa, Sol, La, Si) and Anglo-Saxon notation (C, D, E, F, G, A, B). All labels, chord names, and input examples will update automatically!</p>
+                </div>
+                
+                <div class="insight-section">
+                    <h3>🎹 Identify Chords</h3>
+                    <p>Click on piano keys to select notes, and the chord name will appear below automatically.</p>
+                </div>
+                
+                <div class="insight-section">
+                    <h3>🔍 Find Chord Notes</h3>
+                    <p>Type a chord name in the input field and click "Show Chord" to see which keys to play. Examples: <strong>Cmaj7</strong>, <strong>F#dim</strong>, <strong>Am</strong> (Anglo-Saxon) or <strong>Domaj7</strong>, <strong>Fa#dim</strong>, <strong>Lam</strong> (Italian).</p>
+                </div>
+                
+                <div class="insight-section">
+                    <h3>📝 Supported Formats</h3>
+                    <p>Major, minor, diminished, augmented, suspended, power chords, and extended chords (7th, 9th, 11th, 13th) are all supported. Works with both notation systems!</p>
+                </div>
+                
+                <div class="insight-section">
+                    <h3>📚 Chord Information</h3>
+                    <p>Click "📚 Chord Info" button to learn about the chord's characteristics, usage in music, famous songs that use it, and tips for playing it on piano.</p>
+                </div>
+                
+                <div class="insight-section">
+                    <h3>🗑️ Clear Selection</h3>
+                    <p>Use the "Clear All" button to deselect all keys and start over with a fresh selection.</p>
+                </div>
             </div>
         </div>
     </div>
@@ -515,7 +614,36 @@
 
     <script>
         const selectedNotes = new Set();
-        const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        
+        // Notation systems
+        const notations = {
+            anglo: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
+            italian: ['Do', 'Do#', 'Re', 'Re#', 'Mi', 'Fa', 'Fa#', 'Sol', 'Sol#', 'La', 'La#', 'Si']
+        };
+        
+        // Mapping between notations
+        const angloToItalian = {
+            'C': 'Do', 'C#': 'Do#', 'Db': 'Reb',
+            'D': 'Re', 'D#': 'Re#', 'Eb': 'Mib',
+            'E': 'Mi',
+            'F': 'Fa', 'F#': 'Fa#', 'Gb': 'Solb',
+            'G': 'Sol', 'G#': 'Sol#', 'Ab': 'Lab',
+            'A': 'La', 'A#': 'La#', 'Bb': 'Sib',
+            'B': 'Si'
+        };
+        
+        const italianToAnglo = {
+            'Do': 'C', 'Do#': 'C#', 'Reb': 'Db',
+            'Re': 'D', 'Re#': 'D#', 'Mib': 'Eb',
+            'Mi': 'E',
+            'Fa': 'F', 'Fa#': 'F#', 'Solb': 'Gb',
+            'Sol': 'G', 'Sol#': 'G#', 'Lab': 'Ab',
+            'La': 'A', 'La#': 'A#', 'Sib': 'Bb',
+            'Si': 'B'
+        };
+        
+        let currentNotation = 'anglo'; // 'anglo' or 'italian'
+        let noteNames = [...notations.anglo];
         let currentChord = null;
 
         // Comprehensive chord database
@@ -632,6 +760,98 @@
             intervalPatterns[key].push(chordType);
         });
 
+        function toggleNotation() {
+            const oldNotation = currentNotation;
+            
+            // Convert selected notes to new notation
+            const convertedNotes = new Set();
+            selectedNotes.forEach(noteWithOctave => {
+                // Extract note name and octave (e.g., "Sol3" -> "Sol" + "3", "Do#4" -> "Do#" + "4")
+                const match = noteWithOctave.match(/^(.+?)(\d+)$/);
+                if (!match) return;
+                
+                const noteName = match[1];
+                const octave = match[2];
+                
+                // Find the index in current notation
+                const oldNoteNames = notations[oldNotation];
+                const noteIndex = oldNoteNames.indexOf(noteName);
+                
+                if (noteIndex !== -1) {
+                    // Get the corresponding note in new notation
+                    const newNotation = oldNotation === 'anglo' ? 'italian' : 'anglo';
+                    const newNoteNames = notations[newNotation];
+                    const newNoteName = newNoteNames[noteIndex];
+                    convertedNotes.add(newNoteName + octave);
+                }
+            });
+            
+            // Clear old selection
+            selectedNotes.clear();
+            convertedNotes.forEach(note => selectedNotes.add(note));
+            
+            // Switch notation
+            currentNotation = currentNotation === 'anglo' ? 'italian' : 'anglo';
+            noteNames = [...notations[currentNotation]];
+            
+            // Update button text
+            const notationText = document.getElementById('notationText');
+            notationText.textContent = currentNotation === 'anglo' ? 'Do Re Mi' : 'C D E';
+            
+            // Update placeholder
+            const input = document.getElementById('chordInput');
+            if (currentNotation === 'italian') {
+                input.placeholder = 'ej., Domaj7, Fa#dim, Lam';
+            } else {
+                input.placeholder = 'e.g., Cmaj7, F#dim, Am';
+            }
+            
+            // Update all piano key labels and reselect keys
+            updatePianoLabels();
+            
+            // Re-apply active class to converted notes
+            document.querySelectorAll('.white-key, .black-key').forEach(key => {
+                if (selectedNotes.has(key.dataset.note)) {
+                    key.classList.add('active');
+                } else {
+                    key.classList.remove('active');
+                }
+            });
+            
+            // Update current chord display if there's one
+            if (selectedNotes.size > 0) {
+                identifyChord();
+            } else {
+                const defaultTexts = currentNotation === 'italian' 
+                    ? ['Selecciona notas o introduce un acorde', 'Haz clic en las teclas del piano o escribe un nombre de acorde', '¡Listo para ayudarte a identificar acordes!']
+                    : ['Select notes or enter a chord name', 'Click piano keys above or type a chord name', 'Ready to help you identify chords!'];
+                updateChordInfo(...defaultTexts);
+            }
+        }
+
+        function updatePianoLabels() {
+            // Update all key labels on the piano
+            document.querySelectorAll('.white-key, .black-key').forEach(key => {
+                const noteIndex = parseInt(key.dataset.noteIndex);
+                const label = key.querySelector('.key-label');
+                if (label) {
+                    label.textContent = noteNames[noteIndex];
+                }
+                // Update the full note name in the dataset
+                // Extract octave from the current note name (e.g., "Sol3" -> "3", "Do#4" -> "4")
+                const match = key.dataset.note.match(/\d+$/);
+                const octave = match ? match[0] : '';
+                key.dataset.note = `${noteNames[noteIndex]}${octave}`;
+            });
+        }
+
+        function convertNoteName(name, fromNotation, toNotation) {
+            if (fromNotation === toNotation) return name;
+            
+            const map = fromNotation === 'anglo' ? angloToItalian : italianToAnglo;
+            return map[name] || name;
+        }
+
         function createPiano() {
             const piano = document.getElementById('piano');
             piano.innerHTML = '';
@@ -656,7 +876,10 @@
                     label.textContent = noteName;
                     key.appendChild(label);
                     
-                    key.addEventListener('click', () => toggleNote(fullNoteName, key));
+                    // Use a function that reads the current dataset.note value
+                    key.addEventListener('click', function() {
+                        toggleNote(this.dataset.note, this);
+                    });
                     octaveDiv.appendChild(key);
                 });
                 
@@ -681,7 +904,10 @@
                     const position = blackKeyPositions[i];
                     key.style.left = `${(position * 52) + 37}px`;
                     
-                    key.addEventListener('click', () => toggleNote(fullNoteName, key));
+                    // Use a function that reads the current dataset.note value
+                    key.addEventListener('click', function() {
+                        toggleNote(this.dataset.note, this);
+                    });
                     octaveDiv.appendChild(key);
                 });
                 
@@ -705,46 +931,75 @@
             const insightsBtn = document.getElementById('insightsBtn');
             
             if (selectedNotes.size === 0) {
-                updateChordInfo('Select notes or enter a chord name', 'Click piano keys above or type a chord name', 'Ready to help you identify chords!');
+                const defaultTexts = currentNotation === 'italian' 
+                    ? ['Selecciona notas o introduce un acorde', 'Haz clic en las teclas del piano o escribe un nombre de acorde', '¡Listo para ayudarte a identificar acordes!']
+                    : ['Select notes or enter a chord name', 'Click piano keys above or type a chord name', 'Ready to help you identify chords!'];
+                updateChordInfo(...defaultTexts);
                 currentChord = null;
                 insightsBtn.classList.remove('active');
                 return;
             }
 
             const noteIndexes = Array.from(selectedNotes).map(note => {
-                const noteName = note.slice(0, -1);
+                // Extract note name by removing the octave number at the end
+                const noteName = note.replace(/\d+$/, '');
                 return noteNames.indexOf(noteName);
             }).sort((a, b) => a - b);
 
             if (noteIndexes.length < 2) {
                 const noteName = noteNames[noteIndexes[0]];
-                updateChordInfo(noteName, 'Single note', 'Add more notes to form a chord');
+                const singleNoteText = currentNotation === 'italian' ? 'Nota individual' : 'Single note';
+                const addMoreText = currentNotation === 'italian' ? 'Agrega más notas para formar un acorde' : 'Add more notes to form a chord';
+                updateChordInfo(noteName, singleNoteText, addMoreText);
                 currentChord = null;
                 insightsBtn.classList.remove('active');
                 return;
             }
 
-            // Calculate intervals from the root
-            const root = noteIndexes[0];
-            const intervals = noteIndexes.map(note => (note - root + 12) % 12).sort();
+            // Try each note as a potential root
+            let foundChord = null;
             
-            // Look up chord pattern
-            const patternKey = intervals.join(',');
-            const possibleChords = intervalPatterns[patternKey];
-            
-            if (possibleChords && possibleChords.length > 0) {
-                const rootNote = noteNames[root];
-                const chordType = possibleChords[0]; // Take the most common chord type
-                const chordName = rootNote + chordType;
-                const notes = intervals.map(interval => noteNames[(root + interval) % 12]).join(', ');
-                const description = getChordDescription(chordType);
+            for (let i = 0; i < noteIndexes.length; i++) {
+                const root = noteIndexes[i];
+                const intervals = noteIndexes.map(note => (note - root + 12) % 12).sort();
                 
-                updateChordInfo(chordName, `Notes: ${notes}`, description);
-                currentChord = { name: chordName, root: rootNote, type: chordType };
+                // Look up chord pattern
+                const patternKey = intervals.join(',');
+                const possibleChords = intervalPatterns[patternKey];
+                
+                if (possibleChords && possibleChords.length > 0) {
+                    foundChord = {
+                        root: root,
+                        intervals: intervals,
+                        chordType: possibleChords[0]
+                    };
+                    break; // Found a match, stop searching
+                }
+            }
+            
+            if (foundChord) {
+                const rootNote = noteNames[foundChord.root];
+                const chordType = foundChord.chordType;
+                const chordName = rootNote + chordType;
+                const notes = foundChord.intervals.map(interval => noteNames[(foundChord.root + interval) % 12]).join(', ');
+                const description = getChordDescription(chordType);
+                const notesLabel = currentNotation === 'italian' ? 'Notas' : 'Notes';
+                
+                updateChordInfo(chordName, `${notesLabel}: ${notes}`, description);
+                
+                // Store the chord with the anglo root for internal processing
+                const angloNoteNames = notations.anglo;
+                const angloRoot = currentNotation === 'italian' ? (italianToAnglo[rootNote] || rootNote) : rootNote;
+                currentChord = { name: chordName, root: angloRoot, type: chordType };
                 insightsBtn.classList.add('active');
             } else {
                 const notes = noteIndexes.map(note => noteNames[note]).join(', ');
-                updateChordInfo('Unknown Chord', `Notes: ${notes}`, 'This combination doesn\'t match a common chord pattern');
+                const unknownText = currentNotation === 'italian' ? 'Acorde Desconocido' : 'Unknown Chord';
+                const notesLabel = currentNotation === 'italian' ? 'Notas' : 'Notes';
+                const noMatchText = currentNotation === 'italian' 
+                    ? 'Esta combinación no coincide con un patrón de acorde común'
+                    : 'This combination doesn\'t match a common chord pattern';
+                updateChordInfo(unknownText, `${notesLabel}: ${notes}`, noMatchText);
                 currentChord = null;
                 insightsBtn.classList.remove('active');
             }
@@ -809,7 +1064,10 @@
 
             const result = parseChordName(input);
             if (!result) {
-                updateChordInfo('Invalid Chord', `"${input}" is not recognized`, 'Try formats like: C, Cm, C7, Cmaj7, F#dim');
+                const exampleText = currentNotation === 'italian' 
+                    ? 'Intenta formatos como: Do, Dom, Do7, Domaj7, Fa#dim'
+                    : 'Try formats like: C, Cm, C7, Cmaj7, F#dim';
+                updateChordInfo('Invalid Chord', `"${input}" is not recognized`, exampleText);
                 currentChord = null;
                 insightsBtn.classList.remove('active');
                 return;
@@ -822,17 +1080,24 @@
                 // Clear previous selection
                 clearSelection();
                 
-                // Calculate and select notes
-                const rootIndex = noteNames.indexOf(root);
-                const chordNotes = intervals.map(interval => {
+                // Calculate and select notes (using anglo notation internally)
+                const angloNoteNames = notations.anglo;
+                const rootIndex = angloNoteNames.indexOf(root);
+                const chordNotesAnglo = intervals.map(interval => {
                     const noteIndex = (rootIndex + interval) % 12;
-                    return noteNames[noteIndex];
+                    return angloNoteNames[noteIndex];
                 });
                 
+                // Convert notes to current notation for display
+                const chordNotesDisplay = chordNotesAnglo.map(note => 
+                    currentNotation === 'italian' ? (angloToItalian[note] || note) : note
+                );
+                
                 // Select notes on piano (looking for any octave)
-                chordNotes.forEach(noteName => {
+                chordNotesAnglo.forEach((angloNote, idx) => {
+                    const displayNote = chordNotesDisplay[idx];
                     for (let octave = 3; octave <= 5; octave++) {
-                        const fullNoteName = `${noteName}${octave}`;
+                        const fullNoteName = `${displayNote}${octave}`;
                         const keyElement = document.querySelector(`[data-note="${fullNoteName}"]`);
                         if (keyElement && !selectedNotes.has(fullNoteName)) {
                             selectedNotes.add(fullNoteName);
@@ -842,13 +1107,19 @@
                     }
                 });
                 
-                const chordName = root + chordType;
+                // Convert chord name to current notation
+                const rootDisplay = currentNotation === 'italian' ? (angloToItalian[root] || root) : root;
+                const chordName = rootDisplay + chordType;
                 const description = getChordDescription(chordType);
-                updateChordInfo(chordName, `Notes: ${chordNotes.join(', ')}`, description);
+                const notesLabel = currentNotation === 'italian' ? 'Notas' : 'Notes';
+                updateChordInfo(chordName, `${notesLabel}: ${chordNotesDisplay.join(', ')}`, description);
                 currentChord = { name: chordName, root: root, type: chordType };
                 insightsBtn.classList.add('active');
             } else {
-                updateChordInfo('Unknown Chord Type', `Chord type "${chordType}" not found`, 'Try common types like maj7, m, dim, sus4');
+                const errorText = currentNotation === 'italian'
+                    ? 'Intenta tipos comunes como maj7, m, dim, sus4'
+                    : 'Try common types like maj7, m, dim, sus4';
+                updateChordInfo('Unknown Chord Type', `Chord type "${chordType}" not found`, errorText);
                 currentChord = null;
                 insightsBtn.classList.remove('active');
             }
@@ -858,12 +1129,29 @@
             // Remove spaces and convert to standard format
             chordName = chordName.replace(/\s/g, '');
 
-            // Match root note (with optional sharp/flat)
-            const rootMatch = chordName.match(/^([A-G][#b]?)/);
-            if (!rootMatch) return null;
+            let root = null;
+            let chordType = '';
+            
+            // Try to match Italian notation first (Do, Re, Mi, Fa, Sol, La, Si)
+            const italianMatch = chordName.match(/^(Do|Re|Mi|Fa|Sol|La|Si)([#b]?)/i);
+            if (italianMatch) {
+                const italianNote = italianMatch[1].charAt(0).toUpperCase() + italianMatch[1].slice(1).toLowerCase();
+                const accidental = italianMatch[2];
+                const fullItalianNote = italianNote + accidental;
+                
+                // Convert to Anglo notation for internal processing
+                root = italianToAnglo[fullItalianNote] || italianToAnglo[italianNote];
+                chordType = chordName.slice(italianMatch[0].length);
+            } else {
+                // Try Anglo notation (A-G)
+                const angloMatch = chordName.match(/^([A-G][#b]?)/);
+                if (!angloMatch) return null;
+                
+                root = angloMatch[1];
+                chordType = chordName.slice(root.length);
+            }
 
-            const root = rootMatch[1];
-            const chordType = chordName.slice(root.length);
+            if (!root) return null;
 
             // Convert flats to sharps for consistency
             const normalizedRoot = root.replace('Db', 'C#').replace('Eb', 'D#').replace('Gb', 'F#')
@@ -880,7 +1168,10 @@
         function clearAll() {
             clearSelection();
             document.getElementById('chordInput').value = '';
-            updateChordInfo('Select notes or enter a chord name', 'Click piano keys above or type a chord name', 'Ready to help you identify chords!');
+            const defaultTexts = currentNotation === 'italian' 
+                ? ['Selecciona notas o introduce un acorde', 'Haz clic en las teclas del piano o escribe un nombre de acorde', '¡Listo para ayudarte a identificar acordes!']
+                : ['Select notes or enter a chord name', 'Click piano keys above or type a chord name', 'Ready to help you identify chords!'];
+            updateChordInfo(...defaultTexts);
             currentChord = null;
             document.getElementById('insightsBtn').classList.remove('active');
         }
@@ -1203,11 +1494,24 @@
             document.getElementById('insightsModal').style.display = 'none';
         }
 
+        function showHelp() {
+            document.getElementById('helpModal').style.display = 'block';
+        }
+
+        function closeHelpModal() {
+            document.getElementById('helpModal').style.display = 'none';
+        }
+
         // Close modal when clicking outside of it
         window.onclick = function(event) {
-            const modal = document.getElementById('insightsModal');
-            if (event.target === modal) {
+            const insightsModal = document.getElementById('insightsModal');
+            const helpModal = document.getElementById('helpModal');
+            
+            if (event.target === insightsModal) {
                 closeModal();
+            }
+            if (event.target === helpModal) {
+                closeHelpModal();
             }
         }
 
