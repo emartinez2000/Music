@@ -282,7 +282,7 @@
         .insights-btn {
             padding: 12px 25px;
             font-size: 1.1em;
-            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            background: linear-gradient(45deg, #3498db, #2980b9);
             color: white;
             border: none;
             border-radius: 10px;
@@ -300,58 +300,7 @@
 
         .insights-btn:hover.active {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(155, 89, 182, 0.4);
-        }
-
-        .ai-model-selector {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 20px 0;
-            flex-wrap: wrap;
-        }
-
-        .model-option {
-            padding: 8px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 20px;
-            background: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9em;
-            font-weight: 500;
-        }
-
-        .model-option:hover {
-            border-color: #9b59b6;
-            background: #f8f9fa;
-        }
-
-        .model-option.active {
-            background: linear-gradient(45deg, #9b59b6, #8e44ad);
-            color: white;
-            border-color: #8e44ad;
-        }
-
-        .model-option.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background: #f5f5f5;
-        }
-
-        .ai-status {
-            text-align: center;
-            margin: 10px 0;
-            font-size: 0.9em;
-            color: #7f8c8d;
-        }
-
-        .ai-status.available {
-            color: #27ae60;
-        }
-
-        .ai-status.unavailable {
-            color: #e74c3c;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
         }
 
         .modal {
@@ -500,15 +449,6 @@
                 font-size: 2em;
             }
             
-            .ai-model-selector {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .model-option {
-                width: 120px;
-                text-align: center;
-            }
         }
     </style>
 </head>
@@ -535,29 +475,7 @@
 
             <div class="controls">
                 <button class="clear-btn" onclick="clearAll()">Clear All</button>
-                <button class="insights-btn" id="insightsBtn" onclick="getChordInsights()">🧠 AI Insights</button>
-            </div>
-
-            <div class="ai-model-selector" id="aiModelSelector">
-                <div class="model-option active" data-model="claude" onclick="selectAIModel('claude')">
-                    🤖 Claude
-                </div>
-                <div class="model-option" data-model="gpt" onclick="selectAIModel('gpt')">
-                    🧠 GPT
-                </div>
-                <div class="model-option" data-model="gemini" onclick="selectAIModel('gemini')">
-                    💎 Gemini
-                </div>
-            </div>
-
-            <div class="ai-status" id="aiStatus">
-                Claude AI available
-            </div>
-
-            <div style="text-align: center; margin: 10px 0;">
-                <button onclick="testAIConnectivity()" style="padding: 5px 10px; font-size: 0.8em; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; cursor: pointer;">
-                    🔄 Test AI Connection
-                </button>
+                <button class="insights-btn active" id="insightsBtn" onclick="showChordInfo()">📚 Chord Info</button>
             </div>
 
             <div class="chord-info" id="chordInfo">
@@ -572,17 +490,18 @@
                     <li><strong>Identify chords:</strong> Click on piano keys to select notes, and the chord name will appear below</li>
                     <li><strong>Find chord notes:</strong> Type a chord name (like "Cmaj7" or "F#dim") and click "Show Chord"</li>
                     <li><strong>Supported formats:</strong> C, Cm, C7, Cmaj7, Cdim, Caug, Csus4, C5, C9, C11, C13, etc.</li>
+                    <li><strong>Chord Information:</strong> Click "📚 Chord Info" to learn about the chord's characteristics, usage, and famous songs</li>
                     <li><strong>Clear selection:</strong> Use the "Clear All" button to start over</li>
                 </ul>
             </div>
         </div>
     </div>
 
-    <!-- Modal for AI Insights -->
+    <!-- Modal for Chord Information -->
     <div id="insightsModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="modalChordName">Chord Insights</h2>
+                <h2 id="modalChordName">Chord Information</h2>
                 <button class="close" onclick="closeModal()">&times;</button>
             </div>
             <div class="modal-body" id="modalBody">
@@ -598,113 +517,6 @@
         const selectedNotes = new Set();
         const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
         let currentChord = null;
-        let selectedAIModel = 'claude';
-        
-        // AI Model Configuration
-        const aiModels = {
-            claude: {
-                name: 'Claude',
-                available: false,
-                checkAvailability: () => typeof window.claude !== 'undefined' && typeof window.claude.complete === 'function',
-                generateInsights: async (prompt) => {
-                    if (typeof window.claude !== 'undefined' && typeof window.claude.complete === 'function') {
-                        return await window.claude.complete(prompt);
-                    }
-                    throw new Error('Claude AI not available');
-                }
-            },
-            gpt: {
-                name: 'GPT',
-                available: false,
-                checkAvailability: () => {
-                    return typeof window.openai !== 'undefined' || 
-                           typeof window.gpt !== 'undefined' || 
-                           typeof window.ChatGPT !== 'undefined' ||
-                           typeof window.chatgpt !== 'undefined';
-                },
-                generateInsights: async (prompt) => {
-                    // Try different GPT implementations
-                    if (typeof window.openai !== 'undefined' && typeof window.openai.chat !== 'undefined') {
-                        try {
-                            const response = await window.openai.chat.completions.create({
-                                model: 'gpt-3.5-turbo',
-                                messages: [{ role: 'user', content: prompt }]
-                            });
-                            return response.choices[0].message.content;
-                        } catch (error) {
-                            console.error('OpenAI API error:', error);
-                        }
-                    }
-                    
-                    if (typeof window.gpt !== 'undefined' && typeof window.gpt.complete === 'function') {
-                        try {
-                            return await window.gpt.complete(prompt);
-                        } catch (error) {
-                            console.error('GPT extension error:', error);
-                        }
-                    }
-                    
-                    if (typeof window.ChatGPT !== 'undefined' && typeof window.ChatGPT.sendMessage === 'function') {
-                        try {
-                            return await window.ChatGPT.sendMessage(prompt);
-                        } catch (error) {
-                            console.error('ChatGPT extension error:', error);
-                        }
-                    }
-                    
-                    if (typeof window.chatgpt !== 'undefined' && typeof window.chatgpt.sendMessage === 'function') {
-                        try {
-                            return await window.chatgpt.sendMessage(prompt);
-                        } catch (error) {
-                            console.error('ChatGPT alternative error:', error);
-                        }
-                    }
-                    
-                    throw new Error('GPT AI not available');
-                }
-            },
-            gemini: {
-                name: 'Gemini',
-                available: false,
-                checkAvailability: () => {
-                    return typeof window.gemini !== 'undefined' || 
-                           typeof window.google !== 'undefined' ||
-                           typeof window.Gemini !== 'undefined';
-                },
-                generateInsights: async (prompt) => {
-                    // Try different Gemini implementations
-                    if (typeof window.gemini !== 'undefined' && typeof window.gemini.generateText === 'function') {
-                        try {
-                            const response = await window.gemini.generateText(prompt);
-                            return response.text;
-                        } catch (error) {
-                            console.error('Gemini API error:', error);
-                        }
-                    }
-                    
-                    if (typeof window.google !== 'undefined' && typeof window.google.generativeAI !== 'undefined') {
-                        try {
-                            const genAI = window.google.generativeAI;
-                            const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
-                            const result = await model.generateContent(prompt);
-                            return result.response.text();
-                        } catch (error) {
-                            console.error('Google Generative AI error:', error);
-                        }
-                    }
-                    
-                    if (typeof window.Gemini !== 'undefined' && typeof window.Gemini.generateText === 'function') {
-                        try {
-                            return await window.Gemini.generateText(prompt);
-                        } catch (error) {
-                            console.error('Gemini extension error:', error);
-                        }
-                    }
-                    
-                    throw new Error('Gemini AI not available');
-                }
-            }
-        };
 
         // Comprehensive chord database
         const chordDatabase = {
@@ -1086,222 +898,305 @@
             document.querySelector('.chord-type').textContent = type;
         }
 
-        function selectAIModel(model) {
-            if (!aiModels[model]) return;
-            
-            selectedAIModel = model;
-            
-            // Update UI
-            document.querySelectorAll('.model-option').forEach(option => {
-                option.classList.remove('active');
-            });
-            document.querySelector(`[data-model="${model}"]`).classList.add('active');
-            
-            updateAIStatus();
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
         }
 
-        function checkAIAvailability() {
-            Object.keys(aiModels).forEach(model => {
-                aiModels[model].available = aiModels[model].checkAvailability();
-            });
-        }
 
-        function updateAIStatus() {
-            const statusElement = document.getElementById('aiStatus');
-            const currentModel = aiModels[selectedAIModel];
-            
-            if (currentModel.available) {
-                statusElement.textContent = `${currentModel.name} AI available`;
-                statusElement.className = 'ai-status available';
-            } else {
-                statusElement.textContent = `${currentModel.name} AI not available`;
-                statusElement.className = 'ai-status unavailable';
-            }
-            
-            // Update model option styling
-            document.querySelectorAll('.model-option').forEach(option => {
-                const model = option.dataset.model;
-                if (aiModels[model].available) {
-                    option.classList.remove('disabled');
-                } else {
-                    option.classList.add('disabled');
-                }
-            });
-        }
-
-        function getBestAvailableModel() {
-            // Check if selected model is available
-            if (aiModels[selectedAIModel].available) {
-                return selectedAIModel;
-            }
-            
-            // Find first available model
-            for (const [model, config] of Object.entries(aiModels)) {
-                if (config.available) {
-                    return model;
-                }
-            }
-            
-            return null;
-        }
-
-        async function testAIConnectivity() {
-            const statusElement = document.getElementById('aiStatus');
-            statusElement.textContent = 'Testing AI connectivity...';
-            statusElement.className = 'ai-status';
-            
-            try {
-                checkAIAvailability();
-                updateAIStatus();
-                
-                // Test the selected model with a simple prompt
-                const bestModel = getBestAvailableModel();
-                if (bestModel) {
-                    const modelConfig = aiModels[bestModel];
-                    const testPrompt = 'Respond with just "OK" if you can see this message.';
-                    
-                    try {
-                        await modelConfig.generateInsights(testPrompt);
-                        statusElement.textContent = `${modelConfig.name} AI connected and ready`;
-                        statusElement.className = 'ai-status available';
-                    } catch (error) {
-                        statusElement.textContent = `${modelConfig.name} AI detected but not responding`;
-                        statusElement.className = 'ai-status unavailable';
-                    }
-                } else {
-                    statusElement.textContent = 'No AI models available';
-                    statusElement.className = 'ai-status unavailable';
-                }
-            } catch (error) {
-                statusElement.textContent = 'Error testing AI connectivity';
-                statusElement.className = 'ai-status unavailable';
-            }
-        }
-
-        async function getChordInsights() {
+        function showChordInfo() {
             if (!currentChord) return;
             
             const modal = document.getElementById('insightsModal');
             const modalChordName = document.getElementById('modalChordName');
             const modalBody = document.getElementById('modalBody');
             
-            modalChordName.textContent = `${currentChord.name} - AI Insights`;
+            modalChordName.textContent = `${currentChord.name} - Chord Information`;
             modal.style.display = 'block';
             
-            // Show loading state
-            modalBody.innerHTML = `
-                <div class="loading">
-                    <div class="loading-spinner"></div>
-                    <p>Getting AI insights for ${currentChord.name}...</p>
-                </div>
-            `;
-            
-            try {
-                // Check AI availability first
-                checkAIAvailability();
-                const bestModel = getBestAvailableModel();
-                
-                if (!bestModel) {
-                    throw new Error('No AI models available');
-                }
-                
-                // Use the best available model
-                const modelToUse = bestModel;
-                const modelConfig = aiModels[modelToUse];
-                
-                // Update loading message to show which AI is being used
-                modalBody.innerHTML = `
-                    <div class="loading">
-                        <div class="loading-spinner"></div>
-                        <p>Getting ${modelConfig.name} AI insights for ${currentChord.name}...</p>
-                    </div>
-                `;
-                
-                const prompt = `Provide detailed musical insights about the ${currentChord.name} chord. Please respond with a JSON object containing the following information:
+            // Get chord information from our database
+            const chordInfo = getChordInfo(currentChord);
 
-{
-  "characteristics": "Describe the sound characteristics and mood of this chord (warm, bright, tense, etc.)",
-  "keyAspects": "Key musical aspects and what makes this chord unique or interesting",
-  "commonUsage": "Where this chord is commonly used in music (genres, contexts, functions)",
-  "famousSongs": "3-4 famous songs (classic rock, pop, jazz, or other genres) that prominently feature this chord, with brief mentions of how it's used",
-  "progressions": "Common chord progressions that include this chord, with Roman numeral analysis where relevant",
-  "tips": "Practical tips for pianists on playing this chord, voicings, or musical applications"
-}
-
-Make the response informative but accessible to intermediate piano players. Focus on practical musical knowledge.`;
-
-                const response = await modelConfig.generateInsights(prompt);
-                const insights = JSON.parse(response);
-                
-                // Display the insights with model attribution
                 modalBody.innerHTML = `
                     <div class="insight-section">
-                        <h3>🤖 Generated by ${modelConfig.name} AI</h3>
-                        <p style="color: #7f8c8d; font-size: 0.9em; margin-bottom: 15px;">
-                            AI-powered musical analysis for ${currentChord.name}
-                        </p>
+                    <h3>🎹 Chord Structure</h3>
+                    <p><strong>Notas:</strong> ${chordInfo.notes || 'Información no disponible'}</p>
                     </div>
                     
                     <div class="insight-section">
                         <h3>🎵 Sound & Characteristics</h3>
-                        <p>${insights.characteristics}</p>
+                    <p>${chordInfo.characteristics}</p>
                     </div>
                     
                     <div class="insight-section">
                         <h3>🔍 Key Aspects</h3>
-                        <p>${insights.keyAspects}</p>
+                    <p>${chordInfo.keyAspects}</p>
                     </div>
                     
                     <div class="insight-section">
                         <h3>🎸 Common Usage</h3>
-                        <p>${insights.commonUsage}</p>
+                    <p>${chordInfo.commonUsage}</p>
                     </div>
                     
                     <div class="insight-section">
                         <h3>🎤 Famous Songs</h3>
-                        <p>${insights.famousSongs}</p>
+                    <p>${chordInfo.famousSongs}</p>
                     </div>
                     
                     <div class="insight-section">
                         <h3>🎼 Chord Progressions</h3>
-                        <p>${insights.progressions}</p>
+                    <p>${chordInfo.progressions}</p>
                     </div>
                     
                     <div class="insight-section">
                         <h3>💡 Piano Tips</h3>
-                        <p>${insights.tips}</p>
+                    <p>${chordInfo.tips}</p>
                     </div>
-                `;
-                
-            } catch (error) {
-                console.error('Error getting insights:', error);
-                
-                let errorMessage = 'Sorry, I couldn\'t generate insights for this chord at the moment.';
-                let suggestionMessage = '';
-                
-                if (error.message === 'No AI models available') {
-                    errorMessage = 'No AI models are currently available.';
-                    suggestionMessage = 'Please check if you have Claude AI or GPT extensions installed and enabled.';
-                } else if (error.message.includes('Claude AI not available')) {
-                    errorMessage = 'Claude AI is not available.';
-                    suggestionMessage = 'Try switching to GPT or install the Claude AI extension.';
-                } else if (error.message.includes('GPT AI not available')) {
-                    errorMessage = 'GPT AI is not available.';
-                    suggestionMessage = 'Try switching to Claude or install a GPT extension.';
-                }
-                
-                modalBody.innerHTML = `
+
                     <div class="insight-section">
-                        <h3>⚠️ AI Unavailable</h3>
-                        <p>${errorMessage}</p>
-                        ${suggestionMessage ? `<p style="color: #7f8c8d; font-size: 0.9em; margin-top: 10px;">${suggestionMessage}</p>` : ''}
-                        <p style="color: #7f8c8d; font-size: 0.9em; margin-top: 15px;">
-                            <strong>Manual Insight:</strong> The ${currentChord.name} chord is a ${getChordDescription(currentChord.type).toLowerCase()}. 
-                            Try experimenting with different voicings and inversions to discover its unique sound qualities!
-                        </p>
+                    <h3>🔎 Learn More</h3>
+                    <p>Want to know more about ${currentChord.name}? Check out these free resources:</p>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+                        <button onclick="openChordBook('${currentChord.name}')" class="clear-btn" style="padding:8px 14px; font-size:0.95em; background: #f8f9fa; color:#333; border:1px solid #ddd;">🎹 Piano Chords</button>
+                        <button onclick="openPerplexity('${currentChord.name}')" class="insights-btn active" style="padding:8px 14px; font-size:0.95em; background: #9c27b0; color: white;">🤖 Perplexity AI</button>
+                        <button onclick="openGrok('${currentChord.name}')" class="insights-btn active" style="padding:8px 14px; font-size:0.95em; background: #00bcd4; color: white;">🧠 Grok AI</button>
+                        <button onclick="openWikipedia('${currentChord.name}')" class="insights-btn active" style="padding:8px 14px; font-size:0.95em;">📖 Wikipedia</button>
+                        </div>
                     </div>
                 `;
+        }
+
+        // Chord information database
+        const chordInfoDatabase = {
+            // Major chords
+            'maj': {
+                notes: 'Tónica + 3M + 5',
+                characteristics: 'Bright, stable and consonant sound that forms the foundation of most Western music. It has a sense of resolution and completeness.',
+                keyAspects: 'The major third interval creates brightness and stability. Often called the "happy" chord.',
+                commonUsage: 'Used as tonic chords (I) in major keys, dominant chords (V) in other keys, and as stable harmonies in pop, rock, classical, and jazz.',
+                famousSongs: '"Let It Be" by The Beatles (C major), "Stairway to Heaven" by Led Zeppelin (A major), "Imagine" by John Lennon (C major).',
+                progressions: 'I-IV-V-I (the most common progression), I-vi-IV-V, I-V-vi-IV, ii-V-I (jazz turnaround).',
+                tips: 'Play root position first, then try first inversion (third in bass) for smoother voice leading. Add 6th for color or 9th for jazz feel.'
+            },
+            '': {
+                notes: 'Tónica + 3M + 5',
+                characteristics: 'Bright, stable and consonant sound that forms the foundation of most Western music. It has a sense of resolution and completeness.',
+                keyAspects: 'The major third interval creates brightness and stability. Often called the "happy" chord.',
+                commonUsage: 'Used as tonic chords (I) in major keys, dominant chords (V) in other keys, and as stable harmonies in pop, rock, classical, and jazz.',
+                famousSongs: '"Let It Be" by The Beatles (C major), "Stairway to Heaven" by Led Zeppelin (A major), "Imagine" by John Lennon (C major).',
+                progressions: 'I-IV-V-I (the most common progression), I-vi-IV-V, I-V-vi-IV, ii-V-I (jazz turnaround).',
+                tips: 'Play root position first, then try first inversion (third in bass) for smoother voice leading. Add 6th for color or 9th for jazz feel.'
+            },
+
+            // Minor chords
+            'm': {
+                notes: 'Tónica + 3m + 5',
+                characteristics: 'Darker, more emotional sound with a melancholic or serious quality. Less stable than major chords.',
+                keyAspects: 'The minor third creates emotional depth and tension. Often called the "sad" chord.',
+                commonUsage: 'Used as tonic chords (i) in minor keys, vi chords in major keys, and for emotional expression in ballads, rock, and classical.',
+                famousSongs: '"Stairway to Heaven" by Led Zeppelin (Am), "Nothing Else Matters" by Metallica (Em), "Hurt" by Johnny Cash (Am).',
+                progressions: 'i-IV-V-i (minor blues), i-iv-i (minor tonic), i-VI-III-VII (harmonic minor), vi-IV-I-V (pop ballad).',
+                tips: 'Try different voicings - root position, first inversion, or second inversion. Add 7th for more tension or 9th for jazz minor.'
+            },
+            'min': {
+                notes: 'Tónica + 3m + 5',
+                characteristics: 'Darker, more emotional sound with a melancholic or serious quality. Less stable than major chords.',
+                keyAspects: 'The minor third creates emotional depth and tension. Often called the "sad" chord.',
+                commonUsage: 'Used as tonic chords (i) in minor keys, vi chords in major keys, and for emotional expression in ballads, rock, and classical.',
+                famousSongs: '"Stairway to Heaven" by Led Zeppelin (Am), "Nothing Else Matters" by Metallica (Em), "Hurt" by Johnny Cash (Am).',
+                progressions: 'i-IV-V-i (minor blues), i-iv-i (minor tonic), i-VI-III-VII (harmonic minor), vi-IV-I-V (pop ballad).',
+                tips: 'Try different voicings - root position, first inversion, or second inversion. Add 7th for more tension or 9th for jazz minor.'
+            },
+            '-': {
+                notes: 'Tónica + 3m + 5',
+                characteristics: 'Darker, more emotional sound with a melancholic or serious quality. Less stable than major chords.',
+                keyAspects: 'The minor third creates emotional depth and tension. Often called the "sad" chord.',
+                commonUsage: 'Used as tonic chords (i) in minor keys, vi chords in major keys, and for emotional expression in ballads, rock, and classical.',
+                famousSongs: '"Stairway to Heaven" by Led Zeppelin (Am), "Nothing Else Matters" by Metallica (Em), "Hurt" by Johnny Cash (Am).',
+                progressions: 'i-IV-V-i (minor blues), i-iv-i (minor tonic), i-VI-III-VII (harmonic minor), vi-IV-I-V (pop ballad).',
+                tips: 'Try different voicings - root position, first inversion, or second inversion. Add 7th for more tension or 9th for jazz minor.'
+            },
+
+            // Dominant 7th
+            '7': {
+                notes: 'Tónica + 3M + 5 + 7m',
+                characteristics: 'Tense, directional sound that strongly pulls toward resolution. Has a bluesy, sophisticated quality.',
+                keyAspects: 'The minor seventh creates strong tension that demands resolution, usually to the tonic.',
+                commonUsage: 'Used as dominant chords (V7) in major keys, for blues progressions, and jazz harmony. Creates strong cadential movement.',
+                famousSongs: '"Hit the Road Jack" by Ray Charles (C7), "Satin Doll" by Duke Ellington (Bb7), "All Blues" by Miles Davis (Bb7).',
+                progressions: 'I7-IV7-V7-I7 (blues), ii7-V7-Imaj7 (jazz ii-V-I), V7-I (perfect cadence), I-VI7-II7-V7 (ragtime).',
+                tips: 'Emphasize the 7th and 3rd in your voicing. Try drop-2 voicings for jazz comping. Resolve the 7th down to the 3rd of the next chord.'
+            },
+
+            // Major 7th
+            'maj7': {
+                notes: 'Tónica + 3M + 5 + 7M',
+                characteristics: 'Smooth, sophisticated sound with a dreamy, suspended quality. Less tense than dominant 7th.',
+                keyAspects: 'The major seventh adds color and sophistication without strong directional pull.',
+                commonUsage: 'Used in jazz as tonic chords (Imaj7), pop for sophisticated harmony, and classical for added color.',
+                famousSongs: '"What a Wonderful World" by Louis Armstrong (Imaj7), "Autumn Leaves" by Joseph Kosma (Amaj7), "Blue Bossa" by Kenny Dorham (Cmaj7).',
+                progressions: 'Imaj7-vi7-ii7-V7 (jazz), Imaj7-IVmaj7-IImaj7-V7, I-VIImaj7-III7-VImaj7 (extended jazz).',
+                tips: 'Voice the major 7th on top for brightness. Try close voicings or spread voicings. Works well as polychords over other harmonies.'
+            },
+
+            // Minor 7th
+            'm7': {
+                notes: 'Tónica + 3m + 5 + 7m',
+                characteristics: 'Warm, relaxed sound with subtle tension. More sophisticated than plain minor.',
+                keyAspects: 'Combines minor triad with minor seventh for smooth, jazzy quality.',
+                commonUsage: 'Used as ii7 chords in major keys, i7 in minor keys, and for smooth jazz harmony.',
+                famousSongs: '"Take Five" by Dave Brubeck (Em7), "So What" by Miles Davis (Dm7), "Blue in Green" by Bill Evans (Am7).',
+                progressions: 'ii7-V7-Imaj7 (most common jazz progression), i7-iv7-VII7, Dm7-G7-Cmaj7 (classic ii-V-I).',
+                tips: 'Try shell voicings (root, 3rd, 7th) for comping. Use as passing chords between more stable harmonies.'
+            },
+
+            // Diminished
+            'dim': {
+                notes: 'Tónica + 3m + 5b',
+                characteristics: 'Unstable, tense sound with mysterious, dramatic quality. Highly dissonant.',
+                keyAspects: 'Symmetrical structure allows for multiple interpretations. Strong sense of needing resolution.',
+                commonUsage: 'Used as leading-tone chords (vii°) toward tonic, passing chords, and for dramatic effect.',
+                famousSongs: '"The Entertainer" by Scott Joplin (multiple dim chords), "Giant Steps" by John Coltrane (as passing chords), "Caravan" by Duke Ellington.',
+                progressions: 'vii°-I (authentic cadence in minor), I-II°-III-IV°-V, as passing chords between major/minor chords.',
+                tips: 'Play softly and resolve quickly. Try different inversions - each has different tension levels. Great for transitions.'
+            },
+
+            // Diminished 7th
+            'dim7': {
+                notes: 'Tónica + 3m + 5b + 7bb',
+                characteristics: 'Highly tense, ambiguous sound that can resolve to any chord a half-step away.',
+                keyAspects: 'Symmetrical structure (minor thirds) creates maximum tension and multiple resolution possibilities.',
+                commonUsage: 'Used as passing chords, for chromatic movement, and in classical and jazz for dramatic effect.',
+                famousSongs: '"Misty" by Erroll Garner (as passing chord), "Cherokee" by Ray Noble (chromatic approach), "Giant Steps" by John Coltrane.',
+                progressions: 'V7-#IV°7-#iv°7-iii7, as approach chords to any target, I7-II7-III7-IV7 (whole-tone scale).',
+                tips: 'Resolve to chords a half-step above or below. Try different voicings to emphasize different notes as resolution targets.'
+            },
+
+            // Minor 7th flat 5 (half-diminished)
+            'm7b5': {
+                notes: 'Tónica + 3m + 5b + 7m',
+                characteristics: 'Tense, sophisticated sound with bluesy and jazzy qualities. Less harsh than full diminished.',
+                keyAspects: 'Combines minor triad with diminished fifth and minor seventh. Creates strong pull toward resolution.',
+                commonUsage: 'Used as iiø7 in minor keys, for jazz harmony, and as passing chords.',
+                famousSongs: '"Autumn Leaves" by Joseph Kosma (Dø7), "There Will Never Be Another You" (iiø7-V7-i), "Stella by Starlight" (multiple ø7 chords).',
+                progressions: 'iiø7-V7-i (jazz minor), i-iiø7-V7-i, IV-VIIø7-III7-VI7 (harmonic minor).',
+                tips: 'Voice with the b5 on top for tension. Resolve 7th down to 3rd, b5 up to 5th. Essential for jazz harmony.'
+            },
+
+            // Augmented
+            'aug': {
+                notes: 'Tónica + 3M + 5#',
+                characteristics: 'Bright, ambiguous sound with floating, unresolved quality. Creates tension without direction.',
+                keyAspects: 'Symmetrical augmented fifth creates ambiguity - can sound like major or minor depending on context.',
+                commonUsage: 'Used as passing chords, for modulation, and in impressionist classical music.',
+                famousSongs: '"The Simpsons" theme (Caug as passing chord), "Giant Steps" by Coltrane (augmented approaches), "Black Narcissus" by Joe Henderson.',
+                progressions: 'I+ - #IV° - bVII, as passing between major chords, III+ - vi - IV (impressionist).',
+                tips: 'Use as approach chords to other harmonies. The augmented fifth can resolve up or down chromatically.'
+            },
+
+            // Suspended chords
+            'sus2': {
+                notes: 'Tónica + 2M + 5',
+                characteristics: 'Open, ethereal sound with subtle tension. Less directional than sus4.',
+                keyAspects: 'Replaces the third with a second, creating an open, ambiguous quality.',
+                commonUsage: 'Used in pop and rock for atmospheric sounds, as approach chords, and for modern harmony.',
+                famousSongs: '"Dust in the Wind" by Kansas (Gsus2), "Horse with No Name" by America (sus2 chords), "More Than Words" by Extreme.',
+                progressions: 'I-sus2-I (resolution), I-IIIsus2-IV-V, sus2 as passing chords between major/minor.',
+                tips: 'Resolve the 2nd up to 3rd for smooth resolution. Try adding 4th on top for 6/9 sound. Great for intros and bridges.'
+            },
+
+            'sus4': {
+                notes: 'Tónica + 4M + 5',
+                characteristics: 'Tense, anticipatory sound that strongly pulls toward resolution. More directional than sus2.',
+                keyAspects: 'Replaces the third with a fourth, creating strong tension that demands resolution.',
+                commonUsage: 'Used in rock, pop, and folk for rhythmic interest and as approach chords.',
+                famousSongs: '"Dream On" by Aerosmith (Dsus4), "Let It Be" by The Beatles (sus4 resolutions), "Under the Bridge" by Red Hot Chili Peppers.',
+                progressions: 'I-sus4-I (classic resolution), I-IV-sus4-IV-I, V-sus4-V-I, ii-sus4-ii-V.',
+                tips: 'Resolve the 4th down to 3rd for strong resolution. Use on beats 2 and 4 in rhythm. Add 7th for more tension.'
+            },
+
+            // 6th chords
+            '6': {
+                notes: 'Tónica + 3M + 5 + 6M',
+                characteristics: 'Bright, colorful sound with added sweetness and stability. More complex than major triad.',
+                keyAspects: 'Adds the sixth for color while maintaining major quality. Less tense than 7th chords.',
+                commonUsage: 'Used in classical music, jazz, and pop for added color and as tonic chords with sophistication.',
+                famousSongs: '"Michelle" by The Beatles (A6), "It Had to Be You" (6th chords in bridge), "My Funny Valentine" (6th approach).',
+                progressions: 'I6-IV-I, I6-ii7-V7-I, as substitute for I chord in major keys.',
+                tips: 'Try first inversion (6th in bass) for smoother voice leading. Use as approach to dominant chords.'
+            },
+
+            'm6': {
+                notes: 'Tónica + 3m + 5 + 6M',
+                characteristics: 'Rich, emotional sound with bittersweet quality. More complex than minor triad.',
+                keyAspects: 'Combines minor triad with major sixth for unique, melancholic color.',
+                commonUsage: 'Used in classical music, jazz, and as substitute for i chords in minor keys.',
+                famousSongs: '"Autumn Leaves" by Joseph Kosma (Am6), "Cry Me a River" by Arthur Hamilton, "Blackbird" by The Beatles.',
+                progressions: 'i6-VI7-V7-i, i6-iv-i, as passing chords in minor keys.',
+                tips: 'Voice the 6th on top for brightness. Try different inversions for color variations.'
+            },
+
+            // 9th chords
+            '9': {
+                notes: 'Tónica + 3M + 5 + 7m + 9M',
+                characteristics: 'Rich, complex sound with added tension and sophistication. Highly colorful.',
+                keyAspects: 'Adds the 9th (major ninth) for extended harmony. Creates lush, jazzy quality.',
+                commonUsage: 'Used in jazz and sophisticated pop as dominant chords with added color.',
+                famousSongs: '"Blue Bossa" by Kenny Dorham (9th chords), "So What" by Miles Davis (9ths), "Take Five" by Dave Brubeck.',
+                progressions: 'ii9-V9-Imaj7, I9-IV9-I9, as colorful substitutes for 7th chords.',
+                tips: 'Omit the 5th in voicings to avoid clutter. Try quartal voicings. Resolve 9th appropriately based on context.'
+            },
+
+            'm9': {
+                notes: 'Tónica + 3m + 5 + 7m + 9M',
+                characteristics: 'Smooth, sophisticated sound with subtle tension. More refined than m7.',
+                keyAspects: 'Combines minor 7th with major 9th for smooth, jazzy quality.',
+                commonUsage: 'Used in jazz as i9 chords, for sophisticated harmony, and as passing chords.',
+                famousSongs: '"There Will Never Be Another You" (minor 9ths), "Stella by Starlight", "My Funny Valentine".',
+                progressions: 'i9-iv9-VII9, ii9-V9-i9, as substitutes for iiø7-V7-i.',
+                tips: 'Voice the 9th on top for brightness. Try shell voicings with 9th added. Great for ballads.'
             }
+        };
+
+        function getChordInfo(chord) {
+            // Get the base chord type (remove root note)
+            const chordType = chord.type || '';
+
+            // Return chord info from database, or default to major chord info
+            return chordInfoDatabase[chordType] || chordInfoDatabase['maj'];
+        }
+
+        function openWikipedia(chordName) {
+            // Use Wikipedia search to find articles that mention this chord
+            // This will find music theory pages, song pages, or articles that reference the chord
+            const searchQuery = `"${chordName}" chord OR "${chordName}" music OR "${chordName}" harmony`;
+            const url = `https://en.wikipedia.org/w/index.php?search=${encodeURIComponent(searchQuery)}&title=Special%3ASearch&fulltext=1`;
+            window.open(url, '_blank');
+        }
+
+        function openChordBook(chordName) {
+            // Use pianochord.org to find piano chord diagrams directly
+            // Note: pianochord.org uses lowercase URLs
+            const url = `https://pianochord.org/${encodeURIComponent(chordName.toLowerCase())}.html`;
+            window.open(url, '_blank');
+        }
+
+        function openPerplexity(chordName) {
+            // Create a detailed prompt for Perplexity AI about piano chords
+            const prompt = `${chordName} acorde de piano. Características principales, consejos para piano, progresiones. Incluye nombres y notaciones alternativas`;
+            const url = `https://www.perplexity.ai/search?q=${encodeURIComponent(prompt)}`;
+            window.open(url, '_blank');
+        }
+
+        function openGrok(chordName) {
+            // Create a detailed prompt for Grok AI about piano chords
+            const prompt = `${chordName} acorde de piano. Características principales, consejos para piano, progresiones. Incluye nombres y notaciones alternativas`;
+            //const url = `https://x.com/i/grok?text=${encodeURIComponent(prompt)}`;
+            const url = `https://grok.com/?q=${encodeURIComponent(prompt)}`;
+            window.open(url, '_blank');
         }
 
         function closeModal() {
@@ -1323,23 +1218,8 @@ Make the response informative but accessible to intermediate piano players. Focu
             }
         });
 
-        // Initialize AI availability and UI
-        function initializeAI() {
-            checkAIAvailability();
-            updateAIStatus();
-            
-            // If selected model is not available, try to switch to an available one
-            if (!aiModels[selectedAIModel].available) {
-                const availableModel = getBestAvailableModel();
-                if (availableModel) {
-                    selectAIModel(availableModel);
-                }
-            }
-        }
-
-        // Initialize piano and AI
+        // Initialize piano
         createPiano();
-        initializeAI();
     </script>
 </body>
 </html>
