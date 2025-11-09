@@ -1075,7 +1075,9 @@
                 
                 // Black keys
                 const blackKeyPattern = [1, 3, 6, 8, 10]; // C#, D#, F#, G#, A#
-                const blackKeyPositions = [0, 1, 3, 4, 5]; // Positions relative to white keys
+                // Position represents the white key whose right border we center on
+                // C# after C (1), D# after D (2), F# after F (4), G# after G (5), A# after A (6)
+                const blackKeyPositions = [1, 2, 4, 5, 6];
                 
                 blackKeyPattern.forEach((noteIndex, i) => {
                     const key = document.createElement('div');
@@ -1090,9 +1092,8 @@
                     label.textContent = noteName;
                     key.appendChild(label);
                     
-                    // Position black keys between white keys
-                    const position = blackKeyPositions[i];
-                    key.style.left = `${(position * 52) + 37}px`;
+                    // Store position data for later calculation
+                    key.dataset.blackKeyPosition = blackKeyPositions[i];
                     
                     // Use a function that reads the current dataset.note value
                     key.addEventListener('click', function() {
@@ -1103,7 +1104,36 @@
                 
                 piano.appendChild(octaveDiv);
             }
+            
+            // Position black keys after all elements are in the DOM
+            requestAnimationFrame(() => {
+                positionBlackKeys();
+            });
         }
+        
+        function positionBlackKeys() {
+            const whiteKeys = document.querySelectorAll('.white-key');
+            const blackKeys = document.querySelectorAll('.black-key');
+            
+            if (whiteKeys.length === 0 || blackKeys.length === 0) return;
+            
+            // Get actual computed widths
+            const whiteKeyWidth = whiteKeys[0].offsetWidth;
+            const blackKeyWidth = blackKeys[0].offsetWidth;
+            
+            // Position each black key centered between white keys
+            // position represents which white key border to center on (0.5 = border between 1st and 2nd key)
+            blackKeys.forEach(key => {
+                const position = parseFloat(key.dataset.blackKeyPosition);
+                const leftPosition = (position * whiteKeyWidth) - (blackKeyWidth / 2);
+                key.style.left = `${leftPosition}px`;
+            });
+        }
+        
+        // Reposition on window resize for responsive behavior
+        window.addEventListener('resize', () => {
+            positionBlackKeys();
+        });
 
         function toggleNote(noteName, keyElement) {
             if (selectedNotes.has(noteName)) {
