@@ -85,6 +85,31 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
+        .language-toggle {
+            position: absolute;
+            top: 20px;
+            right: 140px;
+            padding: 8px 15px;
+            font-size: 1.5em;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            line-height: 1;
+        }
+
+        .language-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
         .notation-toggle {
             position: absolute;
             top: 20px;
@@ -491,6 +516,13 @@
                 font-size: 0.85em;
             }
             
+            .language-toggle {
+                top: 10px;
+                right: 80px;
+                padding: 6px 10px;
+                font-size: 1.2em;
+            }
+            
             .chord-input {
                 flex-direction: column;
                 align-items: center;
@@ -522,35 +554,36 @@
         <div class="header">
             <button class="notation-toggle" onclick="toggleNotation()">
                 <span id="notationIcon">🎵</span>
-                <span id="notationText">Do Re Mi</span>
+                <span id="notationText">C#, Eb</span>
             </button>
-            <h1>🎹 Piano Chord Helper</h1>
-            <button class="help-btn" onclick="showHelp()">❓ Help</button>
+            <h1 id="headerTitle">🎹 Piano Chord Helper</h1>
+            <button class="language-toggle" onclick="toggleLanguage()" id="languageBtn">🇪🇸</button>
+            <button class="help-btn" onclick="showHelp()" id="helpBtn">❓ Help</button>
         </div>
         
         <div class="content">
             <div class="chord-input-section">
-                <h2>Enter a Chord Name</h2>
+                <h2 id="chordInputTitle">Enter a Chord Name</h2>
                 <div class="chord-input">
                     <input type="text" id="chordInput" placeholder="e.g., Cmaj7, F#dim, Am" />
-                    <button onclick="findChord()">Show Chord</button>
+                    <button onclick="findChord()" id="showChordBtn">Show Chord</button>
                 </div>
             </div>
 
             <div class="piano-container">
-                <h2>Click the Keys</h2>
+                <h2 id="pianoTitle">Click the Keys</h2>
                 <div class="piano" id="piano"></div>
             </div>
 
             <div class="controls">
-                <button class="clear-btn" onclick="clearAll()">Clear All</button>
+                <button class="clear-btn" onclick="clearAll()" id="clearBtn">Clear All</button>
                 <button class="insights-btn active" id="insightsBtn" onclick="showChordInfo()">📚 Chord Info</button>
             </div>
 
             <div class="chord-info" id="chordInfo">
-                <div class="chord-name">Select notes or enter a chord name</div>
-                <div class="chord-notes">Click piano keys above or type a chord name</div>
-                <div class="chord-type">Ready to help you identify chords!</div>
+                <div class="chord-name" id="chordName">Select notes or enter a chord name</div>
+                <div class="chord-notes" id="chordNotes">Click piano keys above or type a chord name</div>
+                <div class="chord-type" id="chordType">Ready to help you identify chords!</div>
             </div>
         </div>
     </div>
@@ -558,41 +591,7 @@
     <!-- Modal for Help -->
     <div id="helpModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2>❓ How to Use</h2>
-                <button class="close" onclick="closeHelpModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="insight-section">
-                    <h3>🎵 Musical Notation</h3>
-                    <p>Click the "🎵 Do Re Mi" or "🎵 C D E" button in the top-left corner to switch between Italian notation (Do, Re, Mi, Fa, Sol, La, Si) and Anglo-Saxon notation (C, D, E, F, G, A, B). All labels, chord names, and input examples will update automatically!</p>
-                </div>
-                
-                <div class="insight-section">
-                    <h3>🎹 Identify Chords</h3>
-                    <p>Click on piano keys to select notes, and the chord name will appear below automatically.</p>
-                </div>
-                
-                <div class="insight-section">
-                    <h3>🔍 Find Chord Notes</h3>
-                    <p>Type a chord name in the input field and click "Show Chord" to see which keys to play. Examples: <strong>Cmaj7</strong>, <strong>F#dim</strong>, <strong>Am</strong> (Anglo-Saxon) or <strong>Domaj7</strong>, <strong>Fa#dim</strong>, <strong>Lam</strong> (Italian).</p>
-                </div>
-                
-                <div class="insight-section">
-                    <h3>📝 Supported Formats</h3>
-                    <p>Major, minor, diminished, augmented, suspended, power chords, and extended chords (7th, 9th, 11th, 13th) are all supported. Works with both notation systems!</p>
-                </div>
-                
-                <div class="insight-section">
-                    <h3>📚 Chord Information</h3>
-                    <p>Click "📚 Chord Info" button to learn about the chord's characteristics, usage in music, famous songs that use it, and tips for playing it on piano.</p>
-                </div>
-                
-                <div class="insight-section">
-                    <h3>🗑️ Clear Selection</h3>
-                    <p>Use the "Clear All" button to deselect all keys and start over with a fresh selection.</p>
-                </div>
-            </div>
+            <!-- Content will be generated dynamically by updateHelpModal() -->
         </div>
     </div>
 
@@ -614,6 +613,114 @@
 
     <script>
         const selectedNotes = new Set();
+        
+        // Language system
+        let currentLanguage = 'es'; // 'en' or 'es'
+        
+        const translations = {
+            en: {
+                headerTitle: 'Piano Chords',
+                helpBtn: 'Help',
+                chordInputTitle: 'Enter a Chord Name',
+                showChordBtn: 'Show Chord',
+                pianoTitle: 'Click the Keys',
+                clearBtn: 'Clear All',
+                insightsBtn: 'Chord Info',
+                defaultChordName: 'Select notes or enter a chord name',
+                defaultChordNotes: 'Click piano keys above or type a chord name',
+                defaultChordType: 'Ready to help you identify chords!',
+                placeholderAnglo: 'e.g., Cmaj7, F#dim, Am',
+                placeholderItalian: 'e.g., Domaj7, Fa#dim, Lam',
+                singleNote: 'Single note',
+                addMoreNotes: 'Add more notes to form a chord',
+                unknownChord: 'Unknown Chord',
+                notes: 'Notes',
+                noMatch: "This combination doesn't match a common chord pattern",
+                invalidChord: 'Invalid Chord',
+                isNotRecognized: 'is not recognized',
+                tryFormats: 'Try formats like: C, Cm, C7, Cmaj7, F#dim',
+                unknownChordType: 'Unknown Chord Type',
+                chordTypeNotFound: 'not found',
+                tryCommonTypes: 'Try common types like maj7, m, dim, sus4',
+                modalHelpTitle: 'How to Use',
+                helpNotation: '🎵 Musical Notation',
+                helpNotationText: 'Click the "🎵 Do#, Mib" or "🎵 C#, Eb" button in the top-left corner to switch between Italian notation (Do, Re, Mi, Fa, Sol, La, Si) and Anglo-Saxon notation (C, D, E, F, G, A, B). All labels, chord names, and input examples will update automatically!',
+                helpIdentify: 'Identify Chords',
+                helpIdentifyText: 'Click on piano keys to select notes, and the chord name will appear below automatically.',
+                helpFind: '🔍 Find Chord Notes',
+                helpFindText: 'Type a chord name in the input field and click "Show Chord" to see which keys to play. Examples: <strong>Cmaj7</strong>, <strong>F#dim</strong>, <strong>Am</strong> (Anglo-Saxon) or <strong>Domaj7</strong>, <strong>Fa#dim</strong>, <strong>Lam</strong> (Italian).',
+                helpFormats: '📝 Supported Formats',
+                helpFormatsText: 'Major, minor, diminished, augmented, suspended, power chords, and extended chords (7th, 9th, 11th, 13th) are all supported. Works with both notation systems!',
+                helpInfo: '📚 Chord Information',
+                helpInfoText: 'Click "Chord Info" button to learn about the chord\'s characteristics, usage in music, famous songs that use it, and tips for playing it on piano.',
+                helpClear: '🗑️ Clear Selection',
+                helpClearText: 'Use the "Clear All" button to deselect all keys and start over with a fresh selection.',
+                modalChordInfo: 'Chord Information',
+                chordStructure: '🎹 Chord Structure',
+                chordStructureNotes: 'Notes:',
+                soundCharacteristics: '🎵 Sound & Characteristics',
+                keyAspects: '🔍 Key Aspects',
+                commonUsage: '🎸 Common Usage',
+                famousSongs: '🎤 Famous Songs',
+                chordProgressions: '🎼 Chord Progressions',
+                pianoTips: '💡 Piano Tips',
+                learnMore: '🔎 Learn More',
+                learnMoreText: 'Want to know more about',
+                learnMoreResources: 'Check out these free resources:',
+                infoNotAvailable: 'Information not available'
+            },
+            es: {
+                headerTitle: 'Acordes de Piano',
+                helpBtn: 'Ayuda',
+                chordInputTitle: 'Introduce un Nombre de Acorde',
+                showChordBtn: 'Mostrar Acorde',
+                pianoTitle: 'Haz Clic en las Teclas',
+                clearBtn: 'Limpiar Todo',
+                insightsBtn: 'Info del Acorde',
+                defaultChordName: 'Selecciona notas o introduce un acorde',
+                defaultChordNotes: 'Haz clic en las teclas del piano o escribe un nombre de acorde',
+                defaultChordType: '¡Listo para ayudarte a identificar acordes!',
+                placeholderAnglo: 'ej., Cmaj7, F#dim, Am',
+                placeholderItalian: 'ej., Domaj7, Fa#dim, Lam',
+                singleNote: 'Nota individual',
+                addMoreNotes: 'Agrega más notas para formar un acorde',
+                unknownChord: 'Acorde Desconocido',
+                notes: 'Notas',
+                noMatch: 'Esta combinación no coincide con un patrón de acorde común',
+                invalidChord: 'Acorde Inválido',
+                isNotRecognized: 'no reconocido',
+                tryFormats: 'Intenta formatos como: Do, Dom, Do7, Domaj7, Fa#dim',
+                unknownChordType: 'Tipo de Acorde Desconocido',
+                chordTypeNotFound: 'no encontrado',
+                tryCommonTypes: 'Intenta tipos comunes como maj7, m, dim, sus4',
+                modalHelpTitle: 'Ayuda',
+                helpNotation: '🎵 Notación Musical',
+                helpNotationText: 'Haz clic en el botón "🎵 Do#, Mib" o "🎵 C#, Eb" en la esquina superior izquierda para cambiar entre notación italiana (Do, Re, Mi, Fa, Sol, La, Si) y notación anglosajona (C, D, E, F, G, A, B). ¡Todas las etiquetas, nombres de acordes y ejemplos se actualizarán automáticamente!',
+                helpIdentify: 'Identificar Acordes',
+                helpIdentifyText: 'Haz clic en las teclas del piano para seleccionar notas, y el nombre del acorde aparecerá automáticamente abajo.',
+                helpFind: '🔍 Encontrar Notas del Acorde',
+                helpFindText: 'Escribe el nombre de un acorde en el campo de entrada y haz clic en "Mostrar Acorde" para ver qué teclas tocar. Ejemplos: <strong>Cmaj7</strong>, <strong>F#dim</strong>, <strong>Am</strong> (Anglosajón) o <strong>Domaj7</strong>, <strong>Fa#dim</strong>, <strong>Lam</strong> (Italiano).',
+                helpFormats: '📝 Formatos Soportados',
+                helpFormatsText: 'Se admiten acordes mayores, menores, disminuidos, aumentados, suspendidos, power chords y acordes extendidos (7ª, 9ª, 11ª, 13ª). ¡Funciona con ambos sistemas de notación!',
+                helpInfo: '📚 Información del Acorde',
+                helpInfoText: 'Haz clic en el botón "Info del Acorde" para aprender sobre las características del acorde, su uso en la música, canciones famosas que lo utilizan y consejos para tocarlo en el piano.',
+                helpClear: '🗑️ Limpiar Selección',
+                helpClearText: 'Usa el botón "Limpiar Todo" para deseleccionar todas las teclas y comenzar de nuevo con una selección limpia.',
+                modalChordInfo: 'Información del Acorde',
+                chordStructure: '🎹 Estructura del Acorde',
+                chordStructureNotes: 'Notas:',
+                soundCharacteristics: '🎵 Sonido y Características',
+                keyAspects: '🔍 Aspectos Clave',
+                commonUsage: '🎸 Uso Común',
+                famousSongs: '🎤 Canciones Famosas',
+                chordProgressions: '🎼 Progresiones de Acordes',
+                pianoTips: '💡 Consejos para Piano',
+                learnMore: '🔎 Aprende Más',
+                learnMoreText: '¿Quieres saber más sobre',
+                learnMoreResources: 'Consulta estos recursos gratuitos:',
+                infoNotAvailable: 'Información no disponible'
+            }
+        };
         
         // Notation systems
         const notations = {
@@ -642,9 +749,91 @@
             'Si': 'B'
         };
         
-        let currentNotation = 'anglo'; // 'anglo' or 'italian'
-        let noteNames = [...notations.anglo];
+        let currentNotation = 'italian'; // 'anglo' or 'italian'
+        let noteNames = [...notations.italian];
         let currentChord = null;
+
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'en' ? 'es' : 'en';
+            updateLanguage();
+        }
+
+        function updateLanguage() {
+            const t = translations[currentLanguage];
+            
+            // Update language button
+            document.getElementById('languageBtn').textContent = currentLanguage === 'en' ? '🇪🇸' : '🇬🇧';
+            
+            // Update header
+            document.getElementById('headerTitle').textContent = t.headerTitle;
+            document.getElementById('helpBtn').textContent = t.helpBtn;
+            
+            // Update main sections
+            document.getElementById('chordInputTitle').textContent = t.chordInputTitle;
+            document.getElementById('showChordBtn').textContent = t.showChordBtn;
+            document.getElementById('pianoTitle').textContent = t.pianoTitle;
+            document.getElementById('clearBtn').textContent = t.clearBtn;
+            document.getElementById('insightsBtn').textContent = t.insightsBtn;
+            
+            // Update placeholder
+            const input = document.getElementById('chordInput');
+            input.placeholder = currentNotation === 'italian' ? t.placeholderItalian : t.placeholderAnglo;
+            
+            // Update default chord info if no chord is selected
+            if (selectedNotes.size === 0) {
+                updateChordInfo(t.defaultChordName, t.defaultChordNotes, t.defaultChordType);
+            } else {
+                // Re-identify current chord to update text
+                identifyChord();
+            }
+            
+            // Update help modal content
+            updateHelpModal();
+        }
+
+        function updateHelpModal() {
+            const t = translations[currentLanguage];
+            const helpModal = document.getElementById('helpModal');
+            const modalContent = helpModal.querySelector('.modal-content');
+            
+            modalContent.innerHTML = `
+                <div class="modal-header">
+                    <h2>${t.modalHelpTitle}</h2>
+                    <button class="close" onclick="closeHelpModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="insight-section">
+                        <h3>${t.helpNotation}</h3>
+                        <p>${t.helpNotationText}</p>
+                    </div>
+                    
+                    <div class="insight-section">
+                        <h3>${t.helpIdentify}</h3>
+                        <p>${t.helpIdentifyText}</p>
+                    </div>
+                    
+                    <div class="insight-section">
+                        <h3>${t.helpFind}</h3>
+                        <p>${t.helpFindText}</p>
+                    </div>
+                    
+                    <div class="insight-section">
+                        <h3>${t.helpFormats}</h3>
+                        <p>${t.helpFormatsText}</p>
+                    </div>
+                    
+                    <div class="insight-section">
+                        <h3>${t.helpInfo}</h3>
+                        <p>${t.helpInfoText}</p>
+                    </div>
+                    
+                    <div class="insight-section">
+                        <h3>${t.helpClear}</h3>
+                        <p>${t.helpClearText}</p>
+                    </div>
+                </div>
+            `;
+        }
 
         // Comprehensive chord database
         const chordDatabase = {
@@ -796,14 +985,15 @@
             
             // Update button text
             const notationText = document.getElementById('notationText');
-            notationText.textContent = currentNotation === 'anglo' ? 'Do Re Mi' : 'C D E';
+            notationText.textContent = currentNotation === 'anglo' ? 'Do#, Mib' : 'C#, Eb';
             
             // Update placeholder
+            const t = translations[currentLanguage];
             const input = document.getElementById('chordInput');
             if (currentNotation === 'italian') {
-                input.placeholder = 'ej., Domaj7, Fa#dim, Lam';
+                input.placeholder = t.placeholderItalian;
             } else {
-                input.placeholder = 'e.g., Cmaj7, F#dim, Am';
+                input.placeholder = t.placeholderAnglo;
             }
             
             // Update all piano key labels and reselect keys
@@ -929,12 +1119,10 @@
 
         function identifyChord() {
             const insightsBtn = document.getElementById('insightsBtn');
+            const t = translations[currentLanguage];
             
             if (selectedNotes.size === 0) {
-                const defaultTexts = currentNotation === 'italian' 
-                    ? ['Selecciona notas o introduce un acorde', 'Haz clic en las teclas del piano o escribe un nombre de acorde', '¡Listo para ayudarte a identificar acordes!']
-                    : ['Select notes or enter a chord name', 'Click piano keys above or type a chord name', 'Ready to help you identify chords!'];
-                updateChordInfo(...defaultTexts);
+                updateChordInfo(t.defaultChordName, t.defaultChordNotes, t.defaultChordType);
                 currentChord = null;
                 insightsBtn.classList.remove('active');
                 return;
@@ -948,9 +1136,7 @@
 
             if (noteIndexes.length < 2) {
                 const noteName = noteNames[noteIndexes[0]];
-                const singleNoteText = currentNotation === 'italian' ? 'Nota individual' : 'Single note';
-                const addMoreText = currentNotation === 'italian' ? 'Agrega más notas para formar un acorde' : 'Add more notes to form a chord';
-                updateChordInfo(noteName, singleNoteText, addMoreText);
+                updateChordInfo(noteName, t.singleNote, t.addMoreNotes);
                 currentChord = null;
                 insightsBtn.classList.remove('active');
                 return;
@@ -983,9 +1169,8 @@
                 const chordName = rootNote + chordType;
                 const notes = foundChord.intervals.map(interval => noteNames[(foundChord.root + interval) % 12]).join(', ');
                 const description = getChordDescription(chordType);
-                const notesLabel = currentNotation === 'italian' ? 'Notas' : 'Notes';
                 
-                updateChordInfo(chordName, `${notesLabel}: ${notes}`, description);
+                updateChordInfo(chordName, `${t.notes}: ${notes}`, description);
                 
                 // Store the chord with the anglo root for internal processing
                 const angloNoteNames = notations.anglo;
@@ -994,12 +1179,7 @@
                 insightsBtn.classList.add('active');
             } else {
                 const notes = noteIndexes.map(note => noteNames[note]).join(', ');
-                const unknownText = currentNotation === 'italian' ? 'Acorde Desconocido' : 'Unknown Chord';
-                const notesLabel = currentNotation === 'italian' ? 'Notas' : 'Notes';
-                const noMatchText = currentNotation === 'italian' 
-                    ? 'Esta combinación no coincide con un patrón de acorde común'
-                    : 'This combination doesn\'t match a common chord pattern';
-                updateChordInfo(unknownText, `${notesLabel}: ${notes}`, noMatchText);
+                updateChordInfo(t.unknownChord, `${t.notes}: ${notes}`, t.noMatch);
                 currentChord = null;
                 insightsBtn.classList.remove('active');
             }
@@ -1059,15 +1239,13 @@
         function findChord() {
             const input = document.getElementById('chordInput').value.trim();
             const insightsBtn = document.getElementById('insightsBtn');
+            const t = translations[currentLanguage];
             
             if (!input) return;
 
             const result = parseChordName(input);
             if (!result) {
-                const exampleText = currentNotation === 'italian' 
-                    ? 'Intenta formatos como: Do, Dom, Do7, Domaj7, Fa#dim'
-                    : 'Try formats like: C, Cm, C7, Cmaj7, F#dim';
-                updateChordInfo('Invalid Chord', `"${input}" is not recognized`, exampleText);
+                updateChordInfo(t.invalidChord, `"${input}" ${t.isNotRecognized}`, t.tryFormats);
                 currentChord = null;
                 insightsBtn.classList.remove('active');
                 return;
@@ -1111,15 +1289,11 @@
                 const rootDisplay = currentNotation === 'italian' ? (angloToItalian[root] || root) : root;
                 const chordName = rootDisplay + chordType;
                 const description = getChordDescription(chordType);
-                const notesLabel = currentNotation === 'italian' ? 'Notas' : 'Notes';
-                updateChordInfo(chordName, `${notesLabel}: ${chordNotesDisplay.join(', ')}`, description);
+                updateChordInfo(chordName, `${t.notes}: ${chordNotesDisplay.join(', ')}`, description);
                 currentChord = { name: chordName, root: root, type: chordType };
                 insightsBtn.classList.add('active');
             } else {
-                const errorText = currentNotation === 'italian'
-                    ? 'Intenta tipos comunes como maj7, m, dim, sus4'
-                    : 'Try common types like maj7, m, dim, sus4';
-                updateChordInfo('Unknown Chord Type', `Chord type "${chordType}" not found`, errorText);
+                updateChordInfo(t.unknownChordType, `${t.chordTypeNotFound} "${chordType}"`, t.tryCommonTypes);
                 currentChord = null;
                 insightsBtn.classList.remove('active');
             }
@@ -1166,12 +1340,10 @@
         }
 
         function clearAll() {
+            const t = translations[currentLanguage];
             clearSelection();
             document.getElementById('chordInput').value = '';
-            const defaultTexts = currentNotation === 'italian' 
-                ? ['Selecciona notas o introduce un acorde', 'Haz clic en las teclas del piano o escribe un nombre de acorde', '¡Listo para ayudarte a identificar acordes!']
-                : ['Select notes or enter a chord name', 'Click piano keys above or type a chord name', 'Ready to help you identify chords!'];
-            updateChordInfo(...defaultTexts);
+            updateChordInfo(t.defaultChordName, t.defaultChordNotes, t.defaultChordType);
             currentChord = null;
             document.getElementById('insightsBtn').classList.remove('active');
         }
@@ -1201,11 +1373,12 @@
         function showChordInfo() {
             if (!currentChord) return;
             
+            const t = translations[currentLanguage];
             const modal = document.getElementById('insightsModal');
             const modalChordName = document.getElementById('modalChordName');
             const modalBody = document.getElementById('modalBody');
             
-            modalChordName.textContent = `${currentChord.name} - Chord Information`;
+            modalChordName.textContent = `${currentChord.name} - ${t.modalChordInfo}`;
             modal.style.display = 'block';
             
             // Get chord information from our database
@@ -1213,43 +1386,43 @@
 
                 modalBody.innerHTML = `
                     <div class="insight-section">
-                    <h3>🎹 Chord Structure</h3>
-                    <p><strong>Notas:</strong> ${chordInfo.notes || 'Información no disponible'}</p>
+                    <h3>${t.chordStructure}</h3>
+                    <p><strong>${t.chordStructureNotes}</strong> ${chordInfo.notes || t.infoNotAvailable}</p>
                     </div>
                     
                     <div class="insight-section">
-                        <h3>🎵 Sound & Characteristics</h3>
+                        <h3>${t.soundCharacteristics}</h3>
                     <p>${chordInfo.characteristics}</p>
                     </div>
                     
                     <div class="insight-section">
-                        <h3>🔍 Key Aspects</h3>
+                        <h3>${t.keyAspects}</h3>
                     <p>${chordInfo.keyAspects}</p>
                     </div>
                     
                     <div class="insight-section">
-                        <h3>🎸 Common Usage</h3>
+                        <h3>${t.commonUsage}</h3>
                     <p>${chordInfo.commonUsage}</p>
                     </div>
                     
                     <div class="insight-section">
-                        <h3>🎤 Famous Songs</h3>
+                        <h3>${t.famousSongs}</h3>
                     <p>${chordInfo.famousSongs}</p>
                     </div>
                     
                     <div class="insight-section">
-                        <h3>🎼 Chord Progressions</h3>
+                        <h3>${t.chordProgressions}</h3>
                     <p>${chordInfo.progressions}</p>
                     </div>
                     
                     <div class="insight-section">
-                        <h3>💡 Piano Tips</h3>
+                        <h3>${t.pianoTips}</h3>
                     <p>${chordInfo.tips}</p>
                     </div>
 
                     <div class="insight-section">
-                    <h3>🔎 Learn More</h3>
-                    <p>Want to know more about ${currentChord.name}? Check out these free resources:</p>
+                    <h3>${t.learnMore}</h3>
+                    <p>${t.learnMoreText} ${currentChord.name}? ${t.learnMoreResources}</p>
                     <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
                         <button onclick="openChordBook('${currentChord.name}')" class="clear-btn" style="padding:8px 14px; font-size:0.95em; background: #f8f9fa; color:#333; border:1px solid #ddd;">🎹 Piano Chords</button>
                         <button onclick="openPerplexity('${currentChord.name}')" class="insights-btn active" style="padding:8px 14px; font-size:0.95em; background: #9c27b0; color: white;">🤖 Perplexity AI</button>
@@ -1260,11 +1433,11 @@
                 `;
         }
 
-        // Chord information database
-        const chordInfoDatabase = {
+        // Chord information database - English
+        const chordInfoDatabase_en = {
             // Major chords
             'maj': {
-                notes: 'Tónica + 3M + 5',
+                notes: 'Root + 3M + 5',
                 characteristics: 'Bright, stable and consonant sound that forms the foundation of most Western music. It has a sense of resolution and completeness.',
                 keyAspects: 'The major third interval creates brightness and stability. Often called the "happy" chord.',
                 commonUsage: 'Used as tonic chords (I) in major keys, dominant chords (V) in other keys, and as stable harmonies in pop, rock, classical, and jazz.',
@@ -1273,7 +1446,7 @@
                 tips: 'Play root position first, then try first inversion (third in bass) for smoother voice leading. Add 6th for color or 9th for jazz feel.'
             },
             '': {
-                notes: 'Tónica + 3M + 5',
+                notes: 'Root + 3M + 5',
                 characteristics: 'Bright, stable and consonant sound that forms the foundation of most Western music. It has a sense of resolution and completeness.',
                 keyAspects: 'The major third interval creates brightness and stability. Often called the "happy" chord.',
                 commonUsage: 'Used as tonic chords (I) in major keys, dominant chords (V) in other keys, and as stable harmonies in pop, rock, classical, and jazz.',
@@ -1284,7 +1457,7 @@
 
             // Minor chords
             'm': {
-                notes: 'Tónica + 3m + 5',
+                notes: 'Root + 3m + 5',
                 characteristics: 'Darker, more emotional sound with a melancholic or serious quality. Less stable than major chords.',
                 keyAspects: 'The minor third creates emotional depth and tension. Often called the "sad" chord.',
                 commonUsage: 'Used as tonic chords (i) in minor keys, vi chords in major keys, and for emotional expression in ballads, rock, and classical.',
@@ -1293,7 +1466,7 @@
                 tips: 'Try different voicings - root position, first inversion, or second inversion. Add 7th for more tension or 9th for jazz minor.'
             },
             'min': {
-                notes: 'Tónica + 3m + 5',
+                notes: 'Root + 3m + 5',
                 characteristics: 'Darker, more emotional sound with a melancholic or serious quality. Less stable than major chords.',
                 keyAspects: 'The minor third creates emotional depth and tension. Often called the "sad" chord.',
                 commonUsage: 'Used as tonic chords (i) in minor keys, vi chords in major keys, and for emotional expression in ballads, rock, and classical.',
@@ -1302,7 +1475,7 @@
                 tips: 'Try different voicings - root position, first inversion, or second inversion. Add 7th for more tension or 9th for jazz minor.'
             },
             '-': {
-                notes: 'Tónica + 3m + 5',
+                notes: 'Root + 3m + 5',
                 characteristics: 'Darker, more emotional sound with a melancholic or serious quality. Less stable than major chords.',
                 keyAspects: 'The minor third creates emotional depth and tension. Often called the "sad" chord.',
                 commonUsage: 'Used as tonic chords (i) in minor keys, vi chords in major keys, and for emotional expression in ballads, rock, and classical.',
@@ -1313,7 +1486,7 @@
 
             // Dominant 7th
             '7': {
-                notes: 'Tónica + 3M + 5 + 7m',
+                notes: 'Root + 3M + 5 + 7m',
                 characteristics: 'Tense, directional sound that strongly pulls toward resolution. Has a bluesy, sophisticated quality.',
                 keyAspects: 'The minor seventh creates strong tension that demands resolution, usually to the tonic.',
                 commonUsage: 'Used as dominant chords (V7) in major keys, for blues progressions, and jazz harmony. Creates strong cadential movement.',
@@ -1324,7 +1497,7 @@
 
             // Major 7th
             'maj7': {
-                notes: 'Tónica + 3M + 5 + 7M',
+                notes: 'Root + 3M + 5 + 7M',
                 characteristics: 'Smooth, sophisticated sound with a dreamy, suspended quality. Less tense than dominant 7th.',
                 keyAspects: 'The major seventh adds color and sophistication without strong directional pull.',
                 commonUsage: 'Used in jazz as tonic chords (Imaj7), pop for sophisticated harmony, and classical for added color.',
@@ -1335,7 +1508,7 @@
 
             // Minor 7th
             'm7': {
-                notes: 'Tónica + 3m + 5 + 7m',
+                notes: 'Root + 3m + 5 + 7m',
                 characteristics: 'Warm, relaxed sound with subtle tension. More sophisticated than plain minor.',
                 keyAspects: 'Combines minor triad with minor seventh for smooth, jazzy quality.',
                 commonUsage: 'Used as ii7 chords in major keys, i7 in minor keys, and for smooth jazz harmony.',
@@ -1346,7 +1519,7 @@
 
             // Diminished
             'dim': {
-                notes: 'Tónica + 3m + 5b',
+                notes: 'Root + 3m + 5b',
                 characteristics: 'Unstable, tense sound with mysterious, dramatic quality. Highly dissonant.',
                 keyAspects: 'Symmetrical structure allows for multiple interpretations. Strong sense of needing resolution.',
                 commonUsage: 'Used as leading-tone chords (vii°) toward tonic, passing chords, and for dramatic effect.',
@@ -1357,7 +1530,7 @@
 
             // Diminished 7th
             'dim7': {
-                notes: 'Tónica + 3m + 5b + 7bb',
+                notes: 'Root + 3m + 5b + 7bb',
                 characteristics: 'Highly tense, ambiguous sound that can resolve to any chord a half-step away.',
                 keyAspects: 'Symmetrical structure (minor thirds) creates maximum tension and multiple resolution possibilities.',
                 commonUsage: 'Used as passing chords, for chromatic movement, and in classical and jazz for dramatic effect.',
@@ -1368,7 +1541,7 @@
 
             // Minor 7th flat 5 (half-diminished)
             'm7b5': {
-                notes: 'Tónica + 3m + 5b + 7m',
+                notes: 'Root + 3m + 5b + 7m',
                 characteristics: 'Tense, sophisticated sound with bluesy and jazzy qualities. Less harsh than full diminished.',
                 keyAspects: 'Combines minor triad with diminished fifth and minor seventh. Creates strong pull toward resolution.',
                 commonUsage: 'Used as iiø7 in minor keys, for jazz harmony, and as passing chords.',
@@ -1379,7 +1552,7 @@
 
             // Augmented
             'aug': {
-                notes: 'Tónica + 3M + 5#',
+                notes: 'Root + 3M + 5#',
                 characteristics: 'Bright, ambiguous sound with floating, unresolved quality. Creates tension without direction.',
                 keyAspects: 'Symmetrical augmented fifth creates ambiguity - can sound like major or minor depending on context.',
                 commonUsage: 'Used as passing chords, for modulation, and in impressionist classical music.',
@@ -1390,7 +1563,7 @@
 
             // Suspended chords
             'sus2': {
-                notes: 'Tónica + 2M + 5',
+                notes: 'Root + 2M + 5',
                 characteristics: 'Open, ethereal sound with subtle tension. Less directional than sus4.',
                 keyAspects: 'Replaces the third with a second, creating an open, ambiguous quality.',
                 commonUsage: 'Used in pop and rock for atmospheric sounds, as approach chords, and for modern harmony.',
@@ -1400,7 +1573,7 @@
             },
 
             'sus4': {
-                notes: 'Tónica + 4M + 5',
+                notes: 'Root + 4M + 5',
                 characteristics: 'Tense, anticipatory sound that strongly pulls toward resolution. More directional than sus2.',
                 keyAspects: 'Replaces the third with a fourth, creating strong tension that demands resolution.',
                 commonUsage: 'Used in rock, pop, and folk for rhythmic interest and as approach chords.',
@@ -1411,7 +1584,7 @@
 
             // 6th chords
             '6': {
-                notes: 'Tónica + 3M + 5 + 6M',
+                notes: 'Root + 3M + 5 + 6M',
                 characteristics: 'Bright, colorful sound with added sweetness and stability. More complex than major triad.',
                 keyAspects: 'Adds the sixth for color while maintaining major quality. Less tense than 7th chords.',
                 commonUsage: 'Used in classical music, jazz, and pop for added color and as tonic chords with sophistication.',
@@ -1421,7 +1594,7 @@
             },
 
             'm6': {
-                notes: 'Tónica + 3m + 5 + 6M',
+                notes: 'Root + 3m + 5 + 6M',
                 characteristics: 'Rich, emotional sound with bittersweet quality. More complex than minor triad.',
                 keyAspects: 'Combines minor triad with major sixth for unique, melancholic color.',
                 commonUsage: 'Used in classical music, jazz, and as substitute for i chords in minor keys.',
@@ -1432,7 +1605,7 @@
 
             // 9th chords
             '9': {
-                notes: 'Tónica + 3M + 5 + 7m + 9M',
+                notes: 'Root + 3M + 5 + 7m + 9M',
                 characteristics: 'Rich, complex sound with added tension and sophistication. Highly colorful.',
                 keyAspects: 'Adds the 9th (major ninth) for extended harmony. Creates lush, jazzy quality.',
                 commonUsage: 'Used in jazz and sophisticated pop as dominant chords with added color.',
@@ -1442,7 +1615,7 @@
             },
 
             'm9': {
-                notes: 'Tónica + 3m + 5 + 7m + 9M',
+                notes: 'Root + 3m + 5 + 7m + 9M',
                 characteristics: 'Smooth, sophisticated sound with subtle tension. More refined than m7.',
                 keyAspects: 'Combines minor 7th with major 9th for smooth, jazzy quality.',
                 commonUsage: 'Used in jazz as i9 chords, for sophisticated harmony, and as passing chords.',
@@ -1452,12 +1625,207 @@
             }
         };
 
+        // Chord information database - Spanish
+        const chordInfoDatabase_es = {
+            // Major chords
+            'maj': {
+                notes: 'Tónica + 3M + 5',
+                characteristics: 'Sonido brillante, estable y consonante que forma la base de la mayoría de la música occidental. Tiene una sensación de resolución y completitud.',
+                keyAspects: 'El intervalo de tercera mayor crea brillo y estabilidad. A menudo llamado el acorde "feliz".',
+                commonUsage: 'Usado como acordes tónicos (I) en tonalidades mayores, acordes dominantes (V) en otras tonalidades, y como armonías estables en pop, rock, clásica y jazz.',
+                famousSongs: '"Let It Be" de The Beatles (Do mayor), "Stairway to Heaven" de Led Zeppelin (La mayor), "Imagine" de John Lennon (Do mayor).',
+                progressions: 'I-IV-V-I (la progresión más común), I-vi-IV-V, I-V-vi-IV, ii-V-I (turnaround de jazz).',
+                tips: 'Toca primero la posición fundamental, luego prueba la primera inversión (tercera en el bajo) para una conducción de voces más suave. Añade la 6ª para color o la 9ª para un aire jazz.'
+            },
+            '': {
+                notes: 'Tónica + 3M + 5',
+                characteristics: 'Sonido brillante, estable y consonante que forma la base de la mayoría de la música occidental. Tiene una sensación de resolución y completitud.',
+                keyAspects: 'El intervalo de tercera mayor crea brillo y estabilidad. A menudo llamado el acorde "feliz".',
+                commonUsage: 'Usado como acordes tónicos (I) en tonalidades mayores, acordes dominantes (V) en otras tonalidades, y como armonías estables en pop, rock, clásica y jazz.',
+                famousSongs: '"Let It Be" de The Beatles (Do mayor), "Stairway to Heaven" de Led Zeppelin (La mayor), "Imagine" de John Lennon (Do mayor).',
+                progressions: 'I-IV-V-I (la progresión más común), I-vi-IV-V, I-V-vi-IV, ii-V-I (turnaround de jazz).',
+                tips: 'Toca primero la posición fundamental, luego prueba la primera inversión (tercera en el bajo) para una conducción de voces más suave. Añade la 6ª para color o la 9ª para un aire jazz.'
+            },
+
+            // Minor chords
+            'm': {
+                notes: 'Tónica + 3m + 5',
+                characteristics: 'Sonido más oscuro y emocional con una cualidad melancólica o seria. Menos estable que los acordes mayores.',
+                keyAspects: 'La tercera menor crea profundidad emocional y tensión. A menudo llamado el acorde "triste".',
+                commonUsage: 'Usado como acordes tónicos (i) en tonalidades menores, acordes vi en tonalidades mayores, y para expresión emocional en baladas, rock y clásica.',
+                famousSongs: '"Stairway to Heaven" de Led Zeppelin (Lam), "Nothing Else Matters" de Metallica (Mim), "Hurt" de Johnny Cash (Lam).',
+                progressions: 'i-IV-V-i (blues menor), i-iv-i (tónica menor), i-VI-III-VII (menor armónico), vi-IV-I-V (balada pop).',
+                tips: 'Prueba diferentes posiciones: fundamental, primera inversión o segunda inversión. Añade la 7ª para más tensión o la 9ª para menor jazz.'
+            },
+            'min': {
+                notes: 'Tónica + 3m + 5',
+                characteristics: 'Sonido más oscuro y emocional con una cualidad melancólica o seria. Menos estable que los acordes mayores.',
+                keyAspects: 'La tercera menor crea profundidad emocional y tensión. A menudo llamado el acorde "triste".',
+                commonUsage: 'Usado como acordes tónicos (i) en tonalidades menores, acordes vi en tonalidades mayores, y para expresión emocional en baladas, rock y clásica.',
+                famousSongs: '"Stairway to Heaven" de Led Zeppelin (Lam), "Nothing Else Matters" de Metallica (Mim), "Hurt" de Johnny Cash (Lam).',
+                progressions: 'i-IV-V-i (blues menor), i-iv-i (tónica menor), i-VI-III-VII (menor armónico), vi-IV-I-V (balada pop).',
+                tips: 'Prueba diferentes posiciones: fundamental, primera inversión o segunda inversión. Añade la 7ª para más tensión o la 9ª para menor jazz.'
+            },
+            '-': {
+                notes: 'Tónica + 3m + 5',
+                characteristics: 'Sonido más oscuro y emocional con una cualidad melancólica o seria. Menos estable que los acordes mayores.',
+                keyAspects: 'La tercera menor crea profundidad emocional y tensión. A menudo llamado el acorde "triste".',
+                commonUsage: 'Usado como acordes tónicos (i) en tonalidades menores, acordes vi en tonalidades mayores, y para expresión emocional en baladas, rock y clásica.',
+                famousSongs: '"Stairway to Heaven" de Led Zeppelin (Lam), "Nothing Else Matters" de Metallica (Mim), "Hurt" de Johnny Cash (Lam).',
+                progressions: 'i-IV-V-i (blues menor), i-iv-i (tónica menor), i-VI-III-VII (menor armónico), vi-IV-I-V (balada pop).',
+                tips: 'Prueba diferentes posiciones: fundamental, primera inversión o segunda inversión. Añade la 7ª para más tensión o la 9ª para menor jazz.'
+            },
+
+            // Dominant 7th
+            '7': {
+                notes: 'Tónica + 3M + 5 + 7m',
+                characteristics: 'Sonido tenso y direccional que tira fuertemente hacia la resolución. Tiene una cualidad bluesy y sofisticada.',
+                keyAspects: 'La séptima menor crea una tensión fuerte que exige resolución, usualmente hacia la tónica.',
+                commonUsage: 'Usado como acordes dominantes (V7) en tonalidades mayores, para progresiones de blues y armonía jazz. Crea fuerte movimiento cadencial.',
+                famousSongs: '"Hit the Road Jack" de Ray Charles (Do7), "Satin Doll" de Duke Ellington (Sib7), "All Blues" de Miles Davis (Sib7).',
+                progressions: 'I7-IV7-V7-I7 (blues), ii7-V7-Imaj7 (ii-V-I de jazz), V7-I (cadencia perfecta), I-VI7-II7-V7 (ragtime).',
+                tips: 'Enfatiza la 7ª y la 3ª en tu disposición. Prueba drop-2 para acompañamiento jazz. Resuelve la 7ª bajando a la 3ª del siguiente acorde.'
+            },
+
+            // Major 7th
+            'maj7': {
+                notes: 'Tónica + 3M + 5 + 7M',
+                characteristics: 'Sonido suave y sofisticado con una cualidad soñadora y suspendida. Menos tenso que la séptima dominante.',
+                keyAspects: 'La séptima mayor añade color y sofisticación sin fuerte atracción direccional.',
+                commonUsage: 'Usado en jazz como acordes tónicos (Imaj7), en pop para armonía sofisticada, y en clásica para añadir color.',
+                famousSongs: '"What a Wonderful World" de Louis Armstrong (Imaj7), "Autumn Leaves" de Joseph Kosma (Lamaj7), "Blue Bossa" de Kenny Dorham (Domaj7).',
+                progressions: 'Imaj7-vi7-ii7-V7 (jazz), Imaj7-IVmaj7-IImaj7-V7, I-VIImaj7-III7-VImaj7 (jazz extendido).',
+                tips: 'Coloca la 7ª mayor arriba para brillo. Prueba disposiciones cerradas o abiertas. Funciona bien como policordios sobre otras armonías.'
+            },
+
+            // Minor 7th
+            'm7': {
+                notes: 'Tónica + 3m + 5 + 7m',
+                characteristics: 'Sonido cálido y relajado con tensión sutil. Más sofisticado que el menor simple.',
+                keyAspects: 'Combina tríada menor con séptima menor para una cualidad suave y jazzy.',
+                commonUsage: 'Usado como acordes ii7 en tonalidades mayores, i7 en tonalidades menores, y para armonía jazz suave.',
+                famousSongs: '"Take Five" de Dave Brubeck (Mim7), "So What" de Miles Davis (Rem7), "Blue in Green" de Bill Evans (Lam7).',
+                progressions: 'ii7-V7-Imaj7 (progresión jazz más común), i7-iv7-VII7, Rem7-Sol7-Domaj7 (ii-V-I clásico).',
+                tips: 'Prueba shell voicings (tónica, 3ª, 7ª) para acompañamiento. Usa como acordes de paso entre armonías más estables.'
+            },
+
+            // Diminished
+            'dim': {
+                notes: 'Tónica + 3m + 5b',
+                characteristics: 'Sonido inestable y tenso con cualidad misteriosa y dramática. Altamente disonante.',
+                keyAspects: 'La estructura simétrica permite múltiples interpretaciones. Fuerte sensación de necesitar resolución.',
+                commonUsage: 'Usado como acordes de sensible (vii°) hacia la tónica, acordes de paso, y para efecto dramático.',
+                famousSongs: '"The Entertainer" de Scott Joplin (múltiples acordes dim), "Giant Steps" de John Coltrane (como acordes de paso), "Caravan" de Duke Ellington.',
+                progressions: 'vii°-I (cadencia auténtica en menor), I-II°-III-IV°-V, como acordes de paso entre acordes mayores/menores.',
+                tips: 'Toca suavemente y resuelve rápido. Prueba diferentes inversiones - cada una tiene diferentes niveles de tensión. Genial para transiciones.'
+            },
+
+            // Diminished 7th
+            'dim7': {
+                notes: 'Tónica + 3m + 5b + 7bb',
+                characteristics: 'Sonido altamente tenso y ambiguo que puede resolver a cualquier acorde a medio tono de distancia.',
+                keyAspects: 'La estructura simétrica (terceras menores) crea máxima tensión y múltiples posibilidades de resolución.',
+                commonUsage: 'Usado como acordes de paso, para movimiento cromático, y en clásica y jazz para efecto dramático.',
+                famousSongs: '"Misty" de Erroll Garner (como acorde de paso), "Cherokee" de Ray Noble (aproximación cromática), "Giant Steps" de John Coltrane.',
+                progressions: 'V7-#IV°7-#iv°7-iii7, como acordes de aproximación a cualquier objetivo, I7-II7-III7-IV7 (escala de tonos enteros).',
+                tips: 'Resuelve a acordes a medio tono arriba o abajo. Prueba diferentes disposiciones para enfatizar diferentes notas como objetivos de resolución.'
+            },
+
+            // Minor 7th flat 5 (half-diminished)
+            'm7b5': {
+                notes: 'Tónica + 3m + 5b + 7m',
+                characteristics: 'Sonido tenso y sofisticado con cualidades bluesy y jazzy. Menos áspero que el disminuido completo.',
+                keyAspects: 'Combina tríada menor con quinta disminuida y séptima menor. Crea fuerte atracción hacia la resolución.',
+                commonUsage: 'Usado como iiø7 en tonalidades menores, para armonía jazz, y como acordes de paso.',
+                famousSongs: '"Autumn Leaves" de Joseph Kosma (Reø7), "There Will Never Be Another You" (iiø7-V7-i), "Stella by Starlight" (múltiples acordes ø7).',
+                progressions: 'iiø7-V7-i (jazz menor), i-iiø7-V7-i, IV-VIIø7-III7-VI7 (menor armónico).',
+                tips: 'Coloca la 5b arriba para tensión. Resuelve la 7ª bajando a la 3ª, la 5b subiendo a la 5ª. Esencial para armonía jazz.'
+            },
+
+            // Augmented
+            'aug': {
+                notes: 'Tónica + 3M + 5#',
+                characteristics: 'Sonido brillante y ambiguo con cualidad flotante y no resuelta. Crea tensión sin dirección.',
+                keyAspects: 'La quinta aumentada simétrica crea ambigüedad - puede sonar como mayor o menor dependiendo del contexto.',
+                commonUsage: 'Usado como acordes de paso, para modulación, y en música clásica impresionista.',
+                famousSongs: 'Tema de "Los Simpson" (Doaug como acorde de paso), "Giant Steps" de Coltrane (aproximaciones aumentadas), "Black Narcissus" de Joe Henderson.',
+                progressions: 'I+ - #IV° - bVII, como paso entre acordes mayores, III+ - vi - IV (impresionista).',
+                tips: 'Usa como acordes de aproximación a otras armonías. La quinta aumentada puede resolver cromáticamente hacia arriba o abajo.'
+            },
+
+            // Suspended chords
+            'sus2': {
+                notes: 'Tónica + 2M + 5',
+                characteristics: 'Sonido abierto y etéreo con tensión sutil. Menos direccional que sus4.',
+                keyAspects: 'Reemplaza la tercera con una segunda, creando una cualidad abierta y ambigua.',
+                commonUsage: 'Usado en pop y rock para sonidos atmosféricos, como acordes de aproximación, y para armonía moderna.',
+                famousSongs: '"Dust in the Wind" de Kansas (Solsus2), "Horse with No Name" de America (acordes sus2), "More Than Words" de Extreme.',
+                progressions: 'I-sus2-I (resolución), I-IIIsus2-IV-V, sus2 como acordes de paso entre mayor/menor.',
+                tips: 'Resuelve la 2ª subiendo a la 3ª para resolución suave. Prueba añadir la 4ª arriba para sonido 6/9. Genial para intros y puentes.'
+            },
+
+            'sus4': {
+                notes: 'Tónica + 4J + 5',
+                characteristics: 'Sonido tenso y anticipatorio que tira fuertemente hacia la resolución. Más direccional que sus2.',
+                keyAspects: 'Reemplaza la tercera con una cuarta, creando tensión fuerte que exige resolución.',
+                commonUsage: 'Usado en rock, pop y folk para interés rítmico y como acordes de aproximación.',
+                famousSongs: '"Dream On" de Aerosmith (Resus4), "Let It Be" de The Beatles (resoluciones sus4), "Under the Bridge" de Red Hot Chili Peppers.',
+                progressions: 'I-sus4-I (resolución clásica), I-IV-sus4-IV-I, V-sus4-V-I, ii-sus4-ii-V.',
+                tips: 'Resuelve la 4ª bajando a la 3ª para resolución fuerte. Usa en tiempos 2 y 4 del ritmo. Añade 7ª para más tensión.'
+            },
+
+            // 6th chords
+            '6': {
+                notes: 'Tónica + 3M + 5 + 6M',
+                characteristics: 'Sonido brillante y colorido con dulzura añadida y estabilidad. Más complejo que la tríada mayor.',
+                keyAspects: 'Añade la sexta para color mientras mantiene la cualidad mayor. Menos tenso que los acordes de séptima.',
+                commonUsage: 'Usado en música clásica, jazz y pop para color añadido y como acordes tónicos con sofisticación.',
+                famousSongs: '"Michelle" de The Beatles (La6), "It Had to Be You" (acordes de 6ª en el puente), "My Funny Valentine" (aproximación de 6ª).',
+                progressions: 'I6-IV-I, I6-ii7-V7-I, como sustituto del acorde I en tonalidades mayores.',
+                tips: 'Prueba primera inversión (6ª en el bajo) para conducción de voces más suave. Usa como aproximación a acordes dominantes.'
+            },
+
+            'm6': {
+                notes: 'Tónica + 3m + 5 + 6M',
+                characteristics: 'Sonido rico y emocional con cualidad agridulce. Más complejo que la tríada menor.',
+                keyAspects: 'Combina tríada menor con sexta mayor para un color melancólico único.',
+                commonUsage: 'Usado en música clásica, jazz, y como sustituto de acordes i en tonalidades menores.',
+                famousSongs: '"Autumn Leaves" de Joseph Kosma (Lam6), "Cry Me a River" de Arthur Hamilton, "Blackbird" de The Beatles.',
+                progressions: 'i6-VI7-V7-i, i6-iv-i, como acordes de paso en tonalidades menores.',
+                tips: 'Coloca la 6ª arriba para brillo. Prueba diferentes inversiones para variaciones de color.'
+            },
+
+            // 9th chords
+            '9': {
+                notes: 'Tónica + 3M + 5 + 7m + 9M',
+                characteristics: 'Sonido rico y complejo con tensión y sofisticación añadidas. Altamente colorido.',
+                keyAspects: 'Añade la 9ª (novena mayor) para armonía extendida. Crea cualidad exuberante y jazzy.',
+                commonUsage: 'Usado en jazz y pop sofisticado como acordes dominantes con color añadido.',
+                famousSongs: '"Blue Bossa" de Kenny Dorham (acordes de 9ª), "So What" de Miles Davis (9ªs), "Take Five" de Dave Brubeck.',
+                progressions: 'ii9-V9-Imaj7, I9-IV9-I9, como sustitutos coloridos para acordes de 7ª.',
+                tips: 'Omite la 5ª en las disposiciones para evitar saturación. Prueba voicings cuartales. Resuelve la 9ª apropiadamente según el contexto.'
+            },
+
+            'm9': {
+                notes: 'Tónica + 3m + 5 + 7m + 9M',
+                characteristics: 'Sonido suave y sofisticado con tensión sutil. Más refinado que m7.',
+                keyAspects: 'Combina séptima menor con novena mayor para cualidad suave y jazzy.',
+                commonUsage: 'Usado en jazz como acordes i9, para armonía sofisticada, y como acordes de paso.',
+                famousSongs: '"There Will Never Be Another You" (novenas menores), "Stella by Starlight", "My Funny Valentine".',
+                progressions: 'i9-iv9-VII9, ii9-V9-i9, como sustitutos de iiø7-V7-i.',
+                tips: 'Coloca la 9ª arriba para brillo. Prueba shell voicings con 9ª añadida. Genial para baladas.'
+            }
+        };
+
         function getChordInfo(chord) {
             // Get the base chord type (remove root note)
             const chordType = chord.type || '';
+            
+            // Select the appropriate database based on current language
+            const database = currentLanguage === 'es' ? chordInfoDatabase_es : chordInfoDatabase_en;
 
             // Return chord info from database, or default to major chord info
-            return chordInfoDatabase[chordType] || chordInfoDatabase['maj'];
+            return database[chordType] || database['maj'];
         }
 
         function openWikipedia(chordName) {
@@ -1522,8 +1890,9 @@
             }
         });
 
-        // Initialize piano
+        // Initialize piano and language
         createPiano();
+        updateLanguage();
     </script>
 </body>
 </html>
