@@ -21,7 +21,13 @@ CARACTERÍSTICAS PRINCIPALES
   * Todas las etiquetas y textos se actualizan automáticamente
   * Información de acordes traducida completamente
   * Notación musical independiente del idioma de la interfaz
+- Botón "Otros Acordes" (NUEVO v1.2.0):
+  * Explora acordes con una nota como tónica
+  * Encuentra acordes que contienen 3 notas específicas
+  * Previsualización en azul y selección por doble clic
+  * Solo ilumina una tecla por nota (la más central)
 - Base de datos completa de acordes (mayores, menores, séptimas, etc.)
+- Nombres alternativos de acordes mostrados entre paréntesis
 - Información detallada de cada acorde incluyendo:
   * Estructura de notas (tónica, tercera, quinta, etc.)
   * Características sonoras
@@ -58,6 +64,25 @@ CÓMO USAR LA APLICACIÓN
    - Haz clic en "Chord Info" / "Info del Acorde" para ver información detallada
    - Incluye estructura de notas, características y consejos
    - La información se muestra en el idioma seleccionado
+
+6. EXPLORAR "OTROS ACORDES" (NUEVO v1.2.0)
+   - El botón "Otros Acordes" se activa automáticamente con 1 o 3 notas seleccionadas
+   
+   CON 1 NOTA:
+   - Selecciona una sola nota en el piano
+   - Haz clic en "Otros Acordes"
+   - Verás todos los acordes que usan esa nota como tónica
+   - Clic simple: Previsualiza el acorde en azul
+   - Doble clic: Selecciona el acorde completo
+   - La nota original permanece en rojo
+   
+   CON 3 NOTAS:
+   - Selecciona tres notas en el piano
+   - Haz clic en "Otros Acordes"
+   - Verás todos los acordes que contienen esas tres notas
+   - Clic simple: Previsualiza notas adicionales en azul
+   - Doble clic: Selecciona el acorde completo
+   - Solo se ilumina una tecla por nota (la más central del teclado)
 
 RECURSOS EXTERNOS
 ----------------
@@ -125,13 +150,54 @@ Aplicación desarrollada para facilitar el aprendizaje de teoría musical y acor
 
 VERSIÓN
 -------
-1.1.0
+1.2.0
 
 HISTORIAL DE VERSIONES
 ----------------------
 
-VERSIÓN 1.1.0 (Actual)
+VERSIÓN 1.2.0 (Actual)
 ---------------------
+✨ NUEVAS CARACTERÍSTICAS:
+
+🎹 BOTÓN "OTROS ACORDES":
+- Nuevo botón que se activa automáticamente con 1 nota o 3 notas seleccionadas
+- Con 1 nota seleccionada:
+  * Muestra todos los acordes que tienen esa nota como tónica
+  * Perfecto para explorar variaciones de acordes
+  * Ayuda a descubrir nuevos acordes desde una nota base
+  
+- Con 3 notas seleccionadas:
+  * Muestra todos los acordes que contienen esas tres notas
+  * Útil para identificar acordes alternativos o inversiones
+  * Explora diferentes posibilidades armónicas
+  
+- Interacción intuitiva:
+  * Clic simple: Previsualiza el acorde en azul en el piano
+  * Doble clic: Selecciona el acorde completo
+  * Solo se ilumina una tecla por nota (la más central)
+  * La nota original permanece en rojo al añadir notas adicionales
+  * Acorde seleccionado marcado en verde en la lista
+
+📋 NOMBRES ALTERNATIVOS:
+- Los acordes ahora muestran nombres alternativos entre paréntesis
+- Ejemplo: "Cm (Cmin, C-)" muestra todas las formas válidas
+- Nombres alternativos en peso normal para mejor legibilidad
+- Solo se muestra el nombre principal en la lista de "Otros Acordes"
+
+🎨 MEJORAS DE INTERFAZ:
+- Modal compacto de "Otros Acordes" que no oculta el piano
+- Sin desenfoque del fondo para ver las teclas iluminadas
+- Diseño optimizado con tamaño reducido
+- Scrollbar personalizado para mejor UX
+- Responsive en dispositivos móviles
+
+📚 DOCUMENTACIÓN:
+- Modal de ayuda actualizado con la nueva funcionalidad
+- Mensajes informativos cuando se selecciona una sola nota
+- Guía completa de uso de "Otros Acordes"
+
+VERSIÓN 1.1.0
+-------------
 ✨ NUEVAS CARACTERÍSTICAS:
 - Sistema de notación musical seleccionable:
   * Notación italiana (Do, Re, Mi, Fa, Sol, La, Si)
@@ -163,15 +229,3 @@ VERSIÓN 1.0.0
 - Recursos externos integrados (IA, diagramas, Wikipedia)
 - Interfaz intuitiva y responsive
 - Base de datos completa de acordes comunes
-
-NOTAS PARA VERSIONES FUTURAS
-
-- cuando se pongan tres notas en el piano se activa un boton que ponga "Acordes con estas notas" y al tocae¡rlo aparece en un popup
-    todos los acordes que incluyen esas notas. Al pinchar sobre uno de ellos se iluminan en azul las teclas adicionales.
-
-- cuando se pone una sola tecla en el piano y aparece el TExto "Single note" aparece tambien un boton que ponga
- "Acordes basados en esta nota". Si se pulsa aparece un pop up con todos los acordes que tienen essa nota como tonica. Al pulsar cada uno de ellos 
- se iluminan en azul las teclas correspondientes a ese acorde. Si se añade una tecla mas desaparece ese popup
-
- 
-
