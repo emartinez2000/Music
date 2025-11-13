@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Piano Forte</title>
-    <!-- Favicon - Si tienes un archivo favicon.ico, favicon.png o favicon.svg en la raíz, funcionará automáticamente -->
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="icon" type="image/png" href="favicon.png">
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <!-- Fallback: emoji si no hay archivo -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎹</text></svg>">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=2">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=2">
+    <link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png?v=2">
+    <link rel="shortcut icon" type="image/png" href="favicon-32.png?v=2">
+    <link rel="apple-touch-icon" href="favicon-64.png?v=2">
     <style>
         * {
             margin: 0;
@@ -142,6 +142,7 @@
 
         .content {
             padding: 40px;
+            position: relative;
         }
 
         .chord-input-section {
@@ -727,6 +728,49 @@
             }
             
         }
+
+        .footer-credit {
+            position: absolute;
+            bottom: 10px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            z-index: 10;
+            padding: 15px;
+        }
+
+        .footer-credit img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+        }
+
+        .footer-credit p {
+            margin: 0;
+            font-size: 0.85em;
+            color: #7f8c8d;
+            font-style: italic;
+            font-weight: normal;
+        }
+
+        @media (max-width: 768px) {
+            .footer-credit {
+                bottom: 10px;
+                right: 10px;
+                padding: 10px;
+            }
+
+            .footer-credit img {
+                width: 48px;
+                height: 48px;
+            }
+
+            .footer-credit p {
+                font-size: 0.75em;
+            }
+        }
     </style>
 </head>
 <body>
@@ -765,6 +809,12 @@
                 <button class="clear-btn" onclick="clearAll()" id="clearBtn">Clear All</button>
                 <button class="insights-btn active" id="insightsBtn" onclick="showChordInfo()">Chord Info</button>
                 <button class="other-chords-btn" id="otherChordsBtn" onclick="showOtherChords()">Otros Acordes</button>
+            </div>
+
+            <!-- Footer Credit -->
+            <div class="footer-credit">
+                <img src="favicon-64.png?v=2" alt="Piano Forte Icon">
+                <p id="footerBy">By Betoven de Garicochea</p>
             </div>
         </div>
     </div>
@@ -869,7 +919,8 @@
                 learnMore: '🔎 Learn More',
                 learnMoreText: 'Want to know more about',
                 learnMoreResources: 'Check out these free resources:',
-                infoNotAvailable: 'Information not available'
+                infoNotAvailable: 'Information not available',
+                footerBy: 'by Betoven de Garicochea'
             },
             es: {
                 headerTitle: 'Acordes de Piano',
@@ -928,7 +979,8 @@
                 learnMore: '🔎 Aprende Más',
                 learnMoreText: '¿Quieres saber más sobre',
                 learnMoreResources: 'Consulta estos recursos gratuitos:',
-                infoNotAvailable: 'Información no disponible'
+                infoNotAvailable: 'Información no disponible',
+                footerBy: 'by Betoven de Garicochea'
             }
         };
         
@@ -996,6 +1048,12 @@
             } else {
                 // Re-identify current chord to update text
                 identifyChord();
+            }
+            
+            // Update footer
+            const footerBy = document.getElementById('footerBy');
+            if (footerBy) {
+                footerBy.textContent = t.footerBy;
             }
             
             // Update help modal content
