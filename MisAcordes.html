@@ -1321,12 +1321,39 @@
             return map[name] || name;
         }
 
+        function getNumberOfOctaves() {
+            // Calculate how many octaves fit based on screen width
+            // Each octave is approximately 350px (7 white keys × 50px each)
+            // Account for container padding and margins
+            const screenWidth = window.innerWidth;
+            const octaveWidth = 350; // Approximate width of one octave
+            
+            // Account for container padding (40px each side) and content padding
+            const availableWidth = screenWidth - 200; // Rough estimate for margins and padding
+            
+            if (availableWidth < octaveWidth * 1.5) {
+                // Mobile: only 1 octave fits (screen width < ~725px)
+                return 1;
+            } else if (availableWidth < octaveWidth * 2.5) {
+                // Tablet: 2 octaves fit (screen width < ~1075px)
+                return 2;
+            } else {
+                // Desktop: 3 octaves fit (screen width >= ~1075px)
+                return 3;
+            }
+        }
+
         function createPiano() {
             const piano = document.getElementById('piano');
             piano.innerHTML = '';
             
-            // Create 3 octaves starting from C3
-            for (let octave = 3; octave <= 5; octave++) {
+            // Calculate number of octaves based on screen size
+            const numOctaves = getNumberOfOctaves();
+            const startOctave = 3;
+            const endOctave = startOctave + numOctaves - 1;
+            
+            // Create octaves starting from C3
+            for (let octave = startOctave; octave <= endOctave; octave++) {
                 const octaveDiv = document.createElement('div');
                 octaveDiv.className = 'octave';
                 
@@ -1410,8 +1437,22 @@
         }
         
         // Reposition on window resize for responsive behavior
+        let resizeTimeout;
         window.addEventListener('resize', () => {
-            positionBlackKeys();
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                // Recreate piano with appropriate number of octaves
+                const currentSelectedNotes = new Set(selectedNotes);
+                createPiano();
+                // Restore selected notes if they exist in the new octave range
+                currentSelectedNotes.forEach(note => {
+                    const key = document.querySelector(`[data-note="${note}"]`);
+                    if (key) {
+                        selectedNotes.add(note);
+                        key.classList.add('active');
+                    }
+                });
+            }, 250); // Debounce resize events
         });
 
         function toggleNote(noteName, keyElement) {
@@ -1597,10 +1638,14 @@
                     currentNotation === 'italian' ? (angloToItalian[note] || note) : note
                 );
                 
-                // Select notes on piano (looking for any octave)
+                // Select notes on piano (looking for any octave in available range)
+                const numOctaves = getNumberOfOctaves();
+                const startOctave = 3;
+                const endOctave = startOctave + numOctaves - 1;
+                
                 chordNotesAnglo.forEach((angloNote, idx) => {
                     const displayNote = chordNotesDisplay[idx];
-                    for (let octave = 3; octave <= 5; octave++) {
+                    for (let octave = startOctave; octave <= endOctave; octave++) {
                         const fullNoteName = `${displayNote}${octave}`;
                         const keyElement = document.querySelector(`[data-note="${fullNoteName}"]`);
                         if (keyElement && !selectedNotes.has(fullNoteName)) {
