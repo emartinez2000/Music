@@ -841,6 +841,8 @@
                 chordTypeNotFound: 'not found',
                 tryCommonTypes: 'Try common types like maj7, m, dim, sus4',
                 modalHelpTitle: 'How to Use',
+                helpWhatIsThis: '❓ What is this?',
+                helpWhatIsThisText: 'This is an App to play with piano chords. Find rare chords or identify a chord that appears in a sheet music. It doesn\'t sound yet. But it will-. Any error or improvement suggestion, to the "Betoven de garicochea".',
                 helpNotation: '🎵 Musical Notation',
                 helpNotationText: 'Click the "🎵 Do#, Mib" or "🎵 C#, Eb" button in the top-left corner to switch between Italian notation (Do, Re, Mi, Fa, Sol, La, Si) and Anglo-Saxon notation (C, D, E, F, G, A, B). All labels, chord names, and input examples will update automatically!',
                 helpIdentify: 'Identify Chords',
@@ -898,6 +900,8 @@
                 chordTypeNotFound: 'no encontrado',
                 tryCommonTypes: 'Intenta tipos comunes como maj7, m, dim, sus4',
                 modalHelpTitle: 'Ayuda',
+                helpWhatIsThis: '❓ ¿Qué es esto?',
+                helpWhatIsThisText: 'Esto es una App para jugar con los acordes de piano. Encontrar acordes raros o identificar un acorde que nos salga en una partitura. Aún no suena. Pero sonará-. Cualquier error o sugerencia de mejora, a el "Betoven de garicochea".',
                 helpNotation: '🎵 Notación Musical',
                 helpNotationText: 'Haz clic en el botón "🎵 Do#, Mib" o "🎵 C#, Eb" en la esquina superior izquierda para cambiar entre notación italiana (Do, Re, Mi, Fa, Sol, La, Si) y notación anglosajona (C, D, E, F, G, A, B). ¡Todas las etiquetas, nombres de acordes y ejemplos se actualizarán automáticamente!',
                 helpIdentify: 'Identificar Acordes',
@@ -1009,6 +1013,11 @@
                     <button class="close" onclick="closeHelpModal()">&times;</button>
                 </div>
                 <div class="modal-body">
+                    <div class="insight-section">
+                        <h3>${t.helpWhatIsThis}</h3>
+                        <p>${t.helpWhatIsThisText}</p>
+                    </div>
+                    
                     <div class="insight-section">
                         <h3>${t.helpNotation}</h3>
                         <p>${t.helpNotationText}</p>
