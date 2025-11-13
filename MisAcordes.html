@@ -3,7 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Piano Chord Helper</title>
+    <title>Piano Forte</title>
+    <!-- Favicon - Si tienes un archivo favicon.ico, favicon.png o favicon.svg en la raíz, funcionará automáticamente -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <!-- Fallback: emoji si no hay archivo -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎹</text></svg>">
     <style>
         * {
             margin: 0;
@@ -730,14 +736,14 @@
                 <span id="notationIcon">🎵</span>
                 <span id="notationText">C#, Eb</span>
             </button>
-            <h1 id="headerTitle">🎹 Piano Chord Helper</h1>
+            <h1 id="headerTitle">🎹 Piano Forte</h1>
             <button class="language-toggle" onclick="toggleLanguage()" id="languageBtn">🇪🇸</button>
             <button class="help-btn" onclick="showHelp()" id="helpBtn">❓ Help</button>
         </div>
         
         <div class="content">
             <div class="chord-input-section">
-                <h2 id="chordInputTitle">Enter a Chord Name</h2>
+                <h2 id="chordInputTitle">Enter a Chord Name...</h2>
                 <div class="chord-input">
                     <input type="text" id="chordInput" placeholder="e.g., Cmaj7, F#dim, Am" />
                     <button onclick="findChord()" id="showChordBtn">Show Chord</button>
@@ -745,7 +751,7 @@
             </div>
 
             <div class="piano-container">
-                <h2 id="pianoTitle">Click the Keys</h2>
+                <h2 id="pianoTitle">...or Click the Keys</h2>
                 <div class="piano" id="piano"></div>
             </div>
 
@@ -809,9 +815,9 @@
             en: {
                 headerTitle: 'Piano Chords',
                 helpBtn: 'Help',
-                chordInputTitle: 'Enter a Chord Name',
+                chordInputTitle: 'Enter a Chord Name...',
                 showChordBtn: 'Show Chord',
-                pianoTitle: 'Click the Keys',
+                pianoTitle: '...or Click the Keys',
                 clearBtn: 'Clear All',
                 insightsBtn: 'Chord Info',
                 otherChordsBtn: 'Other Chords',
@@ -846,7 +852,7 @@
                 helpInfo: '📚 Chord Information',
                 helpInfoText: 'Click "Chord Info" button to learn about the chord\'s characteristics, usage in music, famous songs that use it, and tips for playing it on piano.',
                 helpOtherChords: '🎹 Other Chords',
-                helpOtherChordsText: 'The "Other Chords" button becomes active when you select <strong>1 note</strong> or <strong>3 notes</strong>. With 1 note, it shows all chords using that note as root. With 3 notes, it shows all chords containing those notes. <strong>Click</strong> on a chord to preview it in blue on the piano. <strong>Double-click</strong> to select it.',
+                helpOtherChordsText: 'The "Other Chords" button becomes active when you select <strong>1 note</strong> or <strong>3 or more notes</strong>. With 1 note, it shows all chords using that note as root. With 3 or more notes, it shows all chords containing those notes, grouped by the total number of notes in each chord. <strong>Click</strong> on a chord to preview it in blue on the piano. <strong>Double-click</strong> to select it.',
                 helpClear: '🗑️ Clear Selection',
                 helpClearText: 'Use the "Clear All" button to deselect all keys and start over with a fresh selection.',
                 modalChordInfo: 'Chord Information',
@@ -866,9 +872,9 @@
             es: {
                 headerTitle: 'Acordes de Piano',
                 helpBtn: 'Ayuda',
-                chordInputTitle: 'Introduce un Nombre de Acorde',
+                chordInputTitle: 'Introduce un nombre de acorde...',
                 showChordBtn: 'Mostrar Acorde',
-                pianoTitle: 'Haz Clic en las Teclas',
+                pianoTitle: '...o haz clic en las teclas',
                 clearBtn: 'Limpiar Todo',
                 insightsBtn: 'Info del Acorde',
                 otherChordsBtn: 'Otros Acordes',
@@ -903,7 +909,7 @@
                 helpInfo: '📚 Información del Acorde',
                 helpInfoText: 'Haz clic en el botón "Info del Acorde" para aprender sobre las características del acorde, su uso en la música, canciones famosas que lo utilizan y consejos para tocarlo en el piano.',
                 helpOtherChords: '🎹 Otros Acordes',
-                helpOtherChordsText: 'El botón "Otros Acordes" se activa cuando seleccionas <strong>1 nota</strong> o <strong>3 notas</strong>. Con 1 nota, muestra todos los acordes que usan esa nota como tónica. Con 3 notas, muestra todos los acordes que contienen esas notas. Haz <strong>clic</strong> en un acorde para previsualizarlo en azul en el piano. Haz <strong>doble clic</strong> para seleccionarlo.',
+                helpOtherChordsText: 'El botón "Otros Acordes" se activa cuando seleccionas <strong>1 nota</strong> o <strong>3 o más notas</strong>. Con 1 nota, muestra todos los acordes que usan esa nota como tónica. Con 3 o más notas, muestra todos los acordes que contienen esas notas, agrupados por el número total de notas de cada acorde. Haz <strong>clic</strong> en un acorde para previsualizarlo en azul en el piano. Haz <strong>doble clic</strong> para seleccionarlo.',
                 helpClear: '🗑️ Limpiar Selección',
                 helpClearText: 'Usa el botón "Limpiar Todo" para deseleccionar todas las teclas y comenzar de nuevo con una selección limpia.',
                 modalChordInfo: 'Información del Acorde',
@@ -1372,8 +1378,8 @@
                 return noteNames.indexOf(noteName);
             }).sort((a, b) => a - b);
 
-            // Activate "Otros Acordes" button only when 1 or 3 notes are selected
-            if (noteIndexes.length === 1 || noteIndexes.length === 3) {
+            // Activate "Otros Acordes" button only when 1 or 3+ notes are selected
+            if (noteIndexes.length === 1 || noteIndexes.length >= 3) {
                 otherChordsBtn.classList.add('active');
             } else {
                 otherChordsBtn.classList.remove('active');
@@ -1690,10 +1696,9 @@
                     <h3>${t.learnMore}</h3>
                     <p>${t.learnMoreText} ${currentChord.name}? ${t.learnMoreResources}</p>
                     <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
-                        <button onclick="openChordBook('${currentChord.name}')" class="clear-btn" style="padding:8px 14px; font-size:0.95em; background: #f8f9fa; color:#333; border:1px solid #ddd;">🎹 Piano Chords</button>
-                        <button onclick="openPerplexity('${currentChord.name}')" class="insights-btn active" style="padding:8px 14px; font-size:0.95em; background: #9c27b0; color: white;">🤖 Perplexity AI</button>
                         <button onclick="openGrok('${currentChord.name}')" class="insights-btn active" style="padding:8px 14px; font-size:0.95em; background: #00bcd4; color: white;">🧠 Grok AI</button>
-                        <button onclick="openWikipedia('${currentChord.name}')" class="insights-btn active" style="padding:8px 14px; font-size:0.95em;">📖 Wikipedia</button>
+                        <button onclick="openPerplexity('${currentChord.name}')" class="insights-btn active" style="padding:8px 14px; font-size:0.95em; background: #9c27b0; color: white;">🤖 Perplexity AI</button>
+                        <button onclick="openChordBook('${currentChord.name}')" class="clear-btn" style="padding:8px 14px; font-size:0.95em; background: #f8f9fa; color:#333; border:1px solid #ddd;">🎹 Piano Chords</button>
                         </div>
                     </div>
                 `;
@@ -2103,9 +2108,36 @@
         }
 
         function openChordBook(chordName) {
-            // Use pianochord.org to find piano chord diagrams directly
-            // Note: pianochord.org uses lowercase URLs
-            const url = `https://pianochord.org/${encodeURIComponent(chordName.toLowerCase())}.html`;
+            // Parse chord name to extract root note
+            const result = parseChordName(chordName);
+            if (!result) {
+                // Fallback: try to extract root note manually
+                const match = chordName.match(/^(Do|Re|Mi|Fa|Sol|La|Si|C|D|E|F|G|A|B)([#b]?)/i);
+                if (match) {
+                    const note = match[1].charAt(0).toUpperCase() + match[1].slice(1).toLowerCase();
+                    const accidental = match[2];
+                    const fullNote = note + accidental;
+                    // Convert to Anglo notation if needed
+                    const rootNote = italianToAnglo[fullNote] || italianToAnglo[note] || fullNote;
+                    // Convert # to -sharp for URL
+                    const urlNote = rootNote.toLowerCase().replace('#', '-sharp');
+                    const url = `https://pianochord.org/${urlNote}.html`;
+                    window.open(url, '_blank');
+                } else {
+                    // Last resort: use original name
+                    const urlNote = chordName.toLowerCase().replace('#', '-sharp');
+                    const url = `https://pianochord.org/${encodeURIComponent(urlNote)}.html`;
+                    window.open(url, '_blank');
+                }
+                return;
+            }
+            
+            // Extract root note (already in Anglo notation from parseChordName)
+            const rootNote = result.root;
+            // Use pianochord.org to find piano chord diagrams by root note
+            // Note: pianochord.org uses lowercase URLs and # becomes -sharp
+            const urlNote = rootNote.toLowerCase().replace('#', '-sharp');
+            const url = `https://pianochord.org/${urlNote}.html`;
             window.open(url, '_blank');
         }
 
@@ -2137,8 +2169,8 @@
             if (noteIndexes.length === 1) {
                 // Case 1: Single note - show all chords with this note as root
                 showChordsWithRoot(noteIndexes[0]);
-            } else if (noteIndexes.length === 3) {
-                // Case 2: Three notes - show all chords containing these three notes
+            } else if (noteIndexes.length >= 3) {
+                // Case 2: Three or more notes - show all chords containing these notes
                 showChordsContainingNotes(noteIndexes);
             }
         }
@@ -2171,33 +2203,58 @@
                 });
             });
             
-            // Create list items for each unique chord
+            // Group chords by number of notes
+            const chordsByNoteCount = {};
             uniqueChords.forEach(chord => {
-                const chordName = rootNote + chord.type;
+                const noteCount = chord.intervals.length;
+                if (!chordsByNoteCount[noteCount]) {
+                    chordsByNoteCount[noteCount] = [];
+                }
+                chordsByNoteCount[noteCount].push(chord);
+            });
+            
+            // Sort groups by note count (ascending)
+            const sortedNoteCounts = Object.keys(chordsByNoteCount).map(Number).sort((a, b) => a - b);
+            
+            // Create list items grouped by note count
+            sortedNoteCounts.forEach(noteCount => {
+                // Add group title
+                const groupTitle = document.createElement('div');
+                groupTitle.className = 'chord-group-title';
+                groupTitle.textContent = currentLanguage === 'es' 
+                    ? `${noteCount} notas` 
+                    : `${noteCount} notes`;
+                groupTitle.style.cssText = 'font-weight: bold; padding: 6px 8px; font-size: 0.85em; color: #555; margin-top: 8px; margin-bottom: 2px; grid-column: 1 / -1; text-align: left;';
+                listContainer.appendChild(groupTitle);
                 
-                const item = document.createElement('div');
-                item.className = 'chord-list-item';
-                item.textContent = chordName;
-                item.dataset.root = rootIndex;
-                item.dataset.intervals = JSON.stringify(chord.intervals);
-                item.dataset.chordName = chordName;
-                
-                // Single click - highlight additional keys and mark as selected
-                item.addEventListener('click', function() {
-                    // Remove selected class from all items
-                    document.querySelectorAll('.chord-list-item').forEach(i => i.classList.remove('selected'));
-                    // Add selected class to this item
-                    this.classList.add('selected');
-                    highlightChordKeys(rootIndex, chord.intervals);
+                // Add chords in this group
+                chordsByNoteCount[noteCount].forEach(chord => {
+                    const chordName = rootNote + chord.type;
+                    
+                    const item = document.createElement('div');
+                    item.className = 'chord-list-item';
+                    item.textContent = chordName;
+                    item.dataset.root = rootIndex;
+                    item.dataset.intervals = JSON.stringify(chord.intervals);
+                    item.dataset.chordName = chordName;
+                    
+                    // Single click - highlight additional keys and mark as selected
+                    item.addEventListener('click', function() {
+                        // Remove selected class from all items
+                        document.querySelectorAll('.chord-list-item').forEach(i => i.classList.remove('selected'));
+                        // Add selected class to this item
+                        this.classList.add('selected');
+                        highlightChordKeys(rootIndex, chord.intervals);
+                    });
+                    
+                    // Double click - select chord
+                    item.addEventListener('dblclick', function() {
+                        selectChord(rootIndex, chord.intervals);
+                        closeOtherChordsModal();
+                    });
+                    
+                    listContainer.appendChild(item);
                 });
-                
-                // Double click - select chord
-                item.addEventListener('dblclick', function() {
-                    selectChord(rootIndex, chord.intervals);
-                    closeOtherChordsModal();
-                });
-                
-                listContainer.appendChild(item);
             });
             
             // Show modal
@@ -2236,7 +2293,10 @@
                         chordNotes.includes(noteIdx)
                     );
                     
-                    if (allNotesIncluded) {
+                    // Only include chords that have MORE notes than selected (additional notes)
+                    const hasAdditionalNotes = chordNotes.length > selectedNoteIndexes.length;
+                    
+                    if (allNotesIncluded && hasAdditionalNotes) {
                         // Create a unique key for this chord (root + sorted intervals)
                         const chordKey = `${rootIndex}-${patternKey}`;
                         
@@ -2256,31 +2316,56 @@
             if (matchingChords.length === 0) {
                 listContainer.innerHTML = `<p style="text-align: center; padding: 12px; font-size: 0.9em;">${t.noChordsFound}</p>`;
             } else {
-                // Create list items for each matching chord
+                // Group chords by number of notes
+                const chordsByNoteCount = {};
                 matchingChords.forEach(chord => {
-                    const item = document.createElement('div');
-                    item.className = 'chord-list-item';
-                    item.textContent = chord.name;
-                    item.dataset.root = chord.root;
-                    item.dataset.intervals = JSON.stringify(chord.intervals);
-                    item.dataset.chordName = chord.name;
+                    const noteCount = chord.intervals.length;
+                    if (!chordsByNoteCount[noteCount]) {
+                        chordsByNoteCount[noteCount] = [];
+                    }
+                    chordsByNoteCount[noteCount].push(chord);
+                });
+                
+                // Sort groups by note count (ascending)
+                const sortedNoteCounts = Object.keys(chordsByNoteCount).map(Number).sort((a, b) => a - b);
+                
+                // Create list items grouped by note count
+                sortedNoteCounts.forEach(noteCount => {
+                    // Add group title
+                    const groupTitle = document.createElement('div');
+                    groupTitle.className = 'chord-group-title';
+                    groupTitle.textContent = currentLanguage === 'es' 
+                        ? `${noteCount} notas` 
+                        : `${noteCount} notes`;
+                    groupTitle.style.cssText = 'font-weight: bold; padding: 6px 8px; font-size: 0.85em; color: #555; margin-top: 8px; margin-bottom: 2px; grid-column: 1 / -1; text-align: left;';
+                    listContainer.appendChild(groupTitle);
                     
-                    // Single click - highlight additional keys (keys not already selected) and mark as selected
-                    item.addEventListener('click', function() {
-                        // Remove selected class from all items
-                        document.querySelectorAll('.chord-list-item').forEach(i => i.classList.remove('selected'));
-                        // Add selected class to this item
-                        this.classList.add('selected');
-                        highlightAdditionalChordKeys(chord.root, chord.intervals, selectedNoteIndexes);
+                    // Add chords in this group
+                    chordsByNoteCount[noteCount].forEach(chord => {
+                        const item = document.createElement('div');
+                        item.className = 'chord-list-item';
+                        item.textContent = chord.name;
+                        item.dataset.root = chord.root;
+                        item.dataset.intervals = JSON.stringify(chord.intervals);
+                        item.dataset.chordName = chord.name;
+                        
+                        // Single click - highlight additional keys (keys not already selected) and mark as selected
+                        item.addEventListener('click', function() {
+                            // Remove selected class from all items
+                            document.querySelectorAll('.chord-list-item').forEach(i => i.classList.remove('selected'));
+                            // Add selected class to this item
+                            this.classList.add('selected');
+                            highlightAdditionalChordKeys(chord.root, chord.intervals, selectedNoteIndexes);
+                        });
+                        
+                        // Double click - select chord
+                        item.addEventListener('dblclick', function() {
+                            selectChord(chord.root, chord.intervals);
+                            closeOtherChordsModal();
+                        });
+                        
+                        listContainer.appendChild(item);
                     });
-                    
-                    // Double click - select chord
-                    item.addEventListener('dblclick', function() {
-                        selectChord(chord.root, chord.intervals);
-                        closeOtherChordsModal();
-                    });
-                    
-                    listContainer.appendChild(item);
                 });
             }
             

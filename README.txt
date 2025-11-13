@@ -88,24 +88,26 @@ RECURSOS EXTERNOS
 ----------------
 La aplicación incluye enlaces a recursos externos para profundizar:
 
-🎹 PIANO CHORDS
-- Enlace directo a pianochord.org
-- Diagramas visuales específicos para piano
-- URLs en minúsculas (ej: cm7.html)
+🧠 GROK AI (Primero)
+- IA de xAI disponible en Grok.com
+- Prompt detallado optimizado para acordes de piano
+- Incluye: características, consejos, progresiones, notaciones alternativas
+- Búsqueda inteligente con contexto musical
 
 🤖 PERPLEXITY AI
 - Búsqueda inteligente con prompt detallado
 - Incluye: características, consejos, progresiones, notaciones alternativas
 - Prompt en español optimizado para acordes de piano
 
-🧠 GROK AI
-- IA de xAI disponible en X (Twitter)
-- Mismo prompt detallado que Perplexity
-- Comparación de respuestas entre diferentes IAs
-
-📖 WIKIPEDIA
-- Búsqueda académica de artículos musicales
-- Encuentra teoría musical, historia y contextos
+🎹 PIANO CHORDS (Último)
+- Enlace inteligente a pianochord.org
+- Traducción automática de notación italiana a anglosajona
+- Extrae solo la nota raíz del acorde para mostrar todos los acordes de esa nota
+- URLs optimizadas: sostenidos como "-sharp" (ej: c-sharp.html)
+- Ejemplos:
+  * "Do7" → c.html (muestra todos los acordes de Do/C)
+  * "Fasus4" → f.html (muestra todos los acordes de Fa/F)
+  * "Do#maj7" → c-sharp.html (muestra todos los acordes de Do#/C#)
 
 ACORDES SOPORTADOS
 -----------------
@@ -150,13 +152,41 @@ Aplicación desarrollada para facilitar el aprendizaje de teoría musical y acor
 
 VERSIÓN
 -------
-1.2.0
+1.3.0
 
 HISTORIAL DE VERSIONES
 ----------------------
 
-VERSIÓN 1.2.0 (Actual)
+VERSIÓN 1.3.0 (Actual)
 ---------------------
+✨ NUEVAS CARACTERÍSTICAS:
+
+🎹 FAVICON:
+- Añadido favicon personalizado con emoji de piano 🎹
+- Mejora la identificación visual de la aplicación en pestañas del navegador
+
+🔗 MEJORAS EN RECURSOS EXTERNOS:
+
+📖 MODAL "LEARN MORE":
+- Reordenamiento de enlaces para mejor experiencia de usuario
+- Nuevo orden: Grok AI → Perplexity AI → Piano Chords
+- Eliminado enlace a Wikipedia para simplificar opciones
+
+🎹 PIANO CHORDS (pianochord.org):
+- Mejora significativa en la integración con pianochord.org
+- Traducción automática de notación italiana a anglosajona
+  * Ejemplo: "Do7" se traduce a "C" y envía a c.html
+  * Ejemplo: "Fasus4" se traduce a "F" y envía a f.html
+- Extracción inteligente de la nota raíz del acorde
+- Envío a la página de lista de acordes de la nota raíz (más útil que acordes específicos)
+- Conversión correcta de sostenidos en URLs:
+  * Los sostenidos (#) se convierten a "-sharp" en la URL
+  * Ejemplo: "C#" → c-sharp.html, "Fa#" → f-sharp.html
+- Soluciona problemas de compatibilidad con nomenclatura no anglosajona
+- Mejor experiencia al explorar todos los acordes de una nota específica
+
+VERSIÓN 1.2.0
+-------------
 ✨ NUEVAS CARACTERÍSTICAS:
 
 🎹 BOTÓN "OTROS ACORDES":
