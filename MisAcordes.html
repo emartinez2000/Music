@@ -1618,7 +1618,7 @@
                 return;
             }
 
-            const { root, chordType } = result;
+            const { root, chordType, preferredAccidental } = result;
             const intervals = chordDatabase[chordType];
             
             if (intervals) {
@@ -1656,9 +1656,39 @@
                     }
                 });
                 
-                // Convert chord name to current notation
-                const rootDisplay = currentNotation === 'italian' ? (angloToItalian[root] || root) : root;
-                const chordName = rootDisplay + chordType;
+                // Convert chord name to current notation, honoring accidental preference and showing enharmonic alternative
+                const sharpToFlatMap = { 'C#': 'Db', 'D#': 'Eb', 'F#': 'Gb', 'G#': 'Ab', 'A#': 'Bb' };
+                const flatAlternativeAnglo = sharpToFlatMap[root] || null;
+                
+                let mainRootDisplay;
+                let altRootDisplay = null;
+                
+                // Determine main and alternative displays based on current notation and user preference
+                if (currentNotation === 'italian') {
+                    if (preferredAccidental === 'flat' && flatAlternativeAnglo) {
+                        mainRootDisplay = angloToItalian[flatAlternativeAnglo] || flatAlternativeAnglo;
+                        altRootDisplay = angloToItalian[root] || root;
+                    } else {
+                        mainRootDisplay = angloToItalian[root] || root;
+                        if (flatAlternativeAnglo) {
+                            altRootDisplay = angloToItalian[flatAlternativeAnglo] || flatAlternativeAnglo;
+                        }
+                    }
+                } else {
+                    if (preferredAccidental === 'flat' && flatAlternativeAnglo) {
+                        mainRootDisplay = flatAlternativeAnglo;
+                        altRootDisplay = root;
+                    } else {
+                        mainRootDisplay = root;
+                        if (flatAlternativeAnglo) {
+                            altRootDisplay = flatAlternativeAnglo;
+                        }
+                    }
+                }
+                
+                const chordName = altRootDisplay
+                    ? `${mainRootDisplay}${chordType} (${altRootDisplay}${chordType})`
+                    : `${mainRootDisplay}${chordType}`;
                 const description = getChordDescription(chordType);
                 updateChordInfo(chordName, `${t.notes}: ${chordNotesDisplay.join(', ')}`, description);
                 currentChord = { name: chordName, root: root, type: chordType };
@@ -1676,6 +1706,30 @@
 
             let root = null;
             let chordType = '';
+            let preferredAccidental = null; // 'sharp' | 'flat' | null
+            
+            // Helper: normalize special accidentals that don't exist as-is in our anglo list
+            function normalizeAccidentalAnglo(note) {
+                if (note === 'E#') return 'F';
+                if (note === 'B#') return 'C';
+                if (note === 'Cb') return 'B';
+                if (note === 'Fb') return 'E';
+                return note;
+            }
+            
+            // Helper: semitone up/down on anglo note names using our 12-note cycle
+            function semitoneShiftAnglo(baseNote, delta) {
+                const anglo = notations.anglo; // ['C','C#','D',...,'B']
+                const idx = anglo.indexOf(baseNote);
+                if (idx === -1) {
+                    // Try to normalize special accidentals first, then retry
+                    const normalized = normalizeAccidentalAnglo(baseNote);
+                    const idx2 = anglo.indexOf(normalized);
+                    if (idx2 === -1) return baseNote; // give up, return as-is
+                    return anglo[(idx2 + delta + 12) % 12];
+                }
+                return anglo[(idx + delta + 12) % 12];
+            }
             
             // Try to match Italian notation first (Do, Re, Mi, Fa, Sol, La, Si)
             const italianMatch = chordName.match(/^(Do|Re|Mi|Fa|Sol|La|Si)([#b]?)/i);
@@ -1685,15 +1739,35 @@
                 const fullItalianNote = italianNote + accidental;
                 
                 // Convert to Anglo notation for internal processing
-                root = italianToAnglo[fullItalianNote] || italianToAnglo[italianNote];
+                // If dictionary doesn't include accidental variants (e.g., 'Mi#', 'Dob'),
+                // compute by semitone shift from the natural anglo equivalent.
+                const baseAnglo = italianToAnglo[italianNote];
+                if (!baseAnglo) return null;
+                if (accidental === '#') {
+                    root = semitoneShiftAnglo(baseAnglo, +1);
+                } else if (accidental === 'b') {
+                    root = semitoneShiftAnglo(baseAnglo, -1);
+                } else {
+                    root = italianToAnglo[fullItalianNote] || baseAnglo;
+                }
                 chordType = chordName.slice(italianMatch[0].length);
+                
+                // Track user's accidental preference if provided
+                if (accidental === '#') preferredAccidental = 'sharp';
+                if (accidental === 'b') preferredAccidental = 'flat';
             } else {
                 // Try Anglo notation (A-G)
                 const angloMatch = chordName.match(/^([A-G][#b]?)/);
                 if (!angloMatch) return null;
+                const rawRoot = angloMatch[1];
                 
-                root = angloMatch[1];
-                chordType = chordName.slice(root.length);
+                // Slice chordType using the RAW matched token length to avoid mismatch after normalization
+                chordType = chordName.slice(rawRoot.length);
+                root = normalizeAccidentalAnglo(rawRoot);
+                
+                // Track user's accidental preference if provided
+                if (/#$/.test(rawRoot)) preferredAccidental = 'sharp';
+                if (/b$/.test(rawRoot)) preferredAccidental = 'flat';
             }
 
             if (!root) return null;
@@ -1704,7 +1778,7 @@
 
             // Check if chord type exists
             if (chordDatabase.hasOwnProperty(chordType)) {
-                return { root: normalizedRoot, chordType };
+                return { root: normalizedRoot, chordType, preferredAccidental };
             }
 
             return null;
@@ -2231,13 +2305,16 @@
                     const fullNote = note + accidental;
                     // Convert to Anglo notation if needed
                     const rootNote = italianToAnglo[fullNote] || italianToAnglo[note] || fullNote;
-                    // Convert # to -sharp for URL
-                    const urlNote = rootNote.toLowerCase().replace('#', '-sharp');
+                    // Build URL slug: # -> -sharp, b -> -flat (only when part of accidental)
+                    const wantsFlat = /b$/.test(fullNote);
+                    const sharpToFlatMap = { 'C#': 'Db', 'D#': 'Eb', 'F#': 'Gb', 'G#': 'Ab', 'A#': 'Bb' };
+                    const noteForUrl = wantsFlat && sharpToFlatMap[rootNote] ? sharpToFlatMap[rootNote] : rootNote;
+                    const urlNote = noteForUrl.toLowerCase().replace('#', '-sharp').replace('b', '-flat');
                     const url = `https://pianochord.org/${urlNote}.html`;
                     window.open(url, '_blank');
                 } else {
                     // Last resort: use original name
-                    const urlNote = chordName.toLowerCase().replace('#', '-sharp');
+                    const urlNote = chordName.toLowerCase().replace('#', '-sharp').replace('b', '-flat');
                     const url = `https://pianochord.org/${encodeURIComponent(urlNote)}.html`;
                     window.open(url, '_blank');
                 }
@@ -2247,8 +2324,11 @@
             // Extract root note (already in Anglo notation from parseChordName)
             const rootNote = result.root;
             // Use pianochord.org to find piano chord diagrams by root note
-            // Note: pianochord.org uses lowercase URLs and # becomes -sharp
-            const urlNote = rootNote.toLowerCase().replace('#', '-sharp');
+            // Note: pianochord.org uses lowercase URLs and # -> -sharp, b -> -flat
+            const wantsFlat = result.preferredAccidental === 'flat';
+            const sharpToFlatMap = { 'C#': 'Db', 'D#': 'Eb', 'F#': 'Gb', 'G#': 'Ab', 'A#': 'Bb' };
+            const noteForUrl = wantsFlat && sharpToFlatMap[rootNote] ? sharpToFlatMap[rootNote] : rootNote;
+            const urlNote = noteForUrl.toLowerCase().replace('#', '-sharp').replace('b', '-flat');
             const url = `https://pianochord.org/${urlNote}.html`;
             window.open(url, '_blank');
         }
