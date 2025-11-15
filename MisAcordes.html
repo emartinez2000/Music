@@ -311,6 +311,22 @@
             box-shadow: inset 0 3px 10px rgba(0,0,0,0.3);
         }
 
+        /* Keep colors visible when active (override active background) */
+        .white-key.key-celeste.active {
+            background: linear-gradient(45deg, #87ceeb, #5ba3c7);
+            box-shadow: inset 0 3px 10px rgba(0,0,0,0.2), 0 0 10px rgba(135, 206, 235, 0.5);
+        }
+
+        .white-key.key-yellow.active {
+            background: linear-gradient(45deg, #ffff00, #cccc00);
+            box-shadow: inset 0 3px 10px rgba(0,0,0,0.2), 0 0 10px rgba(255, 255, 0, 0.5);
+        }
+
+        .white-key.key-green.active {
+            background: linear-gradient(45deg, #00ff00, #00cc00);
+            box-shadow: inset 0 3px 10px rgba(0,0,0,0.2), 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
         .black-key {
             width: 26.25px;
             height: 130px;
@@ -359,6 +375,49 @@
             color: white;
             bottom: 15px;
             font-size: 0.7em;
+        }
+
+        /* Colored keys for guidance */
+        .white-key.key-celeste {
+            background: #87ceeb;
+            border-color: #5ba3c7;
+        }
+
+        .white-key.key-celeste:hover {
+            background: #6bb8d8;
+        }
+
+        .white-key.key-yellow {
+            background: #ffff00;
+            border-color: #cccc00;
+        }
+
+        .white-key.key-yellow:hover {
+            background: #e6e600;
+        }
+
+        .white-key.key-green {
+            background: #00ff00;
+            border-color: #00cc00;
+        }
+
+        .white-key.key-green:hover {
+            background: #00e600;
+        }
+
+        /* Level 3: All keys gray */
+        .white-key.key-gray {
+            background: #d3d3d3;
+            border-color: #b0b0b0;
+        }
+
+        .white-key.key-gray:hover {
+            background: #c0c0c0;
+        }
+
+        .white-key.key-gray.active {
+            background: linear-gradient(45deg, #d3d3d3, #b0b0b0);
+            box-shadow: inset 0 3px 10px rgba(0,0,0,0.2), 0 0 10px rgba(211, 211, 211, 0.5);
         }
 
         /* Staff (Pentagrama) Styles */
@@ -479,6 +538,65 @@
             background: #95a5a6;
             cursor: not-allowed;
             transform: none;
+        }
+
+        .exercise-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: nowrap;
+        }
+
+        .pause-btn, .stop-btn {
+            padding: 8px 20px;
+            font-size: 1em;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .pause-btn {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+        }
+
+        .pause-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
+        }
+
+        .pause-btn:active {
+            transform: translateY(0);
+        }
+
+        .pause-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.6;
+        }
+
+        .stop-btn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+
+        .stop-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .stop-btn:active {
+            transform: translateY(0);
+        }
+
+        .stop-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.6;
         }
 
         /* Exercise counter - 2 columns, 3 rows */
@@ -606,7 +724,7 @@
             flex-wrap: wrap;
         }
 
-        .staff-controls button {
+        .staff-controls button:not(.clear-btn) {
             padding: 12px 24px;
             font-size: 1em;
             background: linear-gradient(45deg, #3498db, #2980b9);
@@ -617,9 +735,27 @@
             transition: all 0.3s ease;
         }
 
-        .staff-controls button:hover {
+        .staff-controls button:not(.clear-btn):hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        /* Ensure clear-btn style applies even inside staff-controls */
+        .staff-controls .clear-btn {
+            padding: 12px 25px;
+            font-size: 1.1em;
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .staff-controls .clear-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
         }
 
         .staff-feedback {
@@ -957,6 +1093,18 @@
             color: #2c3e50;
         }
 
+        #exerciseResultModal .modal-content {
+            animation: modalSlideIn 0.4s ease-out;
+        }
+
+        #exerciseResultModal .modal-header {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+        }
+
+        #exerciseResultModal.failed .modal-header {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+
         .insight-section {
             margin-bottom: 25px;
             padding: 20px;
@@ -1263,15 +1411,17 @@
                 <div class="piano-container">
                     <div class="piano-header">
                         <h2 id="staffPianoTitle">Selecciona la nota en el teclado</h2>
+                        <div class="exercise-buttons">
                         <button onclick="startExercise()" id="goBtn" class="go-btn">GO!</button>
+                            <button onclick="pauseExercise()" id="pauseBtn" class="pause-btn" disabled>⏸ PAUSE</button>
+                            <button onclick="stopExercise()" id="stopBtn" class="stop-btn" disabled>⏹ STOP</button>
+                        </div>
                     </div>
                     <div class="piano" id="staffPiano"></div>
                 </div>
 
                 <div class="staff-controls">
-                    <button onclick="generateNewNote()" id="newNoteBtn">Nueva Nota</button>
-                    <button onclick="checkAnswer()" id="checkBtn">Verificar</button>
-                    <button onclick="clearStaffSelection()" id="clearStaffBtn">Limpiar</button>
+                    <button class="clear-btn" onclick="clearStaffSelection()" id="clearStaffBtn">Limpiar Todo</button>
                 </div>
             </div>
 
@@ -1316,6 +1466,33 @@
             </div>
             <div class="modal-body">
                 <div id="otherChordsListContainer" class="chord-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Exercise Result -->
+    <div id="exerciseResultModal" class="modal">
+        <div class="modal-content" style="max-width: 500px; text-align: center;">
+            <div class="modal-header" id="exerciseResultHeader">
+                <h2 id="exerciseResultTitle">Round Completado</h2>
+                <button class="close" onclick="closeExerciseResultModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 40px 30px;">
+                <div id="exerciseResultIcon" style="font-size: 4em; margin-bottom: 20px;">🎉</div>
+                <p id="exerciseResultMessage" style="font-size: 1.2em; line-height: 1.8; margin-bottom: 30px;"></p>
+                <div id="exerciseResultStats" style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-around;">
+                        <div>
+                            <div style="font-size: 2em; font-weight: bold; color: #27ae60;" id="exerciseCorrectCount">0</div>
+                            <div style="color: #666; margin-top: 5px;">Aciertos</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 2em; font-weight: bold; color: #e74c3c;" id="exerciseWrongCount">0</div>
+                            <div style="color: #666; margin-top: 5px;">Fallos</div>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="closeExerciseResultModal()" style="background: linear-gradient(45deg, #3498db, #2980b9); color: white; border: none; padding: 15px 40px; border-radius: 25px; font-size: 1.1em; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Cerrar</button>
             </div>
         </div>
     </div>
@@ -1390,9 +1567,7 @@
                 tabStaff: '🎼 Staff',
                 staffTitle: 'Read the Staff. Introduction',
                 staffPianoTitle: 'Select the note on the keyboard',
-                newNoteBtn: 'New Note',
-                checkBtn: 'Check',
-                clearStaffBtn: 'Clear',
+                clearStaffBtn: 'Clear All',
                 correctAnswer: 'Correct! 🎉',
                 incorrectAnswer: 'Incorrect. Try again!',
                 levelLabel: 'Level:',
@@ -1465,9 +1640,7 @@
                 tabStaff: '🎼 Pentagrama',
                 staffTitle: 'Leer el pentagrama. Introduccion',
                 staffPianoTitle: 'Selecciona la nota en el teclado',
-                newNoteBtn: 'Nueva Nota',
-                checkBtn: 'Verificar',
-                clearStaffBtn: 'Limpiar',
+                clearStaffBtn: 'Limpiar Todo',
                 correctAnswer: '¡Correcto! 🎉',
                 incorrectAnswer: 'Incorrecto. ¡Inténtalo de nuevo!',
                 levelLabel: 'Nivel:',
@@ -1504,6 +1677,34 @@
             'Sol': 'G', 'Sol#': 'G#', 'Lab': 'Ab',
             'La': 'A', 'La#': 'A#', 'Sib': 'Bb',
             'Si': 'B'
+        };
+        
+        // Mapping from sharps to flats (equivalent notes)
+        const sharpToFlat = {
+            'Do#': 'Reb',
+            'Re#': 'Mib',
+            'Fa#': 'Solb',
+            'Sol#': 'Lab',
+            'La#': 'Sib',
+            'C#': 'Db',
+            'D#': 'Eb',
+            'F#': 'Gb',
+            'G#': 'Ab',
+            'A#': 'Bb'
+        };
+        
+        // Reverse mapping from flats to sharps
+        const flatToSharp = {
+            'Reb': 'Do#',
+            'Mib': 'Re#',
+            'Solb': 'Fa#',
+            'Lab': 'Sol#',
+            'Sib': 'La#',
+            'Db': 'C#',
+            'Eb': 'D#',
+            'Gb': 'F#',
+            'Ab': 'G#',
+            'Bb': 'A#'
         };
         
         let currentNotation = 'italian'; // 'anglo' or 'italian'
@@ -1604,8 +1805,6 @@
             const t = translations[currentLanguage];
             const staffTitle = document.getElementById('staffTitle');
             const staffPianoTitle = document.getElementById('staffPianoTitle');
-            const newNoteBtn = document.getElementById('newNoteBtn');
-            const checkBtn = document.getElementById('checkBtn');
             const clearStaffBtn = document.getElementById('clearStaffBtn');
             const levelSelectLabel = document.getElementById('levelSelectLabel');
             const exerciseLabel = document.getElementById('exerciseLabel');
@@ -1614,8 +1813,6 @@
             
             if (staffTitle) staffTitle.textContent = t.staffTitle;
             if (staffPianoTitle) staffPianoTitle.textContent = t.staffPianoTitle;
-            if (newNoteBtn) newNoteBtn.textContent = t.newNoteBtn;
-            if (checkBtn) checkBtn.textContent = t.checkBtn;
             if (clearStaffBtn) clearStaffBtn.textContent = t.clearStaffBtn;
             if (levelSelectLabel) levelSelectLabel.textContent = t.levelLabel;
             if (exerciseLabel) exerciseLabel.textContent = t.exerciseLabel;
@@ -1936,6 +2133,35 @@
                     const fullNoteName = `${noteName}${octave}`;
                     key.dataset.note = fullNoteName;
                     key.dataset.noteIndex = noteIndex;
+                    
+                    // Add color classes for guidance based on level
+                    // Store note info for later color updates
+                    key.dataset.noteName = noteName;
+                    key.dataset.octave = octave;
+                    
+                    // Only apply colors immediately for levels 1 and 2
+                    if (currentLevel === '1' || currentLevel === '2') {
+                        // C3, C4, C5: celeste
+                        if (noteIndex === 0 && (octave === 3 || octave === 4 || octave === 5)) {
+                            key.classList.add('key-celeste');
+                        }
+                        // G4, G2: yellow
+                        if (noteIndex === 7 && (octave === 4 || octave === 2)) {
+                            key.classList.add('key-yellow');
+                        }
+                        // F3, F5: green
+                        if (noteIndex === 5 && (octave === 3 || octave === 5)) {
+                            key.classList.add('key-green');
+                        }
+                    } else if (currentLevel === '3' || currentLevel === '4') {
+                        // Level 3 and 4: All colored keys are gray
+                        if ((noteIndex === 0 && (octave === 3 || octave === 4 || octave === 5)) ||
+                            (noteIndex === 7 && (octave === 4 || octave === 2)) ||
+                            (noteIndex === 5 && (octave === 3 || octave === 5))) {
+                            key.classList.add('key-gray');
+                        }
+                    }
+                    // Level Practica: colors will be added/removed by togglePracticeAnchor
                     
                     const label = document.createElement('div');
                     label.className = 'key-label';
@@ -3319,12 +3545,16 @@
         window.onclick = function(event) {
             const insightsModal = document.getElementById('insightsModal');
             const helpModal = document.getElementById('helpModal');
+            const exerciseResultModal = document.getElementById('exerciseResultModal');
             
             if (event.target === insightsModal) {
                 closeModal();
             }
             if (event.target === helpModal) {
                 closeHelpModal();
+            }
+            if (event.target === exerciseResultModal) {
+                closeExerciseResultModal();
             }
         }
 
@@ -3358,9 +3588,185 @@
         let timeRemaining = 0;
         let timeInterval = null;
         let exerciseActive = false;
+        let exercisePaused = false;
         let notesCompleted = 0;
         let correctCount = 0;
         let wrongCount = 0;
+        
+        // Audio context for sound effects
+        let audioContext = null;
+        
+        // Initialize audio context (lazy initialization)
+        function initAudioContext() {
+            if (!audioContext) {
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.warn('AudioContext not available:', e);
+                    return null;
+                }
+            }
+            // Resume audio context if suspended (required by some browsers)
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            return audioContext;
+        }
+        
+        // Sound effect functions
+        function playSuccessSound() {
+            // Alegre y festivo - acorde mayor ascendente
+            const ctx = initAudioContext();
+            if (!ctx) return; // Audio not available
+            const frequencies = [523.25, 659.25, 783.99]; // C5, E5, G5 (acorde mayor)
+            const duration = 0.3;
+            
+            frequencies.forEach((freq, index) => {
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(ctx.destination);
+                
+                oscillator.frequency.value = freq;
+                oscillator.type = 'sine';
+                
+                // Envolvente ascendente y descendente
+                const now = ctx.currentTime;
+                const delay = index * 0.05; // Escalonado
+                gainNode.gain.setValueAtTime(0, now + delay);
+                gainNode.gain.linearRampToValueAtTime(0.3, now + delay + 0.05);
+                gainNode.gain.linearRampToValueAtTime(0, now + delay + duration);
+                
+                oscillator.start(now + delay);
+                oscillator.stop(now + delay + duration);
+            });
+        }
+        
+        function playFailureSound() {
+            // Triste y oscuro - acorde menor descendente
+            const ctx = initAudioContext();
+            if (!ctx) return; // Audio not available
+            const frequencies = [392.00, 466.16, 554.37]; // G4, Bb4, D5 (acorde menor)
+            const duration = 0.5;
+            
+            frequencies.forEach((freq, index) => {
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(ctx.destination);
+                
+                oscillator.frequency.value = freq;
+                oscillator.type = 'sawtooth'; // Sonido más oscuro
+                
+                // Envolvente descendente
+                const now = ctx.currentTime;
+                const delay = index * 0.08;
+                gainNode.gain.setValueAtTime(0.2, now + delay);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + delay + duration);
+                
+                oscillator.start(now + delay);
+                oscillator.stop(now + delay + duration);
+            });
+        }
+        
+        function playAttentionSound() {
+            // Muy breve y de atención - beep corto
+            const ctx = initAudioContext();
+            if (!ctx) return; // Audio not available
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(ctx.destination);
+            
+            oscillator.frequency.value = 800; // Frecuencia aguda
+            oscillator.type = 'square'; // Sonido más llamativo
+            
+            const now = ctx.currentTime;
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(0.2, now + 0.01);
+            gainNode.gain.linearRampToValueAtTime(0, now + 0.1);
+            
+            oscillator.start(now);
+            oscillator.stop(now + 0.1);
+        }
+        
+        function playGongSound() {
+            // Gong como en boxeo - sonido metálico resonante e intenso
+            const ctx = initAudioContext();
+            if (!ctx) return; // Audio not available
+            const duration = 2.5; // Más largo para más resonancia
+            const now = ctx.currentTime;
+            
+            // Más frecuencias y armónicos para sonido más intenso y metálico
+            const frequencies = [110, 165, 220, 275, 330, 440, 550, 660, 880, 1100]; // Más armónicos
+            
+            frequencies.forEach((freq, index) => {
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(ctx.destination);
+                
+                oscillator.frequency.value = freq;
+                // Usar 'triangle' para sonido más metálico, o 'sawtooth' para más intenso
+                oscillator.type = index < 3 ? 'sine' : 'triangle'; // Fundamentales más suaves, armónicos más metálicos
+                
+                // Envolvente con ataque más fuerte y decay más largo
+                // Amplitud más alta para los primeros armónicos
+                const baseAmplitude = index < 3 ? 0.4 : 0.25 / (index - 2); // Más volumen en fundamentales
+                gainNode.gain.setValueAtTime(0, now);
+                gainNode.gain.linearRampToValueAtTime(baseAmplitude, now + 0.1); // Ataque más lento para más impacto
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+                
+                oscillator.start(now);
+                oscillator.stop(now + duration);
+            });
+        }
+        
+        function playApplauseSound() {
+            // Acordes triunfales - serie de acordes mayores ascendentes tipo fanfarria
+            const ctx = initAudioContext();
+            if (!ctx) return; // Audio not available
+            const now = ctx.currentTime;
+            
+            // Serie de acordes triunfales: C mayor, F mayor, G mayor, C mayor (final)
+            const chordSequence = [
+                { root: 261.63, third: 329.63, fifth: 392.00 }, // C4 mayor
+                { root: 349.23, third: 440.00, fifth: 523.25 }, // F4 mayor
+                { root: 392.00, third: 493.88, fifth: 587.33 }, // G4 mayor
+                { root: 523.25, third: 659.25, fifth: 783.99 }  // C5 mayor (final más alto)
+            ];
+            
+            chordSequence.forEach((chord, chordIndex) => {
+                const chordDelay = chordIndex * 0.25; // Espaciado entre acordes
+                const chordDuration = 0.4;
+                
+                // Tocar las tres notas del acorde simultáneamente
+                [chord.root, chord.third, chord.fifth].forEach((freq, noteIndex) => {
+                    const oscillator = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+                    
+                    oscillator.frequency.value = freq;
+                    oscillator.type = 'sine';
+                    
+                    // Envolvente con ataque rápido y sustain
+                    const amplitude = 0.3;
+                    gainNode.gain.setValueAtTime(0, now + chordDelay);
+                    gainNode.gain.linearRampToValueAtTime(amplitude, now + chordDelay + 0.05);
+                    gainNode.gain.linearRampToValueAtTime(amplitude * 0.8, now + chordDelay + 0.2);
+                    gainNode.gain.linearRampToValueAtTime(0, now + chordDelay + chordDuration);
+                    
+                    oscillator.start(now + chordDelay);
+                    oscillator.stop(now + chordDelay + chordDuration);
+                });
+            });
+        }
         
         // Exercise configuration: [attempts, timeInSeconds]
         const exerciseConfig = {
@@ -3398,8 +3804,18 @@
                 });
             }
             
+            // Recreate piano with correct colors for new level
+            createPiano('piano');
+            createPiano('staffPiano');
+            
+            // Update key colors based on level
+            updateKeyColors();
+            
             // Redraw staff for new level
             drawStaff();
+            
+            // Reset exercise state when changing levels
+            resetExerciseState();
             
             // Special handling for "Practicar" level
             if (currentLevel === 'Practicar') {
@@ -3410,10 +3826,62 @@
                 // Set counters to null/empty
                 updateCountersForPractice();
             } else {
-                // Reset exercise state for other levels
-                resetExerciseState();
                 updateCounters();
             }
+        }
+
+        // Function to update key colors based on current level and practice anchors
+        function updateKeyColors() {
+            // Get all piano containers
+            const pianos = ['piano', 'staffPiano'];
+            
+            pianos.forEach(pianoId => {
+                const piano = document.getElementById(pianoId);
+                if (!piano) return;
+                
+                // Get all white keys
+                const keys = piano.querySelectorAll('.white-key');
+                
+                keys.forEach(key => {
+                    // Remove all color classes first
+                    key.classList.remove('key-celeste', 'key-yellow', 'key-green', 'key-gray');
+                    
+                    const noteName = key.dataset.noteName;
+                    const octave = parseInt(key.dataset.octave);
+                    const noteIndex = parseInt(key.dataset.noteIndex);
+                    
+                    if (currentLevel === '1' || currentLevel === '2') {
+                        // Levels 1 and 2: Apply colors immediately
+                        if (noteIndex === 0 && (octave === 3 || octave === 4 || octave === 5)) {
+                            key.classList.add('key-celeste');
+                        }
+                        if (noteIndex === 7 && (octave === 4 || octave === 2)) {
+                            key.classList.add('key-yellow');
+                        }
+                        if (noteIndex === 5 && (octave === 3 || octave === 5)) {
+                            key.classList.add('key-green');
+                        }
+                    } else if (currentLevel === '3' || currentLevel === '4') {
+                        // Level 3 and 4: All colored keys are gray
+                        if ((noteIndex === 0 && (octave === 3 || octave === 4 || octave === 5)) ||
+                            (noteIndex === 7 && (octave === 4 || octave === 2)) ||
+                            (noteIndex === 5 && (octave === 3 || octave === 5))) {
+                            key.classList.add('key-gray');
+                        }
+                    } else if (currentLevel === 'Practicar') {
+                        // Level Practica: Colors based on active anchors
+                        if (practiceAnchors['DO'] && noteIndex === 0 && (octave === 3 || octave === 4 || octave === 5)) {
+                            key.classList.add('key-celeste');
+                        }
+                        if (practiceAnchors['SOL'] && noteIndex === 7 && (octave === 4 || octave === 2)) {
+                            key.classList.add('key-yellow');
+                        }
+                        if (practiceAnchors['FA'] && noteIndex === 5 && (octave === 3 || octave === 5)) {
+                            key.classList.add('key-green');
+                        }
+                    }
+                });
+            });
         }
         
         function updateCountersForPractice() {
@@ -3445,6 +3913,7 @@
             }
             
             exerciseActive = false;
+            exercisePaused = false;
             notesCompleted = 0;
             correctCount = 0;
             wrongCount = 0;
@@ -3463,26 +3932,58 @@
             
             // Clear staff and selection
             clearStaffSelection();
-            const svg = document.getElementById('staffSvg');
-            if (svg) {
-                // Remove note but keep staff lines
-                const note = svg.querySelector('.staff-note');
-                if (note) note.remove();
-                const stem = svg.querySelector('line[stroke-width="2"]:not(.staff-line)');
-                if (stem) stem.remove();
-            }
+            // Clear all exercise notes (but keep staff lines and level highlights)
+            clearAllExerciseNotes();
             
-            // Enable GO button (unless in practice mode)
-            if (currentLevel !== 'Practicar') {
+            // Reset buttons (show GO, disable pause/stop)
                 const goBtn = document.getElementById('goBtn');
-                if (goBtn) goBtn.disabled = false;
+            const pauseBtn = document.getElementById('pauseBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            if (currentLevel !== 'Practicar') {
+                if (goBtn) {
+                    goBtn.style.display = 'inline-block';
+                    goBtn.disabled = false;
+                }
+                if (pauseBtn) {
+                    pauseBtn.style.display = 'inline-block';
+                    pauseBtn.disabled = true;
+                    pauseBtn.textContent = '⏸ PAUSE';
+                    pauseBtn.onclick = function() { pauseExercise(); };
+                }
+                if (stopBtn) {
+                    stopBtn.style.display = 'inline-block';
+                    stopBtn.disabled = true;
+                }
             }
         }
         
         function startExercise() {
+            // If paused, resume the exercise
+            if (exercisePaused) {
+                exercisePaused = false;
+                const pauseBtn = document.getElementById('pauseBtn');
+                const stopBtn = document.getElementById('stopBtn');
+                if (pauseBtn) {
+                    pauseBtn.textContent = '⏸ PAUSE';
+                    pauseBtn.onclick = function() { pauseExercise(); };
+                    pauseBtn.style.display = 'inline-block';
+                    pauseBtn.disabled = false;
+                }
+                if (stopBtn) {
+                    stopBtn.style.display = 'inline-block';
+                    stopBtn.disabled = false;
+                }
+                
+                // Resume timer
+                startTimer();
+                return;
+            }
+            
+            // If already active, don't start again
             if (exerciseActive) return;
             
             exerciseActive = true;
+            exercisePaused = false;
             notesCompleted = 0;
             correctCount = 0;
             wrongCount = 0;
@@ -3492,15 +3993,93 @@
             timeRemaining = maxTime;
             updateCounters();
             
-            // Disable GO button
+            // Hide GO button, enable pause and stop buttons
             const goBtn = document.getElementById('goBtn');
-            if (goBtn) goBtn.disabled = true;
+            const pauseBtn = document.getElementById('pauseBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            if (goBtn) goBtn.style.display = 'none';
+            if (pauseBtn) {
+                pauseBtn.style.display = 'inline-block';
+                pauseBtn.disabled = false;
+            }
+            if (stopBtn) {
+                stopBtn.style.display = 'inline-block';
+                stopBtn.disabled = false;
+            }
+            
+            // Clear any existing notes before starting
+            clearAllExerciseNotes();
             
             // Generate first note
             generateNewNote();
             
             // Start timer
             startTimer();
+        }
+        
+        function pauseExercise() {
+            if (!exerciseActive || exercisePaused) return;
+            
+            exercisePaused = true;
+            
+            // Stop timer
+            if (timeInterval) {
+                clearInterval(timeInterval);
+                timeInterval = null;
+            }
+            
+            // Change pause button to resume
+            const pauseBtn = document.getElementById('pauseBtn');
+            if (pauseBtn) {
+                pauseBtn.textContent = '▶ RESUME';
+                pauseBtn.onclick = function() { startExercise(); };
+            }
+        }
+        
+        function stopExercise() {
+            if (!exerciseActive) return;
+            
+            // Stop timer
+            if (timeInterval) {
+                clearInterval(timeInterval);
+                timeInterval = null;
+            }
+            
+            // Reset exercise state completely
+            exerciseActive = false;
+            exercisePaused = false;
+            notesCompleted = 0;
+            correctCount = 0;
+            wrongCount = 0;
+            
+            // Reset counters to max
+            remainingAttempts = maxAttempts;
+            timeRemaining = maxTime;
+            updateCounters();
+            
+            // Show GO button, disable pause and stop buttons
+            const goBtn = document.getElementById('goBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            if (goBtn) {
+                goBtn.style.display = 'inline-block';
+                goBtn.disabled = false;
+            }
+            if (pauseBtn) {
+                pauseBtn.style.display = 'inline-block';
+                pauseBtn.disabled = true;
+                pauseBtn.textContent = '⏸ PAUSE';
+                pauseBtn.onclick = function() { pauseExercise(); };
+            }
+            if (stopBtn) {
+                stopBtn.style.display = 'inline-block';
+                stopBtn.disabled = true;
+            }
+            
+            // Clear staff and selection
+            clearStaffSelection();
+            // Clear all exercise notes (but keep staff lines and level highlights)
+            clearAllExerciseNotes();
         }
         
         function updateCounters() {
@@ -3540,6 +4119,9 @@
             wrongCount++;
             updateCounters();
             
+            // Play failure sound
+            playFailureSound();
+            
             // Move to next note
             nextNote();
         }
@@ -3548,8 +4130,12 @@
             notesCompleted++;
             
             if (notesCompleted >= 15) {
-                // Exercise completed
+                // Exercise completed - play gong sound
+                playGongSound();
+                // Wait a bit for gong sound, then complete exercise
+                setTimeout(() => {
                 completeExercise();
+                }, 800);
             } else {
                 // Generate next note
                 generateNewNote();
@@ -3570,24 +4156,88 @@
             }
             
             exerciseActive = false;
+            exercisePaused = false;
+            
+            // Show result modal
+            showExerciseResultModal();
+            
+            // Reset buttons (show GO, disable pause/stop)
+            const goBtn = document.getElementById('goBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            if (goBtn) {
+                goBtn.style.display = 'inline-block';
+                goBtn.disabled = false;
+            }
+            if (pauseBtn) {
+                pauseBtn.style.display = 'inline-block';
+                pauseBtn.disabled = true;
+                pauseBtn.textContent = '⏸ PAUSE';
+                pauseBtn.onclick = function() { pauseExercise(); };
+            }
+            if (stopBtn) {
+                stopBtn.style.display = 'inline-block';
+                stopBtn.disabled = true;
+            }
+        }
+
+        function showExerciseResultModal() {
+            const modal = document.getElementById('exerciseResultModal');
+            const header = document.getElementById('exerciseResultHeader');
+            const title = document.getElementById('exerciseResultTitle');
+            const icon = document.getElementById('exerciseResultIcon');
+            const message = document.getElementById('exerciseResultMessage');
+            const correctCountEl = document.getElementById('exerciseCorrectCount');
+            const wrongCountEl = document.getElementById('exerciseWrongCount');
+            
+            // Update stats
+            correctCountEl.textContent = correctCount;
+            wrongCountEl.textContent = wrongCount;
             
             // Check if passed (wrongCount < 3)
             if (wrongCount < 3) {
-                // Passed - can move to next exercise
-                alert(`¡Ejercicio completado! Aciertos: ${correctCount}, Fallos: ${wrongCount}. Puedes pasar al siguiente ejercicio.`);
+                // Passed - play applause sound
+                playApplauseSound();
+                
+                // Check if this is Round 5 (last round)
+                const isRound5 = parseInt(currentExercise) === 5;
+                
+                // Update modal for success
+                modal.classList.remove('failed');
+                title.textContent = '¡Round Completado!';
+                icon.textContent = '🎉';
+                
+                if (isRound5) {
+                    // Special message for Round 5 - can advance to next level
+                    message.textContent = `¡Felicidades! Has completado el Round 5 con éxito. ¡Puedes pasar al siguiente nivel!`;
+                } else {
+                    // Regular success message
+                    message.textContent = `¡Felicidades! Has completado el Round ${currentExercise} con éxito. Puedes pasar al siguiente Round.`;
+                }
+                message.style.color = '#27ae60';
             } else {
                 // Failed
-                alert(`Ejercicio completado. Fallos: ${wrongCount}. Necesitas menos de 3 fallos para pasar al siguiente ejercicio.`);
+                modal.classList.add('failed');
+                title.textContent = 'Round Completado';
+                icon.textContent = '😔';
+                message.textContent = `Has completado el Round ${currentExercise}, pero necesitas menos de 3 fallos para pasar al siguiente Round. ¡Sigue practicando!`;
+                message.style.color = '#e74c3c';
             }
             
-            // Enable GO button
-            const goBtn = document.getElementById('goBtn');
-            if (goBtn) goBtn.disabled = false;
+            // Show modal
+            modal.style.display = 'block';
+        }
+
+        function closeExerciseResultModal() {
+            const modal = document.getElementById('exerciseResultModal');
+            modal.style.display = 'none';
         }
 
         function initializeStaff() {
             // Create piano for staff tab
             createPiano('staffPiano');
+            // Update key colors based on current level
+            updateKeyColors();
             
             // Draw the staff
             drawStaff();
@@ -3744,6 +4394,7 @@
                     highlight1.setAttribute('stroke-width', '8');
                     highlight1.setAttribute('opacity', '0.5'); // Transparent overlay
                     highlight1.setAttribute('stroke-linecap', 'round');
+                    highlight1.setAttribute('class', 'level1-highlight'); // Mark as level 1 highlight
                     svg.appendChild(highlight1);
                     
                     // Treble clef: Line 4 (yellow highlight)
@@ -3756,6 +4407,7 @@
                     highlight4.setAttribute('stroke-width', '8');
                     highlight4.setAttribute('opacity', '0.5'); // Transparent overlay
                     highlight4.setAttribute('stroke-linecap', 'round');
+                    highlight4.setAttribute('class', 'level1-highlight'); // Mark as level 1 highlight
                     svg.appendChild(highlight4);
                     
                     // Bass clef: Line 2 (green highlight)
@@ -3768,6 +4420,7 @@
                     highlight2.setAttribute('stroke-width', '8');
                     highlight2.setAttribute('opacity', '0.5'); // Transparent overlay
                     highlight2.setAttribute('stroke-linecap', 'round');
+                    highlight2.setAttribute('class', 'level1-highlight'); // Mark as level 1 highlight
                     svg.appendChild(highlight2);
                     
                     // Bass clef: Line 5 (yellow highlight)
@@ -3780,6 +4433,7 @@
                     highlight5.setAttribute('stroke-width', '8');
                     highlight5.setAttribute('opacity', '0.5'); // Transparent overlay
                     highlight5.setAttribute('stroke-linecap', 'round');
+                    highlight5.setAttribute('class', 'level1-highlight'); // Mark as level 1 highlight
                     svg.appendChild(highlight5);
                     
                     // Treble clef: Second space from top (blue highlight)
@@ -3792,6 +4446,7 @@
                     highlightSpaceTreble.setAttribute('stroke-width', '10');
                     highlightSpaceTreble.setAttribute('opacity', '0.5'); // Transparent overlay
                     highlightSpaceTreble.setAttribute('stroke-linecap', 'round');
+                    highlightSpaceTreble.setAttribute('class', 'level1-highlight'); // Mark as level 1 highlight
                     svg.appendChild(highlightSpaceTreble);
                     
                     // Bass clef: Second space from bottom (blue highlight)
@@ -3804,6 +4459,7 @@
                     highlightSpaceBass.setAttribute('stroke-width', '10');
                     highlightSpaceBass.setAttribute('opacity', '0.5'); // Transparent overlay
                     highlightSpaceBass.setAttribute('stroke-linecap', 'round');
+                    highlightSpaceBass.setAttribute('class', 'level1-highlight'); // Mark as level 1 highlight
                     svg.appendChild(highlightSpaceBass);
                     
                     // Line between the two staves (middle of treble and bass clefs)
@@ -3816,6 +4472,7 @@
                     middleLine.setAttribute('stroke-width', '6');
                     middleLine.setAttribute('opacity', '0.5'); // Transparent overlay
                     middleLine.setAttribute('stroke-linecap', 'round');
+                    middleLine.setAttribute('class', 'level1-highlight'); // Mark as level 1 highlight
                     svg.appendChild(middleLine);
                 }
                 
@@ -3850,6 +4507,7 @@
                 // Helper function to create a badge
                 function createBadge(x, y, color, noteText, showText = true) {
                     const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                    group.setAttribute('class', 'level1-badge'); // Mark as level 1 badge
                     
                     // Anchor emoji in corresponding color
                     const anchorEmoji = document.createElementNS('http://www.w3.org/2000/svg', 'text');
@@ -4124,23 +4782,117 @@
                     svg.appendChild(createBadge(endX, middleY, '#87ceeb', 'DO', false));
                 }
                 
-                // Level 3: Add badges without colors (all black) and without note names
-                if (currentLevel === '3') {
+                // Level 3 and 4: Add highlights and badges in light gray
+                if (currentLevel === '3' || currentLevel === '4') {
+                    const grayColor = '#d3d3d3'; // Light gray
+                    
+                    // Add gray highlights on special lines (same positions as level 1 and 2)
+                    // Treble clef: Line 1 (gray highlight)
+                    const highlight1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    highlight1.setAttribute('x1', '50');
+                    highlight1.setAttribute('y1', y1);
+                    highlight1.setAttribute('x2', width - 50);
+                    highlight1.setAttribute('y2', y1);
+                    highlight1.setAttribute('stroke', grayColor);
+                    highlight1.setAttribute('stroke-width', '8');
+                    highlight1.setAttribute('opacity', '0.5');
+                    highlight1.setAttribute('stroke-linecap', 'round');
+                    highlight1.setAttribute('class', 'level3-highlight level4-highlight');
+                    svg.appendChild(highlight1);
+                    
+                    // Treble clef: Line 4 (gray highlight)
+                    const highlight4 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    highlight4.setAttribute('x1', '50');
+                    highlight4.setAttribute('y1', y4);
+                    highlight4.setAttribute('x2', width - 50);
+                    highlight4.setAttribute('y2', y4);
+                    highlight4.setAttribute('stroke', grayColor);
+                    highlight4.setAttribute('stroke-width', '8');
+                    highlight4.setAttribute('opacity', '0.5');
+                    highlight4.setAttribute('stroke-linecap', 'round');
+                    highlight4.setAttribute('class', 'level3-highlight level4-highlight');
+                    svg.appendChild(highlight4);
+                    
+                    // Bass clef: Line 2 (gray highlight)
+                    const highlight2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    highlight2.setAttribute('x1', '50');
+                    highlight2.setAttribute('y1', y2);
+                    highlight2.setAttribute('x2', width - 50);
+                    highlight2.setAttribute('y2', y2);
+                    highlight2.setAttribute('stroke', grayColor);
+                    highlight2.setAttribute('stroke-width', '8');
+                    highlight2.setAttribute('opacity', '0.5');
+                    highlight2.setAttribute('stroke-linecap', 'round');
+                    highlight2.setAttribute('class', 'level3-highlight level4-highlight');
+                    svg.appendChild(highlight2);
+                    
+                    // Bass clef: Line 5 (gray highlight)
+                    const highlight5 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    highlight5.setAttribute('x1', '50');
+                    highlight5.setAttribute('y1', y5);
+                    highlight5.setAttribute('x2', width - 50);
+                    highlight5.setAttribute('y2', y5);
+                    highlight5.setAttribute('stroke', grayColor);
+                    highlight5.setAttribute('stroke-width', '8');
+                    highlight5.setAttribute('opacity', '0.5');
+                    highlight5.setAttribute('stroke-linecap', 'round');
+                    highlight5.setAttribute('class', 'level3-highlight level4-highlight');
+                    svg.appendChild(highlight5);
+                    
+                    // Treble clef: Second space from top (gray highlight)
+                    const highlightSpaceTreble = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    highlightSpaceTreble.setAttribute('x1', '50');
+                    highlightSpaceTreble.setAttribute('y1', spaceTreble);
+                    highlightSpaceTreble.setAttribute('x2', width - 50);
+                    highlightSpaceTreble.setAttribute('y2', spaceTreble);
+                    highlightSpaceTreble.setAttribute('stroke', grayColor);
+                    highlightSpaceTreble.setAttribute('stroke-width', '10');
+                    highlightSpaceTreble.setAttribute('opacity', '0.5');
+                    highlightSpaceTreble.setAttribute('stroke-linecap', 'round');
+                    highlightSpaceTreble.setAttribute('class', 'level3-highlight level4-highlight');
+                    svg.appendChild(highlightSpaceTreble);
+                    
+                    // Bass clef: Second space from bottom (gray highlight)
+                    const highlightSpaceBass = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    highlightSpaceBass.setAttribute('x1', '50');
+                    highlightSpaceBass.setAttribute('y1', spaceBass);
+                    highlightSpaceBass.setAttribute('x2', width - 50);
+                    highlightSpaceBass.setAttribute('y2', spaceBass);
+                    highlightSpaceBass.setAttribute('stroke', grayColor);
+                    highlightSpaceBass.setAttribute('stroke-width', '10');
+                    highlightSpaceBass.setAttribute('opacity', '0.5');
+                    highlightSpaceBass.setAttribute('stroke-linecap', 'round');
+                    highlightSpaceBass.setAttribute('class', 'level3-highlight level4-highlight');
+                    svg.appendChild(highlightSpaceBass);
+                    
+                    // Line between the two staves (middle line - gray)
+                    const middleLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    middleLine.setAttribute('x1', '50');
+                    middleLine.setAttribute('y1', middleY);
+                    middleLine.setAttribute('x2', width - 50);
+                    middleLine.setAttribute('y2', middleY);
+                    middleLine.setAttribute('stroke', grayColor);
+                    middleLine.setAttribute('stroke-width', '6');
+                    middleLine.setAttribute('opacity', '0.5');
+                    middleLine.setAttribute('stroke-linecap', 'round');
+                    middleLine.setAttribute('class', 'level3-highlight level4-highlight');
+                    svg.appendChild(middleLine);
+                    
                     const badgeRadius = 10;
                     const startX = 50;
                     const endX = width - 50;
                     
-                    // Helper function to create a badge (all black, no text)
+                    // Helper function to create a badge (all gray, no text)
                     function createBadge(x, y, color, noteText, showText = true) {
                         const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
                         
-                        // Anchor emoji in black (no color)
+                        // Anchor emoji in gray
                         const anchorEmoji = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                         anchorEmoji.setAttribute('x', x);
                         anchorEmoji.setAttribute('y', y + 6);
                         anchorEmoji.setAttribute('text-anchor', 'middle');
                         anchorEmoji.setAttribute('font-size', '20'); // Size 20
-                        anchorEmoji.setAttribute('fill', '#000000'); // Black (no color)
+                        anchorEmoji.setAttribute('fill', grayColor); // Gray
                         anchorEmoji.setAttribute('font-family', 'Arial, sans-serif');
                         anchorEmoji.textContent = '⚓';
                         group.appendChild(anchorEmoji);
@@ -4162,33 +4914,33 @@
                         return group;
                     }
                     
-                    // Badge 1: DO - at start and end of celeste space (treble) - NO TEXT, BLACK
-                    svg.appendChild(createBadge(startX, spaceTreble, '#000000', 'DO', false));
-                    svg.appendChild(createBadge(endX, spaceTreble, '#000000', 'DO', false));
+                    // Badge 1: DO - at start and end of celeste space (treble) - NO TEXT, GRAY
+                    svg.appendChild(createBadge(startX, spaceTreble, grayColor, 'DO', false));
+                    svg.appendChild(createBadge(endX, spaceTreble, grayColor, 'DO', false));
                     
-                    // Badge 2: FA - at start and end of green line (treble) - NO TEXT, BLACK
-                    svg.appendChild(createBadge(startX, y1, '#000000', 'FA', false));
-                    svg.appendChild(createBadge(endX, y1, '#000000', 'FA', false));
+                    // Badge 2: FA - at start and end of green line (treble) - NO TEXT, GRAY
+                    svg.appendChild(createBadge(startX, y1, grayColor, 'FA', false));
+                    svg.appendChild(createBadge(endX, y1, grayColor, 'FA', false));
                     
-                    // Badge 3: SOL - at start and end of yellow line (treble) - NO TEXT, BLACK
-                    svg.appendChild(createBadge(startX, y4, '#000000', 'SOL', false));
-                    svg.appendChild(createBadge(endX, y4, '#000000', 'SOL', false));
+                    // Badge 3: SOL - at start and end of yellow line (treble) - NO TEXT, GRAY
+                    svg.appendChild(createBadge(startX, y4, grayColor, 'SOL', false));
+                    svg.appendChild(createBadge(endX, y4, grayColor, 'SOL', false));
                     
-                    // Badge 4: FA - at start and end of green line (bass) - NO TEXT, BLACK
-                    svg.appendChild(createBadge(startX, y2, '#000000', 'FA', false));
-                    svg.appendChild(createBadge(endX, y2, '#000000', 'FA', false));
+                    // Badge 4: FA - at start and end of green line (bass) - NO TEXT, GRAY
+                    svg.appendChild(createBadge(startX, y2, grayColor, 'FA', false));
+                    svg.appendChild(createBadge(endX, y2, grayColor, 'FA', false));
                     
-                    // Badge 5: SOL - at start and end of yellow line (bass) - NO TEXT, BLACK
-                    svg.appendChild(createBadge(startX, y5, '#000000', 'SOL', false));
-                    svg.appendChild(createBadge(endX, y5, '#000000', 'SOL', false));
+                    // Badge 5: SOL - at start and end of yellow line (bass) - NO TEXT, GRAY
+                    svg.appendChild(createBadge(startX, y5, grayColor, 'SOL', false));
+                    svg.appendChild(createBadge(endX, y5, grayColor, 'SOL', false));
                     
-                    // Badge 6: DO - at start and end of celeste space (bass) - NO TEXT, BLACK
-                    svg.appendChild(createBadge(startX, spaceBass, '#000000', 'DO', false));
-                    svg.appendChild(createBadge(endX, spaceBass, '#000000', 'DO', false));
+                    // Badge 6: DO - at start and end of celeste space (bass) - NO TEXT, GRAY
+                    svg.appendChild(createBadge(startX, spaceBass, grayColor, 'DO', false));
+                    svg.appendChild(createBadge(endX, spaceBass, grayColor, 'DO', false));
                     
-                    // Badge 7: DO - at start and end of middle line - NO TEXT, BLACK
-                    svg.appendChild(createBadge(startX, middleY, '#000000', 'DO', false));
-                    svg.appendChild(createBadge(endX, middleY, '#000000', 'DO', false));
+                    // Badge 7: DO - at start and end of middle line - NO TEXT, GRAY
+                    svg.appendChild(createBadge(startX, middleY, grayColor, 'DO', false));
+                    svg.appendChild(createBadge(endX, middleY, grayColor, 'DO', false));
                 }
             }
         }
@@ -4197,18 +4949,157 @@
             // Clear previous selection
             clearStaffSelection();
             
-            // Generate a random note (C4 to B5 range for treble clef)
-            const noteIndex = Math.floor(Math.random() * 12); // 0-11 (C to B)
-            const octave = 4 + Math.floor(Math.random() * 2); // 4 or 5
+            let noteIndex, octave;
             
-            const noteName = noteNames[noteIndex];
+            if (currentLevel === '1') {
+                // Level 1: Generate random NATURAL note (no sharps) between G2 and F5
+                // Natural notes have indices: 0 (C), 2 (D), 4 (E), 5 (F), 7 (G), 9 (A), 11 (B)
+                const naturalNoteIndices = [0, 2, 4, 5, 7, 9, 11];
+                
+                // Generate all possible natural notes in the range G2 to F5
+                const possibleNotes = [];
+                // Octave 2: G2, A2, B2 (noteIndex 7, 9, 11)
+                for (let noteIdx of naturalNoteIndices) {
+                    if (noteIdx >= 7) { // G, A, B
+                        possibleNotes.push({ noteIndex: noteIdx, octave: 2 });
+                    }
+                }
+                // Octave 3: All natural notes (C, D, E, F, G, A, B)
+                for (let noteIdx of naturalNoteIndices) {
+                    possibleNotes.push({ noteIndex: noteIdx, octave: 3 });
+                }
+                // Octave 4: All natural notes (C, D, E, F, G, A, B)
+                for (let noteIdx of naturalNoteIndices) {
+                    possibleNotes.push({ noteIndex: noteIdx, octave: 4 });
+                }
+                // Octave 5: C5, D5, E5, F5 (noteIndex 0, 2, 4, 5)
+                for (let noteIdx of naturalNoteIndices) {
+                    if (noteIdx <= 5) { // C, D, E, F
+                        possibleNotes.push({ noteIndex: noteIdx, octave: 5 });
+                    }
+                }
+                
+                // Select a random note from the possible notes
+                const randomNote = possibleNotes[Math.floor(Math.random() * possibleNotes.length)];
+                noteIndex = randomNote.noteIndex;
+                octave = randomNote.octave;
+            } else if (currentLevel === '2') {
+                // Level 2: Generate random NATURAL note (no sharps) in C2 to B5 range
+                const naturalNoteIndices = [0, 2, 4, 5, 7, 9, 11]; // C D E F G A B
+                const possibleNotes = [];
+                // Octaves 2 through 5: all naturals
+                for (let octaveCandidate = 2; octaveCandidate <= 5; octaveCandidate++) {
+                    for (let noteIdx of naturalNoteIndices) {
+                        possibleNotes.push({ noteIndex: noteIdx, octave: octaveCandidate });
+                    }
+                }
+                const randomNote = possibleNotes[Math.floor(Math.random() * possibleNotes.length)];
+                noteIndex = randomNote.noteIndex;
+                octave = randomNote.octave;
+            } else if (currentLevel === '4') {
+                // Level 4: Generate random note (ALL notes including sharps) between C2 and B5
+                // C2: noteIndex 0, octave 2 -> noteValue = (2-4)*12 + 0 = -24
+                // B5: noteIndex 11, octave 5 -> noteValue = (5-4)*12 + 11 = 23
+                // Total range: -24 to 23 (48 semitones)
+                const minNoteValue = -24; // C2
+                const maxNoteValue = 23;  // B5
+                const randomNoteValue = minNoteValue + Math.floor(Math.random() * (maxNoteValue - minNoteValue + 1));
+                
+                // Convert noteValue back to noteIndex and octave
+                // noteValue = (octave - 4) * 12 + noteIndex
+                if (randomNoteValue >= 0) {
+                    octave = 4 + Math.floor(randomNoteValue / 12);
+                    noteIndex = randomNoteValue % 12;
+                } else {
+                    // For negative values: noteValue = (octave - 4) * 12 + noteIndex
+                    // We need to find octave < 4 and noteIndex 0-11
+                    let found = false;
+                    for (let testOctave = 3; testOctave >= 0 && !found; testOctave--) {
+                        const testNoteIndex = randomNoteValue - (testOctave - 4) * 12;
+                        if (testNoteIndex >= 0 && testNoteIndex < 12) {
+                            octave = testOctave;
+                            noteIndex = testNoteIndex;
+                            found = true;
+                        }
+                    }
+                    // Fallback (shouldn't happen with our range)
+                    if (!found) {
+                        octave = 2;
+                        noteIndex = ((randomNoteValue % 12) + 12) % 12;
+                    }
+                }
+            } else if (currentLevel === '3') {
+                // Level 3: Same as Level 2 — NATURAL notes only, C2 to B5
+                const naturalNoteIndices = [0, 2, 4, 5, 7, 9, 11]; // C D E F G A B
+                const possibleNotes = [];
+                for (let octaveCandidate = 2; octaveCandidate <= 5; octaveCandidate++) {
+                    for (let noteIdx of naturalNoteIndices) {
+                        possibleNotes.push({ noteIndex: noteIdx, octave: octaveCandidate });
+                    }
+                }
+                const randomNote = possibleNotes[Math.floor(Math.random() * possibleNotes.length)];
+                noteIndex = randomNote.noteIndex;
+                octave = randomNote.octave;
+            } else if (currentLevel === '5') {
+                // Level 5: Generate random note (ALL notes including sharps) between C2 and B5
+                // AND randomly show sharps as flats when applicable
+                // C2: noteIndex 0, octave 2 -> noteValue = (2-4)*12 + 0 = -24
+                // B5: noteIndex 11, octave 5 -> noteValue = (5-4)*12 + 11 = 23
+                // Total range: -24 to 23 (48 semitones)
+                const minNoteValue = -24; // C2
+                const maxNoteValue = 23;  // B5
+                const randomNoteValue = minNoteValue + Math.floor(Math.random() * (maxNoteValue - minNoteValue + 1));
+                
+                // Convert noteValue back to noteIndex and octave
+                // noteValue = (octave - 4) * 12 + noteIndex
+                if (randomNoteValue >= 0) {
+                    octave = 4 + Math.floor(randomNoteValue / 12);
+                    noteIndex = randomNoteValue % 12;
+                } else {
+                    // For negative values: noteValue = (octave - 4) * 12 + noteIndex
+                    // We need to find octave < 4 and noteIndex 0-11
+                    let found = false;
+                    for (let testOctave = 3; testOctave >= 0 && !found; testOctave--) {
+                        const testNoteIndex = randomNoteValue - (testOctave - 4) * 12;
+                        if (testNoteIndex >= 0 && testNoteIndex < 12) {
+                            octave = testOctave;
+                            noteIndex = testNoteIndex;
+                            found = true;
+                        }
+                    }
+                    // Fallback (shouldn't happen with our range)
+                    if (!found) {
+                        octave = 2;
+                        noteIndex = ((randomNoteValue % 12) + 12) % 12;
+                    }
+                }
+            } else {
+                // Other levels: Generate a random note (C4 to B5 range for treble clef)
+                noteIndex = Math.floor(Math.random() * 12); // 0-11 (C to B)
+                octave = 4 + Math.floor(Math.random() * 2); // 4 or 5
+            }
+            
+            // Get base note name
+            let noteName = noteNames[noteIndex];
+            
+            // Level 5: Randomly convert sharps to flats (50% chance)
+            if (currentLevel === '5' && sharpToFlat[noteName]) {
+                // Randomly decide whether to show as sharp or flat
+                const useFlat = Math.random() < 0.5;
+                if (useFlat) {
+                    noteName = sharpToFlat[noteName];
+                }
+            }
+            
             const fullNoteName = `${noteName}${octave}`;
             
+            // Store both the displayed name and the base noteIndex for comparison
             window.currentStaffNote = {
                 noteIndex: noteIndex,
                 octave: octave,
                 fullName: fullNoteName,
-                noteName: noteName
+                noteName: noteName,
+                baseNoteName: noteNames[noteIndex] // Store original name for comparison
             };
             
             // Draw the note on the staff
@@ -4221,155 +5112,581 @@
             }
         }
 
+        function clearAllExerciseNotes() {
+            // Function to clear all notes from the staff (called when starting a new round)
+            const svg = document.getElementById('staffSvg');
+            if (!svg) return;
+            
+            // Remove all exercise notes (but keep staff lines and level highlights)
+            const exerciseNotes = svg.querySelectorAll('.staff-note.exercise-note, .practice-note.exercise-note');
+            exerciseNotes.forEach(note => note.remove());
+            
+            // Remove all exercise ledger lines
+            const exerciseLedgerLines = svg.querySelectorAll('.practice-ledger-line.exercise-ledger');
+            exerciseLedgerLines.forEach(line => line.remove());
+            
+            // Remove all exercise sharp and flat symbols
+            const exerciseSharps = svg.querySelectorAll('text[data-sharp-symbol="true"].exercise-symbol, text[data-flat-symbol="true"].exercise-symbol');
+            exerciseSharps.forEach(symbol => symbol.remove());
+        }
+        
         function drawNoteOnStaff(noteIndex, octave) {
             const svg = document.getElementById('staffSvg');
             if (!svg) return;
             
-            // Remove previous note and stem
-            const previousNote = svg.querySelector('.staff-note');
-            if (previousNote) {
-                previousNote.remove();
-            }
-            // Remove previous stems (all lines that are not staff lines)
-            const previousStems = svg.querySelectorAll('line:not(.staff-line)');
-            previousStems.forEach(stem => stem.remove());
+            // Count existing exercise notes to determine horizontal offset
+            const existingNotes = svg.querySelectorAll('.staff-note.exercise-note, .practice-note.exercise-note');
+            const noteCount = existingNotes.length;
+            const horizontalOffset = noteCount * 32; // tighter spacing between notes
+            const baseXPosition = 100; // start closer to the beginning of the staff
+            const xPosition = baseXPosition + horizontalOffset;
             
-            let staffTop, staffHeight, lineSpacing;
-            
-            // Level 1: Two staves (treble and bass) with reduced spacing
+            // Level 1: Use Practica style (oval, black, no stem, with ledger lines)
             if (currentLevel === '1') {
-                staffHeight = 80; // Reduced from 200 to 80 (40% of original)
-                lineSpacing = staffHeight / 4; // 20 instead of 50
+                // Use the same positioning logic as drawPracticeNoteOnStaff
+                const staffHeight = 80;
+                const lineSpacing = staffHeight / 4; // 20 pixels between consecutive lines
+                const trebleStaffTop = 40;
+                const bassStaffTop = 180;
                 
-                // Determine which staff to use based on octave
-                // Treble clef: octave 4-5 (C4 and above)
-                // Bass clef: octave 2-3 (below C4)
-                if (octave >= 4) {
-                    // Treble clef staff (top)
-                    staffTop = 40;
-                } else {
-                    // Bass clef staff (bottom)
-                    staffTop = 180; // Match the position in drawStaff()
+                // Reference positions:
+                // C4 (Do central) at middle line between staves: y = 150
+                // E4 (Mi4) at treble bottom line (line 4): y = 120
+                // A3 (La3) at bass top line (line 0): y = 180
+                const middleLineY = 150; // C4 position
+                const trebleBottomLine = trebleStaffTop + (4 * lineSpacing); // 120 (E4)
+                const bassTopLine = bassStaffTop; // 180 (A3)
+                
+                const noteValue = (octave - 4) * 12 + noteIndex;
+                const noteName = noteNames[noteIndex];
+                const isSharp = noteName && noteName.includes('#');
+                const naturalNoteSpacing = 10; // 10 pixels per natural note step
+                // xPosition is already calculated at the start of the function
+                
+                // Helper function to calculate steps from A3 using noteIndex directly
+                function getNaturalStepsFromA3UsingNoteIndex(noteValue, noteIndex, octave) {
+                    const noteToStepsFromA = {
+                        9: 0,   // A = 0 steps
+                        7: 1,   // G = 1 step down
+                        5: 2,   // F = 2 steps down
+                        4: 3,   // E = 3 steps down
+                        2: 4,   // D = 4 steps down
+                        0: 5,   // C = 5 steps down
+                        11: 6,  // B = 6 steps down
+                        1: 5,   // C# -> C = 5 steps down
+                        3: 4,   // D# -> D = 4 steps down
+                        6: 2,   // F# -> F = 2 steps down
+                        8: 1,   // G# -> G = 1 step down
+                        10: 0   // A# -> A = 0 steps
+                    };
+                    
+                    const stepsInOctave = noteToStepsFromA[noteIndex] !== undefined ? noteToStepsFromA[noteIndex] : 0;
+                    let octavesBelow = 3 - octave; // A3 is octave 3
+                    
+                    if (noteIndex === 11 && octave === 2) {
+                        return 6;
+                    }
+                    
+                    return (octavesBelow * 7) + stepsInOctave;
                 }
+                
+                // Helper function to get natural steps from C4
+                function getNaturalStepsFromC4(semitones) {
+                    const octaves = Math.floor(semitones / 12);
+                    const noteInOctave = semitones % 12;
+                    
+                    const noteToStep = {
+                        0: 0,   // C
+                        2: 1,   // D
+                        4: 2,   // E
+                        5: 3,   // F
+                        7: 4,   // G
+                        9: 5,   // A
+                        11: 6   // B
+                    };
+                    
+                    let stepInOctave;
+                    if (noteToStep[noteInOctave] !== undefined) {
+                        stepInOctave = noteToStep[noteInOctave];
             } else {
-                // Other levels: single treble clef staff
-                staffTop = 50;
-                staffHeight = 200;
-                lineSpacing = staffHeight / 4;
+                        if (noteInOctave === 1) stepInOctave = 0; // C# -> C
+                        else if (noteInOctave === 3) stepInOctave = 1; // D# -> D
+                        else if (noteInOctave === 6) stepInOctave = 3; // F# -> F
+                        else if (noteInOctave === 8) stepInOctave = 4; // G# -> G
+                        else if (noteInOctave === 10) stepInOctave = 5; // A# -> A
+                        else stepInOctave = 0;
+                    }
+                    
+                    return (octaves * 7) + stepInOctave;
+                }
+                
+                // Calculate Y position using reference points (same as drawPracticeNoteOnStaff)
+            let yPosition;
+                if (noteValue === 0) {
+                    yPosition = middleLineY;
+                } else if (noteValue === 2) {
+                    const distanceC4ToB3 = (bassTopLine - naturalNoteSpacing) - middleLineY;
+                    yPosition = middleLineY - distanceC4ToB3;
+                } else if (noteValue >= 4) {
+                    if (noteValue === 4) {
+                        yPosition = trebleBottomLine;
+                    } else {
+                        const stepsFromC4 = getNaturalStepsFromC4(noteValue);
+                        const stepsFromE4 = stepsFromC4 - 2;
+                        yPosition = trebleBottomLine - (stepsFromE4 * naturalNoteSpacing);
+                    }
+                } else if (noteValue === -1) {
+                    yPosition = bassTopLine - naturalNoteSpacing;
+                } else if (noteValue <= -3) {
+                    if (noteValue === -3) {
+                        yPosition = bassTopLine;
+                    } else {
+                        const stepsFromA3 = getNaturalStepsFromA3UsingNoteIndex(noteValue, noteIndex, octave);
+                        yPosition = bassTopLine + (Math.abs(stepsFromA3) * naturalNoteSpacing);
+                    }
+                } else {
+                    const stepsFromC4 = getNaturalStepsFromC4(noteValue);
+                    yPosition = middleLineY - (stepsFromC4 * naturalNoteSpacing);
+                }
+                
+                // Draw oval note (ellipse) - black, no stem
+                const note = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                note.setAttribute('cx', xPosition);
+                note.setAttribute('cy', yPosition);
+                note.setAttribute('rx', '8'); // Horizontal radius (oval)
+                note.setAttribute('ry', '6'); // Vertical radius (oval)
+                note.setAttribute('fill', '#000000'); // Black
+                note.setAttribute('stroke', '#000');
+                note.setAttribute('stroke-width', '1');
+                note.setAttribute('class', 'staff-note practice-note exercise-note');
+                svg.appendChild(note);
+                
+                // Helper function to draw a ledger line
+                function drawLedgerLine(svg, xPos, yPos) {
+                    const lineLength = 25;
+                    const ledgerLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    ledgerLine.setAttribute('x1', xPos - (lineLength / 2));
+                    ledgerLine.setAttribute('y1', yPos);
+                    ledgerLine.setAttribute('x2', xPos + (lineLength / 2));
+                    ledgerLine.setAttribute('y2', yPos);
+                    ledgerLine.setAttribute('stroke', '#000000');
+                    ledgerLine.setAttribute('stroke-width', '2');
+                    ledgerLine.setAttribute('class', 'practice-ledger-line exercise-ledger');
+                    svg.appendChild(ledgerLine);
+                }
+                
+                // Draw ledger lines for notes that need them
+                // C4 needs a ledger line at the middle line
+                if (noteValue === 0) {
+                    drawLedgerLine(svg, xPosition, yPosition);
+                }
+                
+                // Draw ledger lines for notes above the treble staff (A5 and B5)
+                if (noteValue === 21 || noteValue === 23) {
+                    const ledgerY = trebleStaffTop - lineSpacing;
+                    drawLedgerLine(svg, xPosition, ledgerY);
+                }
+                
+                // Draw ledger lines for notes below the bass staff (octave 2 notes)
+                if (noteValue === -20) {
+                    drawLedgerLine(svg, xPosition, yPosition);
+                } else if (noteValue === -22) {
+                    const e2StepsFromA3 = getNaturalStepsFromA3UsingNoteIndex(-20, 4, 2);
+                    const e2YPosition = bassTopLine + (Math.abs(e2StepsFromA3) * naturalNoteSpacing);
+                    drawLedgerLine(svg, xPosition, e2YPosition);
+                } else if (noteValue === -24) {
+                    const e2StepsFromA3 = getNaturalStepsFromA3UsingNoteIndex(-20, 4, 2);
+                    const e2YPosition = bassTopLine + (Math.abs(e2StepsFromA3) * naturalNoteSpacing);
+                    drawLedgerLine(svg, xPosition, e2YPosition);
+                    drawLedgerLine(svg, xPosition, yPosition);
+                }
+                
+                // Draw sharp symbol (#) if note is sharp, positioned to the left of the note
+                if (isSharp) {
+                    const sharpSymbol = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    sharpSymbol.setAttribute('x', xPosition - 15);
+                    sharpSymbol.setAttribute('y', yPosition);
+                    sharpSymbol.setAttribute('text-anchor', 'middle');
+                    sharpSymbol.setAttribute('font-size', '16');
+                    sharpSymbol.setAttribute('font-weight', 'bold');
+                    sharpSymbol.setAttribute('fill', '#000000');
+                    sharpSymbol.setAttribute('font-family', 'Arial, sans-serif');
+                    sharpSymbol.setAttribute('data-sharp-symbol', 'true');
+                    sharpSymbol.setAttribute('class', 'exercise-symbol');
+                    sharpSymbol.textContent = '#';
+                    svg.appendChild(sharpSymbol);
+                }
+                
+                return; // Done for level 1
             }
             
-            // Calculate Y position based on note
-            // Middle C (C4) is one line below the staff (ledger line)
-            // C4 = noteIndex 0, octave 4
-            // B4 = noteIndex 11, octave 4 (top line of staff)
-            // C5 = noteIndex 0, octave 5 (one ledger line above)
-            
-            let yPosition;
+            // Level 5: Use Practica style (oval, black, no stem, with ledger lines) AND support flats
+            if (currentLevel === '5') {
+                // Use the same positioning logic as drawPracticeNoteOnStaff
+                const staffHeight = 80;
+                const lineSpacing = staffHeight / 4; // 20 pixels between consecutive lines
+                const trebleStaffTop = 40;
+                const bassStaffTop = 180;
+                
+                // Reference positions:
+                // C4 (Do central) at middle line between staves: y = 150
+                // E4 (Mi4) at treble bottom line (line 4): y = 120
+                // A3 (La3) at bass top line (line 0): y = 180
+                const middleLineY = 150; // C4 position
+                const trebleBottomLine = trebleStaffTop + (4 * lineSpacing); // 120 (E4)
+                const bassTopLine = bassStaffTop; // 180 (A3)
+                
             const noteValue = (octave - 4) * 12 + noteIndex;
-            
-            // Middle C (C4) is at position -1 (below staff)
-            // B4 is at position 11 (top line)
-            // C5 is at position 12 (above staff)
-            
-            // Map note to staff position
-            // C4 = -1, D4 = 0, E4 = 1, F4 = 2, G4 = 3, A4 = 4, B4 = 5
-            // C5 = 6, D5 = 7, etc.
-            // For bass clef: C2 = -24, D2 = -22, E2 = -20, F2 = -19, G2 = -17, A2 = -15, B2 = -13
-            // C3 = -12, D3 = -10, E3 = -8, F3 = -7, G3 = -5, A3 = -3, B3 = -1
-            
-            const notePositions = {
-                // Octave 2 (bass clef - below staff)
-                [-24]: -13,  // C2 - below bass staff (ledger line)
-                [-23]: -12.5, // C#2
-                [-22]: -12,  // D2 - below bass staff
-                [-21]: -11.5, // D#2
-                [-20]: -11,  // E2 - below bass staff
-                [-19]: -10,  // F2 - below bass staff
-                [-18]: -9.5, // F#2
-                [-17]: -9,   // G2 - below bass staff
-                [-16]: -8.5, // G#2
-                [-15]: -8,   // A2 - below bass staff
-                [-14]: -7.5, // A#2
-                [-13]: -7,   // B2 - below bass staff
-                // Octave 3 (bass clef)
-                [-12]: -6,   // C3 - bass staff bottom line
-                [-11]: -5.5, // C#3
-                [-10]: -5,   // D3 - bass staff first space
-                [-9]: -4.5,  // D#3
-                [-8]: -4,    // E3 - bass staff second line
-                [-7]: -3,    // F3 - bass staff second space
-                [-6]: -2.5,  // F#3
-                [-5]: -2,    // G3 - bass staff third line
-                [-4]: -1.5,  // G#3
-                [-3]: -1,    // A3 - bass staff third space
-                [-2]: -0.5,  // A#3
-                [-1]: 0,     // B3 - bass staff fourth line
-                // Octave 4 (treble clef)
-                0: -1,     // C4 - below treble staff (ledger line)
-                1: -0.5,   // C#4 - between C and D
-                2: 0,      // D4 - treble staff bottom line
-                3: 0.5,    // D#4 - between D and E
-                4: 1,      // E4 - treble staff first space
-                5: 2,      // F4 - treble staff second line
-                6: 2.5,    // F#4 - between F and G
-                7: 3,      // G4 - treble staff second space
-                8: 3.5,    // G#4 - between G and A
-                9: 4,      // A4 - treble staff third line
-                10: 4.5,   // A#4 - between A and B
-                11: 5,     // B4 - treble staff third space
-                // Octave 5 (treble clef - above staff)
-                12: 6,     // C5 - treble staff top line
-                13: 6.5,   // C#5
-                14: 7,     // D5 - above treble staff
-                15: 7.5,   // D#5
-                16: 8,     // E5 - above treble staff
-                17: 9,     // F5 - above treble staff
-                18: 9.5,   // F#5
-                19: 10,    // G5 - above treble staff
-                20: 10.5,  // G#5
-                21: 11,    // A5 - above treble staff
-                22: 11.5,  // A#5
-                23: 12,    // B5 - above treble staff
-            };
-            
-            const position = notePositions[noteValue] !== undefined ? notePositions[noteValue] : noteValue - 1;
-            yPosition = staffTop + (2 * lineSpacing) - (position * (lineSpacing / 2));
-            
-            // Draw note (circle)
-            const note = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            note.setAttribute('cx', '400');
+                // Get the displayed note name (may be flat or sharp)
+                const displayedNoteName = window.currentStaffNote ? window.currentStaffNote.noteName : noteNames[noteIndex];
+                const isSharp = displayedNoteName && displayedNoteName.includes('#');
+                const isFlat = displayedNoteName && flatToSharp.hasOwnProperty(displayedNoteName);
+                const naturalNoteSpacing = 10; // 10 pixels per natural note step
+                // xPosition is already calculated at the start of the function
+                
+                // Helper function to calculate steps from A3 using noteIndex directly
+                function getNaturalStepsFromA3UsingNoteIndex(noteValue, noteIndex, octave) {
+                    const noteToStepsFromA = {
+                        9: 0,   // A = 0 steps
+                        7: 1,   // G = 1 step down
+                        5: 2,   // F = 2 steps down
+                        4: 3,   // E = 3 steps down
+                        2: 4,   // D = 4 steps down
+                        0: 5,   // C = 5 steps down
+                        11: 6,  // B = 6 steps down
+                        1: 5,   // C# -> C = 5 steps down
+                        3: 4,   // D# -> D = 4 steps down
+                        6: 2,   // F# -> F = 2 steps down
+                        8: 1,   // G# -> G = 1 step down
+                        10: 0   // A# -> A = 0 steps
+                    };
+                    
+                    const stepsInOctave = noteToStepsFromA[noteIndex] !== undefined ? noteToStepsFromA[noteIndex] : 0;
+                    let octavesBelow = 3 - octave; // A3 is octave 3
+                    
+                    if (noteIndex === 11 && octave === 2) {
+                        return 6;
+                    }
+                    
+                    return (octavesBelow * 7) + stepsInOctave;
+                }
+                
+                // Helper function to get natural steps from C4
+                function getNaturalStepsFromC4(semitones) {
+                    const octaves = Math.floor(semitones / 12);
+                    const noteInOctave = semitones % 12;
+                    
+                    const noteToStep = {
+                        0: 0,   // C
+                        2: 1,   // D
+                        4: 2,   // E
+                        5: 3,   // F
+                        7: 4,   // G
+                        9: 5,   // A
+                        11: 6   // B
+                    };
+                    
+                    let stepInOctave;
+                    if (noteToStep[noteInOctave] !== undefined) {
+                        stepInOctave = noteToStep[noteInOctave];
+                    } else {
+                        if (noteInOctave === 1) stepInOctave = 0; // C# -> C
+                        else if (noteInOctave === 3) stepInOctave = 1; // D# -> D
+                        else if (noteInOctave === 6) stepInOctave = 3; // F# -> F
+                        else if (noteInOctave === 8) stepInOctave = 4; // G# -> G
+                        else if (noteInOctave === 10) stepInOctave = 5; // A# -> A
+                        else stepInOctave = 0;
+                    }
+                    
+                    return (octaves * 7) + stepInOctave;
+                }
+                
+                // Calculate Y position using reference points (same as drawPracticeNoteOnStaff)
+                let yPosition;
+                if (noteValue === 0) {
+                    yPosition = middleLineY;
+                } else if (noteValue === 2) {
+                    const distanceC4ToB3 = (bassTopLine - naturalNoteSpacing) - middleLineY;
+                    yPosition = middleLineY - distanceC4ToB3;
+                } else if (noteValue >= 4) {
+                    if (noteValue === 4) {
+                        yPosition = trebleBottomLine;
+                    } else {
+                        const stepsFromC4 = getNaturalStepsFromC4(noteValue);
+                        const stepsFromE4 = stepsFromC4 - 2;
+                        yPosition = trebleBottomLine - (stepsFromE4 * naturalNoteSpacing);
+                    }
+                } else if (noteValue === -1) {
+                    yPosition = bassTopLine - naturalNoteSpacing;
+                } else if (noteValue <= -3) {
+                    if (noteValue === -3) {
+                        yPosition = bassTopLine;
+                    } else {
+                        const stepsFromA3 = getNaturalStepsFromA3UsingNoteIndex(noteValue, noteIndex, octave);
+                        yPosition = bassTopLine + (Math.abs(stepsFromA3) * naturalNoteSpacing);
+                    }
+                } else {
+                    const stepsFromC4 = getNaturalStepsFromC4(noteValue);
+                    yPosition = middleLineY - (stepsFromC4 * naturalNoteSpacing);
+                }
+                
+                // Draw oval note (ellipse) - black, no stem
+                const note = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                note.setAttribute('cx', xPosition);
             note.setAttribute('cy', yPosition);
-            note.setAttribute('r', currentLevel === '1' ? '10' : '15'); // Smaller note for level 1
-            note.setAttribute('fill', '#e74c3c');
+                note.setAttribute('rx', '8'); // Horizontal radius (oval)
+                note.setAttribute('ry', '6'); // Vertical radius (oval)
+                note.setAttribute('fill', '#000000'); // Black
             note.setAttribute('stroke', '#000');
-            note.setAttribute('stroke-width', '2');
-            note.setAttribute('class', 'staff-note active');
+                note.setAttribute('stroke-width', '1');
+                note.setAttribute('class', 'staff-note practice-note exercise-note');
             svg.appendChild(note);
             
-            // Draw note stem if needed (notes above middle line go down, below go up)
-            const middleLineY = staffTop + (2 * lineSpacing);
-            const stemLength = currentLevel === '1' ? 24 : 60; // Shorter stem for level 1
+                // Helper function to draw a ledger line
+                function drawLedgerLine(svg, xPos, yPos) {
+                    const lineLength = 25;
+                    const ledgerLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    ledgerLine.setAttribute('x1', xPos - (lineLength / 2));
+                    ledgerLine.setAttribute('y1', yPos);
+                    ledgerLine.setAttribute('x2', xPos + (lineLength / 2));
+                    ledgerLine.setAttribute('y2', yPos);
+                    ledgerLine.setAttribute('stroke', '#000000');
+                    ledgerLine.setAttribute('stroke-width', '2');
+                    ledgerLine.setAttribute('class', 'practice-ledger-line exercise-ledger');
+                    svg.appendChild(ledgerLine);
+                }
+                
+                // Draw ledger lines for notes that need them
+                // C4 needs a ledger line at the middle line
+                if (noteValue === 0) {
+                    drawLedgerLine(svg, xPosition, yPosition);
+                }
+                
+                // Draw ledger lines for notes above the treble staff (A5 and B5)
+                if (noteValue === 21 || noteValue === 23) {
+                    const ledgerY = trebleStaffTop - lineSpacing;
+                    drawLedgerLine(svg, xPosition, ledgerY);
+                }
+                
+                // Draw ledger lines for notes below the bass staff (octave 2 notes)
+                if (noteValue === -20) {
+                    drawLedgerLine(svg, xPosition, yPosition);
+                } else if (noteValue === -22) {
+                    const e2StepsFromA3 = getNaturalStepsFromA3UsingNoteIndex(-20, 4, 2);
+                    const e2YPosition = bassTopLine + (Math.abs(e2StepsFromA3) * naturalNoteSpacing);
+                    drawLedgerLine(svg, xPosition, e2YPosition);
+                } else if (noteValue === -24) {
+                    const e2StepsFromA3 = getNaturalStepsFromA3UsingNoteIndex(-20, 4, 2);
+                    const e2YPosition = bassTopLine + (Math.abs(e2StepsFromA3) * naturalNoteSpacing);
+                    drawLedgerLine(svg, xPosition, e2YPosition);
+                    drawLedgerLine(svg, xPosition, yPosition);
+                }
+                
+                // Draw sharp symbol (#) or flat symbol (♭) if note is sharp/flat, positioned to the left of the note
+                if (isSharp) {
+                    const sharpSymbol = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    sharpSymbol.setAttribute('x', xPosition - 15);
+                    sharpSymbol.setAttribute('y', yPosition);
+                    sharpSymbol.setAttribute('text-anchor', 'middle');
+                    sharpSymbol.setAttribute('font-size', '16');
+                    sharpSymbol.setAttribute('font-weight', 'bold');
+                    sharpSymbol.setAttribute('fill', '#000000');
+                    sharpSymbol.setAttribute('font-family', 'Arial, sans-serif');
+                    sharpSymbol.setAttribute('data-sharp-symbol', 'true');
+                    sharpSymbol.setAttribute('class', 'exercise-symbol');
+                    sharpSymbol.textContent = '#';
+                    svg.appendChild(sharpSymbol);
+                } else if (isFlat) {
+                    const flatSymbol = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    flatSymbol.setAttribute('x', xPosition - 15);
+                    flatSymbol.setAttribute('y', yPosition);
+                    flatSymbol.setAttribute('text-anchor', 'middle');
+                    flatSymbol.setAttribute('font-size', '20');
+                    flatSymbol.setAttribute('font-weight', 'bold');
+                    flatSymbol.setAttribute('fill', '#000000');
+                    flatSymbol.setAttribute('font-family', 'Arial, sans-serif');
+                    flatSymbol.setAttribute('data-flat-symbol', 'true');
+                    flatSymbol.setAttribute('class', 'exercise-symbol');
+                    flatSymbol.textContent = '♭';
+                    svg.appendChild(flatSymbol);
+                }
+                
+                return; // Done for level 5
+            }
             
-            if (yPosition < middleLineY) {
-                // Note is in upper half, stem goes down
-                const stem = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                stem.setAttribute('x1', '415');
-                stem.setAttribute('y1', yPosition);
-                stem.setAttribute('x2', '415');
-                stem.setAttribute('y2', yPosition + stemLength);
-                stem.setAttribute('stroke', '#000');
-                stem.setAttribute('stroke-width', '2');
-                svg.appendChild(stem);
+            // All other levels (2, 3, 4): Use same style as level 1 (oval, black, no stem, with ledger lines)
+            // Use the same positioning logic as drawPracticeNoteOnStaff
+            const staffHeight = 80;
+            const lineSpacing = staffHeight / 4; // 20 pixels between consecutive lines
+            const trebleStaffTop = 40;
+            const bassStaffTop = 180;
+            
+            // Reference positions:
+            // C4 (Do central) at middle line between staves: y = 150
+            // E4 (Mi4) at treble bottom line (line 4): y = 120
+            // A3 (La3) at bass top line (line 0): y = 180
+            const middleLineY = 150; // C4 position
+            const trebleBottomLine = trebleStaffTop + (4 * lineSpacing); // 120 (E4)
+            const bassTopLine = bassStaffTop; // 180 (A3)
+            
+            const noteValue = (octave - 4) * 12 + noteIndex;
+            const noteName = noteNames[noteIndex];
+            const isSharp = noteName && noteName.includes('#');
+            const naturalNoteSpacing = 10; // 10 pixels per natural note step
+            // xPosition is already calculated at the start of the function
+            
+            // Helper function to calculate steps from A3 using noteIndex directly
+            function getNaturalStepsFromA3UsingNoteIndex(noteValue, noteIndex, octave) {
+                const noteToStepsFromA = {
+                    9: 0,   // A = 0 steps
+                    7: 1,   // G = 1 step down
+                    5: 2,   // F = 2 steps down
+                    4: 3,   // E = 3 steps down
+                    2: 4,   // D = 4 steps down
+                    0: 5,   // C = 5 steps down
+                    11: 6,  // B = 6 steps down
+                    1: 5,   // C# -> C = 5 steps down
+                    3: 4,   // D# -> D = 4 steps down
+                    6: 2,   // F# -> F = 2 steps down
+                    8: 1,   // G# -> G = 1 step down
+                    10: 0   // A# -> A = 0 steps
+                };
+                
+                const stepsInOctave = noteToStepsFromA[noteIndex] !== undefined ? noteToStepsFromA[noteIndex] : 0;
+                let octavesBelow = 3 - octave; // A3 is octave 3
+                
+                if (noteIndex === 11 && octave === 2) {
+                    return 6;
+                }
+                
+                return (octavesBelow * 7) + stepsInOctave;
+            }
+            
+            // Helper function to get natural steps from C4
+            function getNaturalStepsFromC4(semitones) {
+                const octaves = Math.floor(semitones / 12);
+                const noteInOctave = semitones % 12;
+                
+                const noteToStep = {
+                    0: 0,   // C
+                    2: 1,   // D
+                    4: 2,   // E
+                    5: 3,   // F
+                    7: 4,   // G
+                    9: 5,   // A
+                    11: 6   // B
+                };
+                
+                let stepInOctave;
+                if (noteToStep[noteInOctave] !== undefined) {
+                    stepInOctave = noteToStep[noteInOctave];
             } else {
-                // Note is in lower half, stem goes up
-                const stem = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                stem.setAttribute('x1', '385');
-                stem.setAttribute('y1', yPosition);
-                stem.setAttribute('x2', '385');
-                stem.setAttribute('y2', yPosition - stemLength);
-                stem.setAttribute('stroke', '#000');
-                stem.setAttribute('stroke-width', '2');
-                svg.appendChild(stem);
+                    if (noteInOctave === 1) stepInOctave = 0; // C# -> C
+                    else if (noteInOctave === 3) stepInOctave = 1; // D# -> D
+                    else if (noteInOctave === 6) stepInOctave = 3; // F# -> F
+                    else if (noteInOctave === 8) stepInOctave = 4; // G# -> G
+                    else if (noteInOctave === 10) stepInOctave = 5; // A# -> A
+                    else stepInOctave = 0;
+                }
+                
+                return (octaves * 7) + stepInOctave;
+            }
+            
+            // Calculate Y position using reference points (same as drawPracticeNoteOnStaff)
+            let yPosition;
+            if (noteValue === 0) {
+                yPosition = middleLineY;
+            } else if (noteValue === 2) {
+                const distanceC4ToB3 = (bassTopLine - naturalNoteSpacing) - middleLineY;
+                yPosition = middleLineY - distanceC4ToB3;
+            } else if (noteValue >= 4) {
+                if (noteValue === 4) {
+                    yPosition = trebleBottomLine;
+                } else {
+                    const stepsFromC4 = getNaturalStepsFromC4(noteValue);
+                    const stepsFromE4 = stepsFromC4 - 2;
+                    yPosition = trebleBottomLine - (stepsFromE4 * naturalNoteSpacing);
+                }
+            } else if (noteValue === -1) {
+                yPosition = bassTopLine - naturalNoteSpacing;
+            } else if (noteValue <= -3) {
+                if (noteValue === -3) {
+                    yPosition = bassTopLine;
+                } else {
+                    const stepsFromA3 = getNaturalStepsFromA3UsingNoteIndex(noteValue, noteIndex, octave);
+                    yPosition = bassTopLine + (Math.abs(stepsFromA3) * naturalNoteSpacing);
+                }
+            } else {
+                const stepsFromC4 = getNaturalStepsFromC4(noteValue);
+                yPosition = middleLineY - (stepsFromC4 * naturalNoteSpacing);
+            }
+            
+            // Draw oval note (ellipse) - black, no stem
+            const note = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+            note.setAttribute('cx', xPosition);
+            note.setAttribute('cy', yPosition);
+            note.setAttribute('rx', '8'); // Horizontal radius (oval)
+            note.setAttribute('ry', '6'); // Vertical radius (oval)
+            note.setAttribute('fill', '#000000'); // Black
+            note.setAttribute('stroke', '#000');
+            note.setAttribute('stroke-width', '1');
+            note.setAttribute('class', 'staff-note practice-note exercise-note');
+            svg.appendChild(note);
+            
+            // Helper function to draw a ledger line
+            function drawLedgerLine(svg, xPos, yPos) {
+                const lineLength = 25;
+                const ledgerLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                ledgerLine.setAttribute('x1', xPos - (lineLength / 2));
+                ledgerLine.setAttribute('y1', yPos);
+                ledgerLine.setAttribute('x2', xPos + (lineLength / 2));
+                ledgerLine.setAttribute('y2', yPos);
+                ledgerLine.setAttribute('stroke', '#000000');
+                ledgerLine.setAttribute('stroke-width', '2');
+                ledgerLine.setAttribute('class', 'practice-ledger-line exercise-ledger');
+                svg.appendChild(ledgerLine);
+            }
+            
+            // Draw ledger lines for notes that need them
+            // C4 needs a ledger line at the middle line
+            if (noteValue === 0) {
+                drawLedgerLine(svg, xPosition, yPosition);
+            }
+            
+            // Draw ledger lines for notes above the treble staff (A5 and B5)
+            if (noteValue === 21 || noteValue === 23) {
+                const ledgerY = trebleStaffTop - lineSpacing;
+                drawLedgerLine(svg, xPosition, ledgerY);
+            }
+            
+            // Draw ledger lines for notes below the bass staff (octave 2 notes)
+            if (noteValue === -20) {
+                drawLedgerLine(svg, xPosition, yPosition);
+            } else if (noteValue === -22) {
+                const e2StepsFromA3 = getNaturalStepsFromA3UsingNoteIndex(-20, 4, 2);
+                const e2YPosition = bassTopLine + (Math.abs(e2StepsFromA3) * naturalNoteSpacing);
+                drawLedgerLine(svg, xPosition, e2YPosition);
+            } else if (noteValue === -24) {
+                const e2StepsFromA3 = getNaturalStepsFromA3UsingNoteIndex(-20, 4, 2);
+                const e2YPosition = bassTopLine + (Math.abs(e2StepsFromA3) * naturalNoteSpacing);
+                drawLedgerLine(svg, xPosition, e2YPosition);
+                drawLedgerLine(svg, xPosition, yPosition);
+            }
+            
+            // Draw sharp symbol (#) if note is sharp, positioned to the left of the note
+            if (isSharp) {
+                const sharpSymbol = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                sharpSymbol.setAttribute('x', xPosition - 15);
+                sharpSymbol.setAttribute('y', yPosition);
+                sharpSymbol.setAttribute('text-anchor', 'middle');
+                sharpSymbol.setAttribute('font-size', '16');
+                sharpSymbol.setAttribute('font-weight', 'bold');
+                sharpSymbol.setAttribute('fill', '#000000');
+                sharpSymbol.setAttribute('font-family', 'Arial, sans-serif');
+                sharpSymbol.setAttribute('data-sharp-symbol', 'true');
+                sharpSymbol.setAttribute('class', 'exercise-symbol');
+                sharpSymbol.textContent = '#';
+                svg.appendChild(sharpSymbol);
             }
         }
 
@@ -4392,8 +5709,41 @@
                 updateCounters();
             }
             
-            // Check if correct (compare note names, ignoring octave for now)
+            // Check if correct
+            let isCorrect = false;
+            
+            // Level 5: Accept both sharp and flat equivalents
+            if (currentLevel === '5') {
+                // Check if the selected note matches the displayed note
             if (selectedNoteName === correctNoteName) {
+                    isCorrect = true;
+                } else {
+                    // Get the note index from the selected key
+                    const selectedKey = document.querySelector(`#staffPiano [data-note="${Array.from(selectedNotes)[0]}"]`);
+                    if (selectedKey) {
+                        const selectedNoteIdx = parseInt(selectedKey.dataset.noteIndex);
+                        // Check if noteIndex matches (same pitch)
+                        if (selectedNoteIdx === window.currentStaffNote.noteIndex) {
+                            // Same pitch - check if it's the equivalent notation (sharp/flat)
+                            // The displayed note might be sharp or flat, and the selected note might be the opposite
+                            if ((sharpToFlat[correctNoteName] === selectedNoteName) || 
+                                (sharpToFlat[selectedNoteName] === correctNoteName) ||
+                                (flatToSharp[correctNoteName] === selectedNoteName) ||
+                                (flatToSharp[selectedNoteName] === correctNoteName)) {
+                                isCorrect = true;
+                            }
+                        }
+                    }
+                }
+            } else {
+                // Other levels: Exact match only
+                isCorrect = (selectedNoteName === correctNoteName);
+            }
+            
+            if (isCorrect) {
+                // Play success sound
+                playSuccessSound();
+                
                 if (exerciseActive) {
                     // Correct answer during exercise
                     correctCount++;
@@ -4424,6 +5774,9 @@
                         wrongCount++;
                         updateCounters();
                         
+                        // Play failure sound
+                        playFailureSound();
+                        
                         // Stop timer
                         if (timeInterval) {
                             clearInterval(timeInterval);
@@ -4435,6 +5788,8 @@
                         }, 500);
                     } else {
                         // Still have attempts - just clear selection for next attempt
+                        // Play attention sound
+                        playAttentionSound();
                         // Do NOT increment wrong count yet
                         clearStaffSelection();
                     }
@@ -4949,6 +6304,9 @@
             if (practiceAnchors[noteName]) {
                 drawPracticeAnchors(noteName);
             }
+            
+            // Update key colors based on active anchors
+            updateKeyColors();
         }
         
         // Function to draw anchors and colored lines for practice mode
@@ -5142,6 +6500,8 @@
 
         // Initialize piano and language
         createPiano();
+        createPiano('staffPiano');
+        updateKeyColors(); // Apply colors based on initial level
         updateLanguage();
         
         // Initialize exercise state and counters with exercise 1 values
