@@ -4984,13 +4984,25 @@
                 noteIndex = randomNote.noteIndex;
                 octave = randomNote.octave;
             } else if (currentLevel === '2') {
-                // Level 2: Generate random NATURAL note (no sharps) in C2 to B5 range
+                // Level 2: Generate random NATURAL note (no sharps) in F2 to G5 range
                 const naturalNoteIndices = [0, 2, 4, 5, 7, 9, 11]; // C D E F G A B
                 const possibleNotes = [];
-                // Octaves 2 through 5: all naturals
-                for (let octaveCandidate = 2; octaveCandidate <= 5; octaveCandidate++) {
+                // Octave 2: F (5), G (7), A (9), B (11)
+                for (let noteIdx of naturalNoteIndices) {
+                    if (noteIdx >= 5) { // F, G, A, B
+                        possibleNotes.push({ noteIndex: noteIdx, octave: 2 });
+                    }
+                }
+                // Octaves 3 and 4: all naturals (C, D, E, F, G, A, B)
+                for (let octaveCandidate = 3; octaveCandidate <= 4; octaveCandidate++) {
                     for (let noteIdx of naturalNoteIndices) {
                         possibleNotes.push({ noteIndex: noteIdx, octave: octaveCandidate });
+                    }
+                }
+                // Octave 5: C (0), D (2), E (4), F (5), G (7)
+                for (let noteIdx of naturalNoteIndices) {
+                    if (noteIdx <= 7) { // C, D, E, F, G
+                        possibleNotes.push({ noteIndex: noteIdx, octave: 5 });
                     }
                 }
                 const randomNote = possibleNotes[Math.floor(Math.random() * possibleNotes.length)];
@@ -5701,7 +5713,9 @@
             // Get the selected note
             const selectedNote = Array.from(selectedNotes)[0];
             const selectedNoteName = selectedNote.replace(/\d+$/, '');
+            const selectedOctave = parseInt(selectedNote.match(/\d+$/)?.[0] || '0');
             const correctNoteName = window.currentStaffNote.noteName;
+            const correctOctave = window.currentStaffNote.octave;
             
             // Decrease attempts (each key press uses one attempt)
             if (exerciseActive) {
@@ -5709,35 +5723,41 @@
                 updateCounters();
             }
             
-            // Check if correct
+            // Check if correct (must match both note name AND octave)
             let isCorrect = false;
             
-            // Level 5: Accept both sharp and flat equivalents
-            if (currentLevel === '5') {
-                // Check if the selected note matches the displayed note
-            if (selectedNoteName === correctNoteName) {
-                    isCorrect = true;
-                } else {
-                    // Get the note index from the selected key
-                    const selectedKey = document.querySelector(`#staffPiano [data-note="${Array.from(selectedNotes)[0]}"]`);
-                    if (selectedKey) {
-                        const selectedNoteIdx = parseInt(selectedKey.dataset.noteIndex);
-                        // Check if noteIndex matches (same pitch)
-                        if (selectedNoteIdx === window.currentStaffNote.noteIndex) {
-                            // Same pitch - check if it's the equivalent notation (sharp/flat)
-                            // The displayed note might be sharp or flat, and the selected note might be the opposite
-                            if ((sharpToFlat[correctNoteName] === selectedNoteName) || 
-                                (sharpToFlat[selectedNoteName] === correctNoteName) ||
-                                (flatToSharp[correctNoteName] === selectedNoteName) ||
-                                (flatToSharp[selectedNoteName] === correctNoteName)) {
-                                isCorrect = true;
+            // First check: octave must match
+            if (selectedOctave !== correctOctave) {
+                isCorrect = false;
+            } else {
+                // Octave matches, now check note name
+                // Level 5: Accept both sharp and flat equivalents
+                if (currentLevel === '5') {
+                    // Check if the selected note matches the displayed note
+                    if (selectedNoteName === correctNoteName) {
+                        isCorrect = true;
+                    } else {
+                        // Get the note index from the selected key
+                        const selectedKey = document.querySelector(`#staffPiano [data-note="${Array.from(selectedNotes)[0]}"]`);
+                        if (selectedKey) {
+                            const selectedNoteIdx = parseInt(selectedKey.dataset.noteIndex);
+                            // Check if noteIndex matches (same pitch)
+                            if (selectedNoteIdx === window.currentStaffNote.noteIndex) {
+                                // Same pitch - check if it's the equivalent notation (sharp/flat)
+                                // The displayed note might be sharp or flat, and the selected note might be the opposite
+                                if ((sharpToFlat[correctNoteName] === selectedNoteName) || 
+                                    (sharpToFlat[selectedNoteName] === correctNoteName) ||
+                                    (flatToSharp[correctNoteName] === selectedNoteName) ||
+                                    (flatToSharp[selectedNoteName] === correctNoteName)) {
+                                    isCorrect = true;
+                                }
                             }
                         }
                     }
+                } else {
+                    // Other levels: Exact match only (name and octave)
+                    isCorrect = (selectedNoteName === correctNoteName);
                 }
-            } else {
-                // Other levels: Exact match only
-                isCorrect = (selectedNoteName === correctNoteName);
             }
             
             if (isCorrect) {
