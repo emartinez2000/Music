@@ -4847,63 +4847,47 @@
                 drawLedgerLine(svg, xPosition, yPosition);
             }
             
-            // Draw ledger lines for notes above the treble staff (A5, B5, etc.)
-            // Treble staff top line is at y = trebleStaffTop = 40
-            if (yPosition < trebleStaffTop) {
-                // Calculate which ledger lines are needed
-                // Ledger lines are drawn on lines, not in spaces
-                // Staff lines are every 20 pixels (lineSpacing)
-                // Ledger lines should be at: 40, 20, 0, -20, etc. (every 20px going up from trebleStaffTop)
-                
-                // Find the distance above the staff
-                const distanceAboveStaff = trebleStaffTop - yPosition;
-                
-                // Find the ledger line number (0 = first ledger line at 40, 1 = second at 20, etc.)
-                const ledgerLineNumber = Math.floor(distanceAboveStaff / lineSpacing);
-                const ledgerY = trebleStaffTop - (ledgerLineNumber * lineSpacing);
-                
-                // Check if the note is on a line (within 3 pixels) or in a space
-                const distanceToLine = Math.abs(yPosition - ledgerY);
-                
-                if (distanceToLine < 3) {
-                    // Note is on a line - draw ledger at the note's line position
-                    drawLedgerLine(svg, xPosition, ledgerY);
-                } else {
-                    // Note is in a space - draw ledger at the line above the note
-                    // The next line up is one more ledger line number
-                    const nextLedgerY = trebleStaffTop - ((ledgerLineNumber + 1) * lineSpacing);
-                    drawLedgerLine(svg, xPosition, nextLedgerY);
-                }
+            // Draw ledger lines for notes above the treble staff (only A5 and B5)
+            // Both A5 and B5 share the same ledger line
+            // A5 is on the ledger line (noteValue = 21, noteIndex = 9)
+            // B5 is in the space below the ledger line (noteValue = 23, noteIndex = 11)
+            if (noteValue === 21 || noteValue === 23) {
+                // Both A5 and B5 use the same ledger line position
+                // The ledger line is at the first ledger line above the treble staff
+                // Treble staff top line is at y = trebleStaffTop = 40
+                // First ledger line above is at y = trebleStaffTop - lineSpacing = 40 - 20 = 20
+                const ledgerY = trebleStaffTop - lineSpacing; // 20
+                drawLedgerLine(svg, xPosition, ledgerY);
             }
             
             // Draw ledger lines for notes below the bass staff (octave 2 notes)
             // Bass staff bottom line is at y = bassTopLine + (4 * lineSpacing) = 180 + 80 = 260
             const bassStaffBottom = bassTopLine + (4 * lineSpacing); // 260
-            if (yPosition > bassStaffBottom) {
-                // Calculate which ledger lines are needed
-                // Ledger lines are drawn on lines, not in spaces
-                // Staff lines are every 20 pixels (lineSpacing)
-                // Ledger lines should be at: 260, 280, 300, 320, etc. (every 20px starting from bassStaffBottom)
-                
-                // Find the distance below the staff
-                const distanceBelowStaff = yPosition - bassStaffBottom;
-                
-                // Find the ledger line number (0 = first ledger line at 260, 1 = second at 280, etc.)
-                const ledgerLineNumber = Math.floor(distanceBelowStaff / lineSpacing);
-                const ledgerY = bassStaffBottom + (ledgerLineNumber * lineSpacing);
-                
-                // Check if the note is on a line (within 3 pixels) or in a space
-                const distanceToLine = Math.abs(yPosition - ledgerY);
-                
-                if (distanceToLine < 3) {
-                    // Note is on a line - draw ledger at the note's line position
-                    drawLedgerLine(svg, xPosition, ledgerY);
-                } else {
-                    // Note is in a space - draw ledger at the line below the note
-                    // The next line down is one more ledger line number
-                    const nextLedgerY = bassStaffBottom + ((ledgerLineNumber + 1) * lineSpacing);
-                    drawLedgerLine(svg, xPosition, nextLedgerY);
-                }
+            
+            // Specific ledger line rules for octave 2 notes:
+            // F2 (noteValue = -19): no ledger
+            // E2 (noteValue = -20): ledger at note position (crossing the note)
+            // D2 (noteValue = -22): ledger above (same as E2)
+            // C2 (noteValue = -24): TWO ledgers - same as E2/D2 plus one crossing the note
+            
+            if (noteValue === -20) {
+                // E2: ledger crossing the note (at note position)
+                drawLedgerLine(svg, xPosition, yPosition);
+            } else if (noteValue === -22) {
+                // D2: ledger above (same position as E2's ledger)
+                // E2's ledger is at E2's yPosition, so we need to find E2's position
+                // E2 is noteIndex 4, octave 2, so we calculate its position
+                const e2StepsFromA3 = getNaturalStepsFromA3UsingNoteIndex(-20, 4, 2);
+                const e2YPosition = bassTopLine + (Math.abs(e2StepsFromA3) * naturalNoteSpacing);
+                drawLedgerLine(svg, xPosition, e2YPosition);
+            } else if (noteValue === -24) {
+                // C2: TWO ledgers
+                // First ledger: same as E2/D2 (above)
+                const e2StepsFromA3 = getNaturalStepsFromA3UsingNoteIndex(-20, 4, 2);
+                const e2YPosition = bassTopLine + (Math.abs(e2StepsFromA3) * naturalNoteSpacing);
+                drawLedgerLine(svg, xPosition, e2YPosition);
+                // Second ledger: crossing the note (at C2's position)
+                drawLedgerLine(svg, xPosition, yPosition);
             }
             
             // Helper function to draw a ledger line
