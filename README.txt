@@ -27,7 +27,9 @@ CARACTERÍSTICAS PRINCIPALES
   * Previsualización en azul y selección por doble clic
   * Solo ilumina una tecla por nota (la más central)
 - Base de datos completa de acordes (mayores, menores, séptimas, etc.)
-- Nombres alternativos de acordes mostrados entre paréntesis
+- Reconocimiento de bemoles y sostenidos en ambas notaciones
+- Nombres enarmónicos alternativos mostrados entre paréntesis (según preferencia de accidental escrita)
+- Manejo de accidentales especiales: E#→F, B#→C, Cb→B, Fb→E
 - Información detallada de cada acorde incluyendo:
   * Estructura de notas (tónica, tercera, quinta, etc.)
   * Características sonoras
@@ -103,11 +105,15 @@ La aplicación incluye enlaces a recursos externos para profundizar:
 - Enlace inteligente a pianochord.org
 - Traducción automática de notación italiana a anglosajona
 - Extrae solo la nota raíz del acorde para mostrar todos los acordes de esa nota
-- URLs optimizadas: sostenidos como "-sharp" (ej: c-sharp.html)
+- URLs optimizadas:
+  * Sostenidos como "-sharp" (ej: c-sharp.html)
+  * Bemoles como "-flat" (ej: d-flat.html, e-flat.html)
 - Ejemplos:
   * "Do7" → c.html (muestra todos los acordes de Do/C)
   * "Fasus4" → f.html (muestra todos los acordes de Fa/F)
   * "Do#maj7" → c-sharp.html (muestra todos los acordes de Do#/C#)
+  * "Rebmaj7" → d-flat.html (muestra todos los acordes de Reb/Db)
+  * "Mibm7" → e-flat.html (muestra todos los acordes de Mib/Eb)
 
 ACORDES SOPORTADOS
 -----------------
@@ -152,12 +158,39 @@ Aplicación desarrollada para facilitar el aprendizaje de teoría musical y acor
 
 VERSIÓN
 -------
-1.3.0
+1.4.0
 
 HISTORIAL DE VERSIONES
 ----------------------
 
-VERSIÓN 1.3.0 (Actual)
+VERSIÓN 1.4.0 (Actual)
+---------------------
+✨ NUEVAS CARACTERÍSTICAS:
+
+🎼 ENARMONÍA Y BEMOLES:
+- Reconocimiento de nombres con bemol en entrada (ej: "Rebmaj7" ≡ "Do#maj7")
+- Visualización del nombre principal respetando la preferencia escrita (b o #) y el alternativo entre paréntesis
+- Ejemplos:
+  * Italiana: "Rebmaj7 (Do#maj7)"
+  * Anglo: "Dbmaj7 (C#maj7)"
+
+🎯 ACCIDENTALES ESPECIALES:
+- Soporte para notas no existentes literalmente:
+  * E# → F, B# → C, Cb → B, Fb → E
+- Funciona en ambas notaciones: "Mi#" → F, "Dob" → B
+
+🔗 ENLACES A PIANOCHORD.ORG:
+- Conversión automática de URLs:
+  * "#" → "-sharp" (ej: c-sharp.html)
+  * "b" → "-flat" (ej: e-flat.html)
+- Si escribes en bemol, se enlaza a la versión "-flat" (Ej: "Eb" → e-flat.html)
+
+⚙️ ROBUSTEZ EN PARSEO:
+- Extracción del tipo de acorde sin desajustes tras normalizar la raíz (corrige casos como "E#...")
+
+--------------------------------
+
+VERSIÓN 1.3.0
 ---------------------
 ✨ NUEVAS CARACTERÍSTICAS:
 
@@ -259,3 +292,26 @@ VERSIÓN 1.0.0
 - Recursos externos integrados (IA, diagramas, Wikipedia)
 - Interfaz intuitiva y responsive
 - Base de datos completa de acordes comunes
+
+
+
+IDEAS PARA VERSIONES FUTURAS
+
+Meter sonido a las notas
+
+ESCALAS.
+
+otra pagina para escalas. Aparece la rueda de quintas para seleccionar una escala. 
+abajo apaece una tabla  con encabezado I, II, III, IV y debajo aparecen los nombres de los acordes
+para dicha escala, Al pinchar en un acorde se vuelve a pagina anterior donde el acorde esta seleccionado
+ Abajo otra tabla incluye una serie de progresiones interesantes de jazz y pop y clasicos donde salen los acordes 
+ correspondientes a esa escala
+
+ LEER notas en pentagrama
+
+ Aparece un pentagrama doble clave de sol y de Fa. UNIDOS con la nota do en medio.y tres rayas por abajo y tres por arriba en cada UNo 
+ Al lado las 7 notas en 7 botones. Al pulsar un botón aparecen en el pentagrama
+  las redondas correspondientes a esa tecla. Al pulsar sobre el pentagrama se ilumina la tecla correspondiente.
+  Hay un boton que se llama Ejercicio. Si lo pulsas te apareceran sucesivamente y de manera aleatoria diversas redondas en el pentagrama. 
+  Cuando aparece espera a que se presione el nombre de una nota. Si acierta sale un sonido de BRavo! si no un sonido de uh". 
+  Aparece un marcador donde se cuentan acertadas y falladas- Un boton para terminar.
