@@ -1373,11 +1373,11 @@
                                 </div>
                                 <div class="counter-col">
                                     <select id="exerciseSelect" onchange="changeExercise()">
-                                        <option value="1">Round 1</option>
-                                        <option value="2">Round 2</option>
-                                        <option value="3">Round 3</option>
-                                        <option value="4">Round 4</option>
-                                        <option value="5">Round 5</option>
+                                        <option value="1">Veloc. 1</option>
+                                        <option value="2">Veloc. 2</option>
+                                        <option value="3">Veloc. 3</option>
+                                        <option value="4">Veloc. 4</option>
+                                        <option value="5">Veloc. 5</option>
                                     </select>
                                 </div>
                             </div>
@@ -1549,6 +1549,12 @@
                 helpOtherChordsText: 'The "Other Chords" button becomes active when you select <strong>1 note</strong> or <strong>3 or more notes</strong>. With 1 note, it shows all chords using that note as root. With 3 or more notes, it shows all chords containing those notes, grouped by the total number of notes in each chord. <strong>Click</strong> on a chord to preview it in blue on the piano. <strong>Double-click</strong> to select it.',
                 helpClear: '🗑️ Clear Selection',
                 helpClearText: 'Use the "Clear All" button to deselect all keys and start over with a fresh selection.',
+                // Staff-specific help (EN)
+                staffHelpExercises: 'Exercises',
+                staffHelpExercisesText: 'Random notes will appear on the staff. You must identify them by pressing the corresponding piano key. In Speed 1 you have 5 attempts and 10 seconds to get it right. In Speed 2, 4 attempts and 8 seconds. This continues up to Speed 5 where you must get it right on the first try in under 3 seconds. The "Training" section generates special note patterns at each level to practice and become familiar.',
+                staffHelpLevels: 'Levels',
+                staffHelpLevelsText: 'Levels 1 to 5 go from lower difficulty with more aids to higher difficulty with no aids. Enjoy the different levels and speeds as you progress. You can either move up a level while keeping a moderate speed across all, or master a level until you can do it with your eyes closed and then move on.',
+                staffHelpWhatIsThisText: 'In this tab we will practice reading notes on the staff. We follow the world-famous "Beethoven’s Anchors" method. To learn what it’s about, click here (for now there is no link; in the future there will be a YouTube link).',
                 modalChordInfo: 'Chord Information',
                 chordStructure: '🎹 Chord Structure',
                 chordStructureNotes: 'Notes:',
@@ -1622,6 +1628,12 @@
                 helpOtherChordsText: 'El botón "Otros Acordes" se activa cuando seleccionas <strong>1 nota</strong> o <strong>3 o más notas</strong>. Con 1 nota, muestra todos los acordes que usan esa nota como tónica. Con 3 o más notas, muestra todos los acordes que contienen esas notas, agrupados por el número total de notas de cada acorde. Haz <strong>clic</strong> en un acorde para previsualizarlo en azul en el piano. Haz <strong>doble clic</strong> para seleccionarlo.',
                 helpClear: '🗑️ Limpiar Selección',
                 helpClearText: 'Usa el botón "Limpiar Todo" para deseleccionar todas las teclas y comenzar de nuevo con una selección limpia.',
+                // Staff-specific help (ES)
+                staffHelpExercises: 'Ejercicios',
+                staffHelpExercisesText: 'Aparecerán notas en el pentagrama de manera aleatoria. Hay que acertarlas pulsando la correspondiente tecla del piano. En Velocidad 1 se permiten 5 intentos y tienes 10 s para acertarla. En Velocidad 2, 4 intentos y 8 segundos. Así hasta Velocidad 5, en que hay que acertar a la primera en menos de 3 segundos. La sección "Entrenamiento" genera patrones especiales de notas en cada nivel para practicar y familiarizarse.',
+                staffHelpLevels: 'Niveles',
+                staffHelpLevelsText: 'Los niveles del 1 al 5 van de menor dificultad y más ayudas, a mayor dificultad y ninguna ayuda. Disfruta de los distintos niveles y distintas velocidades según vayas viendo. Puedes avanzar de nivel pero manteniendo una velocidad moderada en todos, o dominar un nivel hasta que lo hagas con los ojos cerrados y pasar al siguiente.',
+                staffHelpWhatIsThisText: 'En esta pestaña vamos a practicar la lectura de las notas en la partitura. Seguimos el mundialmente famoso método de "Las anclas de Betoven". Para saber de qué va, pincha aquí (por ahora no hay enlace; en el futuro habrá un enlace a YouTube).',
                 modalChordInfo: 'Información del Acorde',
                 chordStructure: '🎹 Estructura del Acorde',
                 chordStructureNotes: 'Notas:',
@@ -1822,6 +1834,28 @@
             const wrongLabel = document.getElementById('wrongLabel');
             if (correctLabel) correctLabel.textContent = t.correctLabel;
             if (wrongLabel) wrongLabel.textContent = t.wrongLabel;
+
+            // Update exercise (speed) option labels based on language
+            const exerciseSelect = document.getElementById('exerciseSelect');
+            if (exerciseSelect) {
+                const prefix = currentLanguage === 'en' ? 'Speed' : 'Veloc.';
+                Array.from(exerciseSelect.options).forEach((opt, idx) => {
+                    opt.textContent = `${prefix} ${idx + 1}`;
+                });
+            }
+
+            // Update level select option labels based on language
+            const levelSelect = document.getElementById('levelSelect');
+            if (levelSelect) {
+                const practiceText = currentLanguage === 'en' ? 'Practice' : 'Practicar';
+                const levelPrefix = currentLanguage === 'en' ? 'Level' : 'Nivel';
+                if (levelSelect.options.length >= 6) {
+                    levelSelect.options[0].textContent = practiceText;
+                    for (let i = 1; i <= 5; i++) {
+                        levelSelect.options[i].textContent = `${levelPrefix} ${i}`;
+                    }
+                }
+            }
         }
 
         function updateHelpModal() {
@@ -1829,53 +1863,90 @@
             const helpModal = document.getElementById('helpModal');
             const modalContent = helpModal.querySelector('.modal-content');
             
-            modalContent.innerHTML = `
-                <div class="modal-header">
-                    <h2>${t.modalHelpTitle}</h2>
-                    <button class="close" onclick="closeHelpModal()">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <div class="insight-section">
-                        <h3>${t.helpWhatIsThis}</h3>
-                        <p>${t.helpWhatIsThisText}</p>
+            if (typeof currentTab !== 'undefined' && currentTab === 'staff') {
+                // Staff-specific help content
+                modalContent.innerHTML = `
+                    <div class="modal-header">
+                        <h2>${t.modalHelpTitle}</h2>
+                        <button class="close" onclick="closeHelpModal()">&times;</button>
                     </div>
-                    
-                    <div class="insight-section">
-                        <h3>${t.helpNotation}</h3>
-                        <p>${t.helpNotationText}</p>
+                    <div class="modal-body">
+                        <div class="insight-section">
+                            <h3>${t.helpWhatIsThis}</h3>
+                            <p>${t.staffHelpWhatIsThisText}</p>
+                        </div>
+                        
+                        <div class="insight-section">
+                            <h3>${t.helpNotation}</h3>
+                            <p>${t.helpNotationText}</p>
+                        </div>
+                        
+                        <div class="insight-section">
+                            <h3>${t.staffHelpExercises}</h3>
+                            <p>${t.staffHelpExercisesText}</p>
+                        </div>
+                        
+                        <div class="insight-section">
+                            <h3>${t.staffHelpLevels}</h3>
+                            <p>${t.staffHelpLevelsText}</p>
+                        </div>
+                        
+                        <div class="insight-section">
+                            <h3>${t.helpClear}</h3>
+                            <p>${t.helpClearText}</p>
+                        </div>
                     </div>
-                    
-                    <div class="insight-section">
-                        <h3>${t.helpIdentify}</h3>
-                        <p>${t.helpIdentifyText}</p>
+                `;
+            } else {
+                // Chords (default) help content
+                modalContent.innerHTML = `
+                    <div class="modal-header">
+                        <h2>${t.modalHelpTitle}</h2>
+                        <button class="close" onclick="closeHelpModal()">&times;</button>
                     </div>
-                    
-                    <div class="insight-section">
-                        <h3>${t.helpFind}</h3>
-                        <p>${t.helpFindText}</p>
+                    <div class="modal-body">
+                        <div class="insight-section">
+                            <h3>${t.helpWhatIsThis}</h3>
+                            <p>${t.helpWhatIsThisText}</p>
+                        </div>
+                        
+                        <div class="insight-section">
+                            <h3>${t.helpNotation}</h3>
+                            <p>${t.helpNotationText}</p>
+                        </div>
+                        
+                        <div class="insight-section">
+                            <h3>${t.helpIdentify}</h3>
+                            <p>${t.helpIdentifyText}</p>
+                        </div>
+                        
+                        <div class="insight-section">
+                            <h3>${t.helpFind}</h3>
+                            <p>${t.helpFindText}</p>
+                        </div>
+                        
+                        <div class="insight-section">
+                            <h3>${t.helpFormats}</h3>
+                            <p>${t.helpFormatsText}</p>
+                        </div>
+                        
+                        <div class="insight-section">
+                            <h3>${t.helpInfo}</h3>
+                            <p>${t.helpInfoText}</p>
+                        </div>
+                        
+                        <div class="insight-section">
+                            <h3>${t.helpOtherChords}</h3>
+                            <p>${t.helpOtherChordsText}</p>
+                        </div>
+                        
+                        <div class="insight-section">
+                            <h3>${t.helpClear}</h3>
+                            <p>${t.helpClearText}</p>
+                        </div>
                     </div>
-                    
-                    <div class="insight-section">
-                        <h3>${t.helpFormats}</h3>
-                        <p>${t.helpFormatsText}</p>
-                    </div>
-                    
-                    <div class="insight-section">
-                        <h3>${t.helpInfo}</h3>
-                        <p>${t.helpInfoText}</p>
-                    </div>
-                    
-                    <div class="insight-section">
-                        <h3>${t.helpOtherChords}</h3>
-                        <p>${t.helpOtherChordsText}</p>
-                    </div>
-                    
-                    <div class="insight-section">
-                        <h3>${t.helpClear}</h3>
-                        <p>${t.helpClearText}</p>
-                    </div>
-                </div>
-            `;
+                `;
+            }
         }
 
         // Comprehensive chord database
@@ -3534,6 +3605,7 @@
         });
 
         function showHelp() {
+            updateHelpModal();
             document.getElementById('helpModal').style.display = 'block';
         }
 
@@ -4199,28 +4271,28 @@
                 // Passed - play applause sound
                 playApplauseSound();
                 
-                // Check if this is Round 5 (last round)
+                // Check if this is last speed (5)
                 const isRound5 = parseInt(currentExercise) === 5;
                 
                 // Update modal for success
                 modal.classList.remove('failed');
-                title.textContent = '¡Round Completado!';
+                title.textContent = '¡Veloc. Completada!';
                 icon.textContent = '🎉';
                 
                 if (isRound5) {
-                    // Special message for Round 5 - can advance to next level
-                    message.textContent = `¡Felicidades! Has completado el Round 5 con éxito. ¡Puedes pasar al siguiente nivel!`;
+                    // Special message for Speed 5 - can advance to next level
+                    message.textContent = `¡Felicidades! Has completado la Veloc. 5 con éxito. ¡Puedes pasar al siguiente nivel!`;
                 } else {
                     // Regular success message
-                    message.textContent = `¡Felicidades! Has completado el Round ${currentExercise} con éxito. Puedes pasar al siguiente Round.`;
+                    message.textContent = `¡Felicidades! Has completado la Veloc. ${currentExercise} con éxito. Puedes pasar a la siguiente Veloc.`;
                 }
                 message.style.color = '#27ae60';
             } else {
                 // Failed
                 modal.classList.add('failed');
-                title.textContent = 'Round Completado';
+                title.textContent = 'Veloc. Completada';
                 icon.textContent = '😔';
-                message.textContent = `Has completado el Round ${currentExercise}, pero necesitas menos de 3 fallos para pasar al siguiente Round. ¡Sigue practicando!`;
+                message.textContent = `Has completado la Veloc. ${currentExercise}, pero necesitas menos de 3 fallos para pasar a la siguiente Veloc. ¡Sigue practicando!`;
                 message.style.color = '#e74c3c';
             }
             
