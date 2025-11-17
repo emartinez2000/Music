@@ -1373,6 +1373,7 @@
                                 </div>
                                 <div class="counter-col">
                                     <select id="exerciseSelect" onchange="changeExercise()">
+                                        <option value="T">Entrenamiento</option>
                                         <option value="1">Veloc. 1</option>
                                         <option value="2">Veloc. 2</option>
                                         <option value="3">Veloc. 3</option>
@@ -1838,10 +1839,25 @@
             // Update exercise (speed) option labels based on language
             const exerciseSelect = document.getElementById('exerciseSelect');
             if (exerciseSelect) {
-                const prefix = currentLanguage === 'en' ? 'Speed' : 'Veloc.';
-                Array.from(exerciseSelect.options).forEach((opt, idx) => {
-                    opt.textContent = `${prefix} ${idx + 1}`;
-                });
+                const speedPrefix = currentLanguage === 'en' ? 'Speed' : 'Veloc.';
+                const trainingLabel = currentLanguage === 'en' ? 'Training' : 'Entrenamiento';
+                if (exerciseSelect.options.length >= 6) {
+                    // First option is Training
+                    exerciseSelect.options[0].textContent = trainingLabel;
+                    // Next options are Speed 1..5
+                    for (let i = 1; i <= 5; i++) {
+                        exerciseSelect.options[i].textContent = `${speedPrefix} ${i}`;
+                    }
+                } else {
+                    // Fallback: label all as speeds except first if present
+                    Array.from(exerciseSelect.options).forEach((opt, idx) => {
+                        if (idx === 0) {
+                            opt.textContent = trainingLabel;
+                        } else {
+                            opt.textContent = `${speedPrefix} ${idx}`;
+                        }
+                    });
+                }
             }
 
             // Update level select option labels based on language
@@ -3643,7 +3659,8 @@
         
         // Level and exercise state
         let currentLevel = 'Practicar';
-        let currentExercise = '1';
+        // Default to Training ('T') so fixed sequences are active on load
+        let currentExercise = 'T';
         // Track notes for practice mode
         let practiceNotes = [];
         // Track active anchor states for practice mode
@@ -3664,6 +3681,121 @@
         let notesCompleted = 0;
         let correctCount = 0;
         let wrongCount = 0;
+        // Training mode state
+        let isTrainingExercise = true;
+        let trainingSequenceA = [];
+        let trainingSequenceB = [];
+        let trainingSequenceTotal = 0;
+        let trainingSequenceALength = 0;
+        // If training is default on load, prepare sequences and set config (Speed 1)
+        if (isTrainingExercise) {
+            // Ensure sequences are ready on first load
+            if (typeof prepareTrainingSequencesForCurrentLevel === 'function') {
+                try { prepareTrainingSequencesForCurrentLevel(); } catch (e) {}
+            }
+            // Initialize attempts/time using Speed 1 config
+            const initialConfig = { attempts: 5, time: 10 };
+            try {
+                const cfg = exerciseConfig ? exerciseConfig[1] : [initialConfig.attempts, initialConfig.time];
+                maxAttempts = cfg[0];
+                maxTime = cfg[1];
+            } catch (e) {
+                maxAttempts = initialConfig.attempts;
+                maxTime = initialConfig.time;
+            }
+            remainingAttempts = maxAttempts;
+            timeRemaining = maxTime;
+        }
+        // Helper: convert note like "C#4" or "Bb3" or "G2" to { noteIndex, octave, displayName, baseName }
+        function parseNoteToken(token) {
+            const match = token.trim().match(/^([A-Ga-g])([b#]?)(\d)$/);
+            if (!match) return null;
+            const letter = match[1].toUpperCase();
+            const accidental = match[2] || '';
+            const octave = parseInt(match[3], 10);
+            // Robust anglo-name to semitone index (handles flats/sharps explicitly)
+            const name = `${letter}${accidental}`;
+            const angloToIndex = {
+                'C':0, 'C#':1, 'Db':1,
+                'D':2, 'D#':3, 'Eb':3,
+                'E':4, 'E#':5, 'Fb':4,
+                'F':5, 'F#':6, 'Gb':6,
+                'G':7, 'G#':8, 'Ab':8,
+                'A':9, 'A#':10, 'Bb':10,
+                'B':11, 'B#':0, 'Cb':11
+            };
+            let idx = angloToIndex[name];
+            if (typeof idx !== 'number') {
+                // Fallback using natural + accidental math
+                const letterToIndex = { C:0, D:2, E:4, F:5, G:7, A:9, B:11 };
+                idx = letterToIndex[letter];
+                if (accidental === '#') idx = (idx + 1) % 12;
+                if (accidental === 'b') idx = (idx + 11) % 12;
+            }
+            const baseName = noteNames[idx];
+            // Preserve display accidental using solfeo names
+            let displayName = baseName;
+            if (accidental === 'b') {
+                // Prefer the solfeo flat equivalent of the sharp base
+                if (sharpToFlat[baseName]) {
+                    displayName = sharpToFlat[baseName];
+                } else {
+                    // Fallback mapping from English letter + flat to solfeo flat
+                    const englishFlatToSolfeo = { C:'Dob', D:'Reb', E:'Mib', F:'Fab', G:'Solb', A:'Lab', B:'Sib' };
+                    displayName = englishFlatToSolfeo[letter] || baseName;
+                }
+            } else if (accidental === '#') {
+                // Ensure display uses solfeo sharp if needed (baseName is usually Do#, Re#, etc.)
+                displayName = baseName;
+            }
+            return { noteIndex: idx, octave, displayName, baseName };
+        }
+        // Prepare default training sequences (used for all levels until others are provided)
+        function prepareDefaultTrainingSequences() {
+            const seqA = "C4, D4, B3, C3, D3, B2, C5, D5, B4, G4, F4, F3, G3, G2, G3, G4, F4, F3, F4, F5";
+            const seqB = "G2, G3, G4, A4, G3, A3, G2, A2, F3, F4, F5, E5, F4, E4, F3, E3, G3, D3, E3, F3";
+            trainingSequenceA = seqA.split(',').map(s => parseNoteToken(s)).filter(Boolean);
+            trainingSequenceB = seqB.split(',').map(s => parseNoteToken(s)).filter(Boolean);
+            trainingSequenceALength = trainingSequenceA.length;
+            trainingSequenceTotal = trainingSequenceALength + trainingSequenceB.length;
+        }
+        // Prepare training sequences based on currentLevel, fallback to defaults if not defined
+        function prepareTrainingSequencesForCurrentLevel() {
+            if (currentLevel === '2') {
+                const seqA = "F3, G3, F4, G4, F5, G5, G4, F4, G2, F2, G3, F3, G4, G5, F3, F2, F4";
+                const seqB = "G5, G3, F5, E5, F4, E4, F3, E3, C4, D4, E4, C5, D5, E5, C3, D3, E3, E5, E4, E3";
+                trainingSequenceA = seqA.split(',').map(s => parseNoteToken(s)).filter(Boolean);
+                trainingSequenceB = seqB.split(',').map(s => parseNoteToken(s)).filter(Boolean);
+                trainingSequenceALength = trainingSequenceA.length;
+                trainingSequenceTotal = trainingSequenceALength + trainingSequenceB.length;
+            } else if (currentLevel === '3') {
+                // Assumed sequences from user message (normalized formatting)
+                const seqA = "G2, A2, B2, G3, A3, B3, G4, A4, B4, G5, A5, B5, C5, C4, C3, C2, D2";
+                const seqB = "C2, D2, E2, F2, C3, D3, E3, F3, C4, D4, E4, F4, C5, D5, E5, F5, G5, A5, B5, D2";
+                trainingSequenceA = seqA.split(',').map(s => parseNoteToken(s)).filter(Boolean);
+                trainingSequenceB = seqB.split(',').map(s => parseNoteToken(s)).filter(Boolean);
+                trainingSequenceALength = trainingSequenceA.length;
+                trainingSequenceTotal = trainingSequenceALength + trainingSequenceB.length;
+            } else if (currentLevel === '4') {
+                // Level 4 sequences (normalized commas and quotes)
+                const seqA = "C4, C#4, G2, G#2, F#2, A#2, G#4, A#4, F#4, B2, D3, F#3, A4, A#4, B4, C#2, G#5";
+                const seqB = "B2, B3, B4, B5, A#5, A#4, A#3, A#2, C#5, B4, C#4, B3, C#3, B2, C#2, E5, E4, E3, E2, F#2";
+                trainingSequenceA = seqA.split(',').map(s => parseNoteToken(s)).filter(Boolean);
+                trainingSequenceB = seqB.split(',').map(s => parseNoteToken(s)).filter(Boolean);
+                trainingSequenceALength = trainingSequenceA.length;
+                trainingSequenceTotal = trainingSequenceALength + trainingSequenceB.length;
+            } else if (currentLevel === '5') {
+                // Level 5 sequences (normalized, enharmonics allowed)
+                const seqA = "G4, G#4, A4, Ab4, G#4, Gb4, F#4, F4, G4, F#2, Gb2, Ab2, G#2, C2, D#2, Eb2, F#2";
+                const seqB = "D5, D#5, Eb5, E5, F#5, G5, G#5, Ab5, Bb5, D4, D#4, Eb4, E4, F#4, G4, G#4, Ab4, Bb4, Db3, C3";
+                trainingSequenceA = seqA.split(',').map(s => parseNoteToken(s)).filter(Boolean);
+                trainingSequenceB = seqB.split(',').map(s => parseNoteToken(s)).filter(Boolean);
+                trainingSequenceALength = trainingSequenceA.length;
+                trainingSequenceTotal = trainingSequenceALength + trainingSequenceB.length;
+            } else {
+                prepareDefaultTrainingSequences();
+            }
+        }
         
         // Audio context for sound effects
         let audioContext = null;
@@ -3853,6 +3985,11 @@
             const levelSelect = document.getElementById('levelSelect');
             currentLevel = levelSelect.value;
             
+            // If training is active, prepare level-specific sequences
+            if (isTrainingExercise && typeof prepareTrainingSequencesForCurrentLevel === 'function') {
+                try { prepareTrainingSequencesForCurrentLevel(); } catch (e) {}
+            }
+            
             // Clear practice notes when changing levels
             practiceNotes = [];
             // Clear practice anchors
@@ -3971,6 +4108,12 @@
         function changeExercise() {
             const exerciseSelect = document.getElementById('exerciseSelect');
             currentExercise = exerciseSelect.value;
+            // Determine if this is training mode
+            isTrainingExercise = (currentExercise === 'T');
+            if (isTrainingExercise) {
+                // Prepare training sequences for the current level (fallback to defaults)
+                prepareTrainingSequencesForCurrentLevel();
+            }
             
             // Reset exercise state
             resetExerciseState();
@@ -3995,8 +4138,8 @@
                 return;
             }
             
-            // Get configuration for current exercise
-            const config = exerciseConfig[parseInt(currentExercise)];
+            // Get configuration for current exercise (Training uses config of Speed 1)
+            const config = isTrainingExercise ? exerciseConfig[1] : exerciseConfig[parseInt(currentExercise)];
             maxAttempts = config[0];
             maxTime = config[1];
             remainingAttempts = maxAttempts;
@@ -4201,7 +4344,8 @@
         function nextNote() {
             notesCompleted++;
             
-            if (notesCompleted >= 15) {
+            const targetTotal = isTrainingExercise ? trainingSequenceTotal : 15;
+            if (notesCompleted >= targetTotal) {
                 // Exercise completed - play gong sound
                 playGongSound();
                 // Wait a bit for gong sound, then complete exercise
@@ -4209,6 +4353,10 @@
                 completeExercise();
                 }, 800);
             } else {
+                // If switching from A to B in training, clear the staff once
+                if (isTrainingExercise && notesCompleted === trainingSequenceALength) {
+                    clearAllExerciseNotes();
+                }
                 // Generate next note
                 generateNewNote();
                 // Reset attempts and time for new note
@@ -4271,28 +4419,38 @@
                 // Passed - play applause sound
                 playApplauseSound();
                 
-                // Check if this is last speed (5)
-                const isRound5 = parseInt(currentExercise) === 5;
-                
                 // Update modal for success
                 modal.classList.remove('failed');
-                title.textContent = '¡Veloc. Completada!';
                 icon.textContent = '🎉';
                 
-                if (isRound5) {
-                    // Special message for Speed 5 - can advance to next level
-                    message.textContent = `¡Felicidades! Has completado la Veloc. 5 con éxito. ¡Puedes pasar al siguiente nivel!`;
+                if (isTrainingExercise) {
+                    // Training mode success
+                    title.textContent = '¡Entrenamiento Completado!';
+                    message.textContent = '¡Felicidades! Has completado el entrenamiento con éxito.';
                 } else {
-                    // Regular success message
-                    message.textContent = `¡Felicidades! Has completado la Veloc. ${currentExercise} con éxito. Puedes pasar a la siguiente Veloc.`;
+                    title.textContent = '¡Veloc. Completada!';
+                    // Check if this is last speed (5)
+                    const isRound5 = parseInt(currentExercise) === 5;
+                    if (isRound5) {
+                        // Special message for Speed 5 - can advance to next level
+                        message.textContent = `¡Felicidades! Has completado la Veloc. 5 con éxito. ¡Puedes pasar al siguiente nivel!`;
+                    } else {
+                        // Regular success message
+                        message.textContent = `¡Felicidades! Has completado la Veloc. ${currentExercise} con éxito. Puedes pasar a la siguiente Veloc.`;
+                    }
                 }
                 message.style.color = '#27ae60';
             } else {
                 // Failed
                 modal.classList.add('failed');
-                title.textContent = 'Veloc. Completada';
                 icon.textContent = '😔';
-                message.textContent = `Has completado la Veloc. ${currentExercise}, pero necesitas menos de 3 fallos para pasar a la siguiente Veloc. ¡Sigue practicando!`;
+                if (isTrainingExercise) {
+                    title.textContent = 'Entrenamiento Completado';
+                    message.textContent = 'Has completado el entrenamiento, pero intenta reducir los fallos para mejorar. ¡Sigue practicando!';
+                } else {
+                    title.textContent = 'Veloc. Completada';
+                    message.textContent = `Has completado la Veloc. ${currentExercise}, pero necesitas menos de 3 fallos para pasar a la siguiente Veloc. ¡Sigue practicando!`;
+                }
                 message.style.color = '#e74c3c';
             }
             
@@ -4374,7 +4532,7 @@
                 trebleClef.setAttribute('x', '60');
                 const trebleStaffCenter = trebleStaffTop + (2 * lineSpacing);
                 trebleClef.setAttribute('y', trebleStaffCenter + (lineSpacing * 1.0) + 20);
-                trebleClef.setAttribute('font-size', '90');
+                trebleClef.setAttribute('font-size', '110');
                 trebleClef.setAttribute('font-family', 'serif');
                 trebleClef.textContent = '𝄞';
                 svg.appendChild(trebleClef);
@@ -4554,7 +4712,7 @@
                 // Center of staff is trebleStaffTop + 2*lineSpacing, move medio espacio down
                 const trebleStaffCenter = trebleStaffTop + (2 * lineSpacing);
                 trebleClef.setAttribute('y', trebleStaffCenter + (lineSpacing * 1.0) + 20);
-                trebleClef.setAttribute('font-size', '90'); // Larger size for treble clef
+                trebleClef.setAttribute('font-size', '110'); // Larger size for treble clef
                 trebleClef.setAttribute('font-family', 'serif');
                 trebleClef.textContent = '𝄞';
                 svg.appendChild(trebleClef);
@@ -4686,7 +4844,7 @@
                 trebleClef.setAttribute('x', '60');
                 const trebleStaffCenter = trebleStaffTop + (2 * lineSpacing);
                 trebleClef.setAttribute('y', trebleStaffCenter + (lineSpacing * 1.0) + 20);
-                trebleClef.setAttribute('font-size', '90');
+                trebleClef.setAttribute('font-size', '110');
                 trebleClef.setAttribute('font-family', 'serif');
                 trebleClef.textContent = '𝄞';
                 svg.appendChild(trebleClef);
@@ -5022,8 +5180,19 @@
             clearStaffSelection();
             
             let noteIndex, octave;
-            
-            if (currentLevel === '1') {
+            // Training mode: use fixed sequences
+            if (isTrainingExercise) {
+                const idx = notesCompleted; // 0-based
+                const inA = idx < trainingSequenceALength;
+                const item = inA ? trainingSequenceA[idx] : trainingSequenceB[idx - trainingSequenceALength];
+                if (item) {
+                    noteIndex = item.noteIndex;
+                    octave = item.octave;
+                } else {
+                    noteIndex = 0;
+                    octave = 4;
+                }
+            } else if (currentLevel === '1') {
                 // Level 1: Generate random NATURAL note (no sharps) between G2 and F5
                 // Natural notes have indices: 0 (C), 2 (D), 4 (E), 5 (F), 7 (G), 9 (A), 11 (B)
                 const naturalNoteIndices = [0, 2, 4, 5, 7, 9, 11];
@@ -5167,11 +5336,20 @@
             let noteName = noteNames[noteIndex];
             
             // Level 5: Randomly convert sharps to flats (50% chance)
-            if (currentLevel === '5' && sharpToFlat[noteName]) {
+            if (!isTrainingExercise && currentLevel === '5' && sharpToFlat[noteName]) {
                 // Randomly decide whether to show as sharp or flat
                 const useFlat = Math.random() < 0.5;
                 if (useFlat) {
                     noteName = sharpToFlat[noteName];
+                }
+            }
+            // In training mode, keep display accidental if provided in sequence (e.g., flats)
+            if (isTrainingExercise) {
+                const idx = notesCompleted;
+                const inA = idx < trainingSequenceALength;
+                const item = inA ? trainingSequenceA[idx] : trainingSequenceB[idx - trainingSequenceALength];
+                if (item && item.displayName) {
+                    noteName = item.displayName;
                 }
             }
             
@@ -5222,7 +5400,7 @@
             const existingNotes = svg.querySelectorAll('.staff-note.exercise-note, .practice-note.exercise-note');
             const noteCount = existingNotes.length;
             const horizontalOffset = noteCount * 32; // tighter spacing between notes
-            const baseXPosition = 100; // start closer to the beginning of the staff
+            const baseXPosition = 150; // align with Practicar start, a bit separated from clefs
             const xPosition = baseXPosition + horizontalOffset;
             
             // Level 1: Use Practica style (oval, black, no stem, with ledger lines)
@@ -5242,8 +5420,10 @@
                 const bassTopLine = bassStaffTop; // 180 (A3)
                 
                 const noteValue = (octave - 4) * 12 + noteIndex;
-                const noteName = noteNames[noteIndex];
-                const isSharp = noteName && noteName.includes('#');
+                // Get the displayed note name (may be flat or sharp) - check window.currentStaffNote for training sequences
+                const displayedNoteName = window.currentStaffNote ? window.currentStaffNote.noteName : noteNames[noteIndex];
+                const isSharp = displayedNoteName && displayedNoteName.includes('#');
+                const isFlat = displayedNoteName && flatToSharp.hasOwnProperty(displayedNoteName);
                 const naturalNoteSpacing = 10; // 10 pixels per natural note step
                 // xPosition is already calculated at the start of the function
                 
@@ -5305,33 +5485,48 @@
                 }
                 
                 // Calculate Y position using reference points (same as drawPracticeNoteOnStaff)
+                // For sharps: use the natural note position (one semitone down)
+                // For flats: use the natural note position of the next natural note (same line/space as the natural letter)
+                let naturalNoteValue = noteValue;
+                let naturalNoteIndex = noteIndex;
+                if (isSharp) {
+                    // For sharps, convert to natural note value (one semitone down)
+                    naturalNoteValue = noteValue - 1;
+                    naturalNoteIndex = (noteIndex - 1 + 12) % 12;
+                } else if (isFlat) {
+                    // For flats, use the next natural note (Ab uses A's position, Bb uses B's position, etc.)
+                    naturalNoteValue = noteValue + 1;
+                    naturalNoteIndex = (noteIndex + 1) % 12;
+                }
+                
             let yPosition;
-                if (noteValue === 0) {
+                if (naturalNoteValue === 0) {
                     yPosition = middleLineY;
-                } else if (noteValue === 2) {
+                } else if (naturalNoteValue === 2) {
                     const distanceC4ToB3 = (bassTopLine - naturalNoteSpacing) - middleLineY;
                     yPosition = middleLineY - distanceC4ToB3;
-                } else if (noteValue >= 4) {
-                    if (noteValue === 4) {
+                } else if (naturalNoteValue >= 4) {
+                    if (naturalNoteValue === 4) {
                         yPosition = trebleBottomLine;
                     } else {
-                        const stepsFromC4 = getNaturalStepsFromC4(noteValue);
+                        const stepsFromC4 = getNaturalStepsFromC4(naturalNoteValue);
                         const stepsFromE4 = stepsFromC4 - 2;
                         yPosition = trebleBottomLine - (stepsFromE4 * naturalNoteSpacing);
                     }
-                } else if (noteValue === -1) {
+                } else if (naturalNoteValue === -1) {
                     yPosition = bassTopLine - naturalNoteSpacing;
-                } else if (noteValue <= -3) {
-                    if (noteValue === -3) {
+                } else if (naturalNoteValue <= -3) {
+                    if (naturalNoteValue === -3) {
                         yPosition = bassTopLine;
                     } else {
-                        const stepsFromA3 = getNaturalStepsFromA3UsingNoteIndex(noteValue, noteIndex, octave);
+                        const stepsFromA3 = getNaturalStepsFromA3UsingNoteIndex(naturalNoteValue, naturalNoteIndex, octave);
                         yPosition = bassTopLine + (Math.abs(stepsFromA3) * naturalNoteSpacing);
                     }
                 } else {
-                    const stepsFromC4 = getNaturalStepsFromC4(noteValue);
+                    const stepsFromC4 = getNaturalStepsFromC4(naturalNoteValue);
                     yPosition = middleLineY - (stepsFromC4 * naturalNoteSpacing);
                 }
+                // No additional adjustment needed - flats are already on the correct natural note position
                 
                 // Draw oval note (ellipse) - black, no stem
                 const note = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
@@ -5359,33 +5554,37 @@
                     svg.appendChild(ledgerLine);
                 }
                 
-                // Draw ledger lines for notes that need them
-                // C4 needs a ledger line at the middle line
-                if (noteValue === 0) {
-                    drawLedgerLine(svg, xPosition, yPosition);
+                // Generic ledger lines above/below staves (works for naturals and accidentals)
+                function drawLedgerLinesForPosition(yPos) {
+                    const trebleTopLine = trebleStaffTop;
+                    const trebleBottomLine = trebleStaffTop + (4 * lineSpacing);
+                    const bassTopLine = bassStaffTop;
+                    const bassBottomLine = bassTopLine + (4 * lineSpacing);
+                    const tolerance = naturalNoteSpacing; // Tolerance for matching ledger line positions
+                    // Above treble staff - draw ledger lines if note is above the top line
+                    if (yPos < trebleTopLine + tolerance) {
+                        let ledgerY = trebleTopLine - lineSpacing;
+                        while (ledgerY >= yPos - tolerance) {
+                            drawLedgerLine(svg, xPosition, ledgerY);
+                            ledgerY -= lineSpacing;
+                        }
+                    }
+                    // Middle C line (between staves)
+                    if (Math.abs(yPos - middleLineY) < tolerance) {
+                        drawLedgerLine(svg, xPosition, middleLineY);
+                    }
+                    // Below bass staff - draw ledger lines if note is below the bottom line
+                    if (yPos > bassBottomLine - tolerance) {
+                        let ledgerY = bassBottomLine + lineSpacing;
+                        while (ledgerY <= yPos + tolerance) {
+                            drawLedgerLine(svg, xPosition, ledgerY);
+                            ledgerY += lineSpacing;
+                        }
+                    }
                 }
+                drawLedgerLinesForPosition(yPosition);
                 
-                // Draw ledger lines for notes above the treble staff (A5 and B5)
-                if (noteValue === 21 || noteValue === 23) {
-                    const ledgerY = trebleStaffTop - lineSpacing;
-                    drawLedgerLine(svg, xPosition, ledgerY);
-                }
-                
-                // Draw ledger lines for notes below the bass staff (octave 2 notes)
-                if (noteValue === -20) {
-                    drawLedgerLine(svg, xPosition, yPosition);
-                } else if (noteValue === -22) {
-                    const e2StepsFromA3 = getNaturalStepsFromA3UsingNoteIndex(-20, 4, 2);
-                    const e2YPosition = bassTopLine + (Math.abs(e2StepsFromA3) * naturalNoteSpacing);
-                    drawLedgerLine(svg, xPosition, e2YPosition);
-                } else if (noteValue === -24) {
-                    const e2StepsFromA3 = getNaturalStepsFromA3UsingNoteIndex(-20, 4, 2);
-                    const e2YPosition = bassTopLine + (Math.abs(e2StepsFromA3) * naturalNoteSpacing);
-                    drawLedgerLine(svg, xPosition, e2YPosition);
-                    drawLedgerLine(svg, xPosition, yPosition);
-                }
-                
-                // Draw sharp symbol (#) if note is sharp, positioned to the left of the note
+                // Draw sharp symbol (#) or flat symbol (♭) if note is sharp/flat, positioned to the left of the note
                 if (isSharp) {
                     const sharpSymbol = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                     sharpSymbol.setAttribute('x', xPosition - 15);
@@ -5399,6 +5598,19 @@
                     sharpSymbol.setAttribute('class', 'exercise-symbol');
                     sharpSymbol.textContent = '#';
                     svg.appendChild(sharpSymbol);
+                } else if (isFlat) {
+                    const flatSymbol = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    flatSymbol.setAttribute('x', xPosition - 15);
+                    flatSymbol.setAttribute('y', yPosition);
+                    flatSymbol.setAttribute('text-anchor', 'middle');
+                    flatSymbol.setAttribute('font-size', '20');
+                    flatSymbol.setAttribute('font-weight', 'bold');
+                    flatSymbol.setAttribute('fill', '#000000');
+                    flatSymbol.setAttribute('font-family', 'Arial, sans-serif');
+                    flatSymbol.setAttribute('data-flat-symbol', 'true');
+                    flatSymbol.setAttribute('class', 'exercise-symbol');
+                    flatSymbol.textContent = '♭';
+                    svg.appendChild(flatSymbol);
                 }
                 
                 return; // Done for level 1
@@ -5486,33 +5698,48 @@
                 }
                 
                 // Calculate Y position using reference points (same as drawPracticeNoteOnStaff)
+                // For sharps: use the natural note position (one semitone down)
+                // For flats: use the natural note position of the next natural note (same line/space as the natural letter)
+                let naturalNoteValue = noteValue;
+                let naturalNoteIndex = noteIndex;
+                if (isSharp) {
+                    // For sharps, convert to natural note value (one semitone down)
+                    naturalNoteValue = noteValue - 1;
+                    naturalNoteIndex = (noteIndex - 1 + 12) % 12;
+                } else if (isFlat) {
+                    // For flats, use the next natural note (Ab uses A's position, Bb uses B's position, etc.)
+                    naturalNoteValue = noteValue + 1;
+                    naturalNoteIndex = (noteIndex + 1) % 12;
+                }
+                
                 let yPosition;
-                if (noteValue === 0) {
+                if (naturalNoteValue === 0) {
                     yPosition = middleLineY;
-                } else if (noteValue === 2) {
+                } else if (naturalNoteValue === 2) {
                     const distanceC4ToB3 = (bassTopLine - naturalNoteSpacing) - middleLineY;
                     yPosition = middleLineY - distanceC4ToB3;
-                } else if (noteValue >= 4) {
-                    if (noteValue === 4) {
+                } else if (naturalNoteValue >= 4) {
+                    if (naturalNoteValue === 4) {
                         yPosition = trebleBottomLine;
                     } else {
-                        const stepsFromC4 = getNaturalStepsFromC4(noteValue);
+                        const stepsFromC4 = getNaturalStepsFromC4(naturalNoteValue);
                         const stepsFromE4 = stepsFromC4 - 2;
                         yPosition = trebleBottomLine - (stepsFromE4 * naturalNoteSpacing);
                     }
-                } else if (noteValue === -1) {
+                } else if (naturalNoteValue === -1) {
                     yPosition = bassTopLine - naturalNoteSpacing;
-                } else if (noteValue <= -3) {
-                    if (noteValue === -3) {
+                } else if (naturalNoteValue <= -3) {
+                    if (naturalNoteValue === -3) {
                         yPosition = bassTopLine;
                     } else {
-                        const stepsFromA3 = getNaturalStepsFromA3UsingNoteIndex(noteValue, noteIndex, octave);
+                        const stepsFromA3 = getNaturalStepsFromA3UsingNoteIndex(naturalNoteValue, naturalNoteIndex, octave);
                         yPosition = bassTopLine + (Math.abs(stepsFromA3) * naturalNoteSpacing);
                     }
                 } else {
-                    const stepsFromC4 = getNaturalStepsFromC4(noteValue);
+                    const stepsFromC4 = getNaturalStepsFromC4(naturalNoteValue);
                     yPosition = middleLineY - (stepsFromC4 * naturalNoteSpacing);
                 }
+                // No additional adjustment needed - flats are already on the correct natural note position
                 
                 // Draw oval note (ellipse) - black, no stem
                 const note = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
@@ -5540,31 +5767,35 @@
                     svg.appendChild(ledgerLine);
                 }
                 
-                // Draw ledger lines for notes that need them
-                // C4 needs a ledger line at the middle line
-                if (noteValue === 0) {
-                    drawLedgerLine(svg, xPosition, yPosition);
+                // Generic ledger lines above/below staves (works for naturals and accidentals)
+                function drawLedgerLinesForPosition(yPos) {
+                    const trebleTopLine = trebleStaffTop;
+                    const trebleBottomLine = trebleStaffTop + (4 * lineSpacing);
+                    const bassTopLine = bassStaffTop;
+                    const bassBottomLine = bassTopLine + (4 * lineSpacing);
+                    const tolerance = naturalNoteSpacing; // Tolerance for matching ledger line positions
+                    // Above treble staff - draw ledger lines if note is above the top line
+                    if (yPos < trebleTopLine + tolerance) {
+                        let ledgerY = trebleTopLine - lineSpacing;
+                        while (ledgerY >= yPos - tolerance) {
+                            drawLedgerLine(svg, xPosition, ledgerY);
+                            ledgerY -= lineSpacing;
+                        }
+                    }
+                    // Middle C line (between staves)
+                    if (Math.abs(yPos - middleLineY) < tolerance) {
+                        drawLedgerLine(svg, xPosition, middleLineY);
+                    }
+                    // Below bass staff - draw ledger lines if note is below the bottom line
+                    if (yPos > bassBottomLine - tolerance) {
+                        let ledgerY = bassBottomLine + lineSpacing;
+                        while (ledgerY <= yPos + tolerance) {
+                            drawLedgerLine(svg, xPosition, ledgerY);
+                            ledgerY += lineSpacing;
+                        }
+                    }
                 }
-                
-                // Draw ledger lines for notes above the treble staff (A5 and B5)
-                if (noteValue === 21 || noteValue === 23) {
-                    const ledgerY = trebleStaffTop - lineSpacing;
-                    drawLedgerLine(svg, xPosition, ledgerY);
-                }
-                
-                // Draw ledger lines for notes below the bass staff (octave 2 notes)
-                if (noteValue === -20) {
-                    drawLedgerLine(svg, xPosition, yPosition);
-                } else if (noteValue === -22) {
-                    const e2StepsFromA3 = getNaturalStepsFromA3UsingNoteIndex(-20, 4, 2);
-                    const e2YPosition = bassTopLine + (Math.abs(e2StepsFromA3) * naturalNoteSpacing);
-                    drawLedgerLine(svg, xPosition, e2YPosition);
-                } else if (noteValue === -24) {
-                    const e2StepsFromA3 = getNaturalStepsFromA3UsingNoteIndex(-20, 4, 2);
-                    const e2YPosition = bassTopLine + (Math.abs(e2StepsFromA3) * naturalNoteSpacing);
-                    drawLedgerLine(svg, xPosition, e2YPosition);
-                    drawLedgerLine(svg, xPosition, yPosition);
-                }
+                drawLedgerLinesForPosition(yPosition);
                 
                 // Draw sharp symbol (#) or flat symbol (♭) if note is sharp/flat, positioned to the left of the note
                 if (isSharp) {
@@ -5614,8 +5845,10 @@
             const bassTopLine = bassStaffTop; // 180 (A3)
             
             const noteValue = (octave - 4) * 12 + noteIndex;
-            const noteName = noteNames[noteIndex];
-            const isSharp = noteName && noteName.includes('#');
+            // Get the displayed note name (may be flat or sharp) - check window.currentStaffNote for training sequences
+            const displayedNoteName = window.currentStaffNote ? window.currentStaffNote.noteName : noteNames[noteIndex];
+            const isSharp = displayedNoteName && displayedNoteName.includes('#');
+            const isFlat = displayedNoteName && flatToSharp.hasOwnProperty(displayedNoteName);
             const naturalNoteSpacing = 10; // 10 pixels per natural note step
             // xPosition is already calculated at the start of the function
             
@@ -5677,33 +5910,48 @@
             }
             
             // Calculate Y position using reference points (same as drawPracticeNoteOnStaff)
+            // For sharps: use the natural note position (one semitone down)
+            // For flats: use the natural note position of the next natural note (same line/space as the natural letter)
+            let naturalNoteValue = noteValue;
+            let naturalNoteIndex = noteIndex;
+            if (isSharp) {
+                // For sharps, convert to natural note value (one semitone down)
+                naturalNoteValue = noteValue - 1;
+                naturalNoteIndex = (noteIndex - 1 + 12) % 12;
+            } else if (isFlat) {
+                // For flats, use the next natural note (Ab uses A's position, Bb uses B's position, etc.)
+                naturalNoteValue = noteValue + 1;
+                naturalNoteIndex = (noteIndex + 1) % 12;
+            }
+            
             let yPosition;
-            if (noteValue === 0) {
+            if (naturalNoteValue === 0) {
                 yPosition = middleLineY;
-            } else if (noteValue === 2) {
+            } else if (naturalNoteValue === 2) {
                 const distanceC4ToB3 = (bassTopLine - naturalNoteSpacing) - middleLineY;
                 yPosition = middleLineY - distanceC4ToB3;
-            } else if (noteValue >= 4) {
-                if (noteValue === 4) {
+            } else if (naturalNoteValue >= 4) {
+                if (naturalNoteValue === 4) {
                     yPosition = trebleBottomLine;
                 } else {
-                    const stepsFromC4 = getNaturalStepsFromC4(noteValue);
+                    const stepsFromC4 = getNaturalStepsFromC4(naturalNoteValue);
                     const stepsFromE4 = stepsFromC4 - 2;
                     yPosition = trebleBottomLine - (stepsFromE4 * naturalNoteSpacing);
                 }
-            } else if (noteValue === -1) {
+            } else if (naturalNoteValue === -1) {
                 yPosition = bassTopLine - naturalNoteSpacing;
-            } else if (noteValue <= -3) {
-                if (noteValue === -3) {
+            } else if (naturalNoteValue <= -3) {
+                if (naturalNoteValue === -3) {
                     yPosition = bassTopLine;
                 } else {
-                    const stepsFromA3 = getNaturalStepsFromA3UsingNoteIndex(noteValue, noteIndex, octave);
+                    const stepsFromA3 = getNaturalStepsFromA3UsingNoteIndex(naturalNoteValue, naturalNoteIndex, octave);
                     yPosition = bassTopLine + (Math.abs(stepsFromA3) * naturalNoteSpacing);
                 }
             } else {
-                const stepsFromC4 = getNaturalStepsFromC4(noteValue);
+                const stepsFromC4 = getNaturalStepsFromC4(naturalNoteValue);
                 yPosition = middleLineY - (stepsFromC4 * naturalNoteSpacing);
             }
+            // No additional adjustment needed - flats are already on the correct natural note position
             
             // Draw oval note (ellipse) - black, no stem
             const note = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
@@ -5731,33 +5979,35 @@
                 svg.appendChild(ledgerLine);
             }
             
-            // Draw ledger lines for notes that need them
-            // C4 needs a ledger line at the middle line
-            if (noteValue === 0) {
-                drawLedgerLine(svg, xPosition, yPosition);
+            // Generic ledger lines above/below staves (works for naturals and accidentals)
+            function drawLedgerLinesForPosition(yPos) {
+                const trebleTopLine = trebleStaffTop;
+                const bassBottomLine = bassTopLine + (4 * lineSpacing);
+                const tolerance = naturalNoteSpacing; // Use naturalNoteSpacing for tolerance
+                // Above treble staff
+                if (yPos < trebleTopLine - tolerance) {
+                    let ledgerY = trebleTopLine - lineSpacing;
+                    while (ledgerY >= yPos - tolerance) {
+                        drawLedgerLine(svg, xPosition, ledgerY);
+                        ledgerY -= lineSpacing;
+                    }
+                }
+                // Middle C line (between staves)
+                if (Math.abs(yPos - middleLineY) < tolerance) {
+                    drawLedgerLine(svg, xPosition, middleLineY);
+                }
+                // Below bass staff
+                if (yPos > bassBottomLine + tolerance) {
+                    let ledgerY = bassBottomLine + lineSpacing;
+                    while (ledgerY <= yPos + tolerance) {
+                        drawLedgerLine(svg, xPosition, ledgerY);
+                        ledgerY += lineSpacing;
+                    }
+                }
             }
+            drawLedgerLinesForPosition(yPosition);
             
-            // Draw ledger lines for notes above the treble staff (A5 and B5)
-            if (noteValue === 21 || noteValue === 23) {
-                const ledgerY = trebleStaffTop - lineSpacing;
-                drawLedgerLine(svg, xPosition, ledgerY);
-            }
-            
-            // Draw ledger lines for notes below the bass staff (octave 2 notes)
-            if (noteValue === -20) {
-                drawLedgerLine(svg, xPosition, yPosition);
-            } else if (noteValue === -22) {
-                const e2StepsFromA3 = getNaturalStepsFromA3UsingNoteIndex(-20, 4, 2);
-                const e2YPosition = bassTopLine + (Math.abs(e2StepsFromA3) * naturalNoteSpacing);
-                drawLedgerLine(svg, xPosition, e2YPosition);
-            } else if (noteValue === -24) {
-                const e2StepsFromA3 = getNaturalStepsFromA3UsingNoteIndex(-20, 4, 2);
-                const e2YPosition = bassTopLine + (Math.abs(e2StepsFromA3) * naturalNoteSpacing);
-                drawLedgerLine(svg, xPosition, e2YPosition);
-                drawLedgerLine(svg, xPosition, yPosition);
-            }
-            
-            // Draw sharp symbol (#) if note is sharp, positioned to the left of the note
+            // Draw sharp symbol (#) or flat symbol (♭) if note is sharp/flat, positioned to the left of the note
             if (isSharp) {
                 const sharpSymbol = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                 sharpSymbol.setAttribute('x', xPosition - 15);
@@ -5771,6 +6021,19 @@
                 sharpSymbol.setAttribute('class', 'exercise-symbol');
                 sharpSymbol.textContent = '#';
                 svg.appendChild(sharpSymbol);
+            } else if (isFlat) {
+                const flatSymbol = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                flatSymbol.setAttribute('x', xPosition - 15);
+                flatSymbol.setAttribute('y', yPosition);
+                flatSymbol.setAttribute('text-anchor', 'middle');
+                flatSymbol.setAttribute('font-size', '20');
+                flatSymbol.setAttribute('font-weight', 'bold');
+                flatSymbol.setAttribute('fill', '#000000');
+                flatSymbol.setAttribute('font-family', 'Arial, sans-serif');
+                flatSymbol.setAttribute('data-flat-symbol', 'true');
+                flatSymbol.setAttribute('class', 'exercise-symbol');
+                flatSymbol.textContent = '♭';
+                svg.appendChild(flatSymbol);
             }
         }
 
@@ -6288,55 +6551,6 @@
             note.setAttribute('class', 'practice-note');
             svg.appendChild(note);
             
-            // Draw ledger lines for notes that need them
-            // C4 needs a ledger line at the middle line
-            if (noteValue === 0) {
-                drawLedgerLine(svg, xPosition, yPosition);
-            }
-            
-            // Draw ledger lines for notes above the treble staff (only A5 and B5)
-            // Both A5 and B5 share the same ledger line
-            // A5 is on the ledger line (noteValue = 21, noteIndex = 9)
-            // B5 is in the space below the ledger line (noteValue = 23, noteIndex = 11)
-            if (noteValue === 21 || noteValue === 23) {
-                // Both A5 and B5 use the same ledger line position
-                // The ledger line is at the first ledger line above the treble staff
-                // Treble staff top line is at y = trebleStaffTop = 40
-                // First ledger line above is at y = trebleStaffTop - lineSpacing = 40 - 20 = 20
-                const ledgerY = trebleStaffTop - lineSpacing; // 20
-                drawLedgerLine(svg, xPosition, ledgerY);
-            }
-            
-            // Draw ledger lines for notes below the bass staff (octave 2 notes)
-            // Bass staff bottom line is at y = bassTopLine + (4 * lineSpacing) = 180 + 80 = 260
-            const bassStaffBottom = bassTopLine + (4 * lineSpacing); // 260
-            
-            // Specific ledger line rules for octave 2 notes:
-            // F2 (noteValue = -19): no ledger
-            // E2 (noteValue = -20): ledger at note position (crossing the note)
-            // D2 (noteValue = -22): ledger above (same as E2)
-            // C2 (noteValue = -24): TWO ledgers - same as E2/D2 plus one crossing the note
-            
-            if (noteValue === -20) {
-                // E2: ledger crossing the note (at note position)
-                drawLedgerLine(svg, xPosition, yPosition);
-            } else if (noteValue === -22) {
-                // D2: ledger above (same position as E2's ledger)
-                // E2's ledger is at E2's yPosition, so we need to find E2's position
-                // E2 is noteIndex 4, octave 2, so we calculate its position
-                const e2StepsFromA3 = getNaturalStepsFromA3UsingNoteIndex(-20, 4, 2);
-                const e2YPosition = bassTopLine + (Math.abs(e2StepsFromA3) * naturalNoteSpacing);
-                drawLedgerLine(svg, xPosition, e2YPosition);
-            } else if (noteValue === -24) {
-                // C2: TWO ledgers
-                // First ledger: same as E2/D2 (above)
-                const e2StepsFromA3 = getNaturalStepsFromA3UsingNoteIndex(-20, 4, 2);
-                const e2YPosition = bassTopLine + (Math.abs(e2StepsFromA3) * naturalNoteSpacing);
-                drawLedgerLine(svg, xPosition, e2YPosition);
-                // Second ledger: crossing the note (at C2's position)
-                drawLedgerLine(svg, xPosition, yPosition);
-            }
-            
             // Helper function to draw a ledger line
             function drawLedgerLine(svg, xPos, yPos) {
                 const lineLength = 25;
@@ -6350,6 +6564,36 @@
                 ledgerLine.setAttribute('class', 'practice-ledger-line');
                 svg.appendChild(ledgerLine);
             }
+            
+            // Generic ledger lines above/below staves (works for naturals and accidentals)
+            function drawLedgerLinesForPosition(yPos) {
+                const trebleTopLine = trebleStaffTop;
+                const trebleBottomLine = trebleStaffTop + (4 * lineSpacing);
+                const bassTopLine = bassStaffTop;
+                const bassBottomLine = bassTopLine + (4 * lineSpacing);
+                const tolerance = naturalNoteSpacing; // Tolerance for matching ledger line positions
+                // Above treble staff - draw ledger lines if note is above the top line
+                if (yPos < trebleTopLine + tolerance) {
+                    let ledgerY = trebleTopLine - lineSpacing;
+                    while (ledgerY >= yPos - tolerance) {
+                        drawLedgerLine(svg, xPosition, ledgerY);
+                        ledgerY -= lineSpacing;
+                    }
+                }
+                // Middle C line (between staves)
+                if (Math.abs(yPos - middleLineY) < tolerance) {
+                    drawLedgerLine(svg, xPosition, middleLineY);
+                }
+                // Below bass staff - draw ledger lines if note is below the bottom line
+                if (yPos > bassBottomLine - tolerance) {
+                    let ledgerY = bassBottomLine + lineSpacing;
+                    while (ledgerY <= yPos + tolerance) {
+                        drawLedgerLine(svg, xPosition, ledgerY);
+                        ledgerY += lineSpacing;
+                    }
+                }
+            }
+            drawLedgerLinesForPosition(yPosition);
             
             // Draw sharp symbol (#) if note is sharp, positioned to the left of the note
             if (isSharp) {
