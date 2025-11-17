@@ -4497,7 +4497,7 @@
                 const staffHeight = 80;
                 const lineSpacing = staffHeight / 4;
                 const trebleStaffTop = 40;
-                const bassStaffTop = 180;
+                const bassStaffTop = 160; // Reduced from 180 to bring staves closer (2 spaces apart)
                 
                 // Draw treble clef staff (top) - 5 lines, all black
                 for (let i = 0; i < 5; i++) {
@@ -4570,7 +4570,7 @@
                 const staffHeight = 80; // Reduced from 200 to 80 (40% of original)
                 const lineSpacing = staffHeight / 4; // 20 instead of 50
                 const trebleStaffTop = 40;
-                const bassStaffTop = 180; // Increased gap between staves (was 140, now 180)
+                const bassStaffTop = 160; // Reduced from 180 to bring staves closer (2 spaces apart) // Increased gap between staves (was 140, now 180)
                 
                 // Calculate positions for highlights and badges (needed later)
                 const y1 = trebleStaffTop + (0 * lineSpacing); // Line 1 (green) - treble
@@ -4799,7 +4799,7 @@
                 const staffHeight = 80; // Same size as level 1
                 const lineSpacing = staffHeight / 4; // 20 instead of 50
                 const trebleStaffTop = 40;
-                const bassStaffTop = 180; // Same spacing as level 1
+                const bassStaffTop = 160; // Reduced from 180 to bring staves closer (2 spaces apart) // Same spacing as level 1
                 
                 // Calculate positions for badges (same as level 1)
                 const y1 = trebleStaffTop + (0 * lineSpacing); // Line 1 (green) - treble
@@ -5409,15 +5409,15 @@
                 const staffHeight = 80;
                 const lineSpacing = staffHeight / 4; // 20 pixels between consecutive lines
                 const trebleStaffTop = 40;
-                const bassStaffTop = 180;
+                const bassStaffTop = 160; // Reduced from 180 to bring staves closer (2 spaces apart)
                 
                 // Reference positions:
-                // C4 (Do central) at middle line between staves: y = 150
+                // C4 (Do central) at middle line between staves: y = 140
                 // E4 (Mi4) at treble bottom line (line 4): y = 120
-                // A3 (La3) at bass top line (line 0): y = 180
-                const middleLineY = 150; // C4 position
+                // A3 (La3) at bass top line (line 0): y = 160
+                const middleLineY = 140; // C4 position (midpoint between treble bottom 120 and bass top 160)
                 const trebleBottomLine = trebleStaffTop + (4 * lineSpacing); // 120 (E4)
-                const bassTopLine = bassStaffTop; // 180 (A3)
+                const bassTopLine = bassStaffTop; // 160 (A3)
                 
                 const noteValue = (octave - 4) * 12 + noteIndex;
                 // Get the displayed note name (may be flat or sharp) - check window.currentStaffNote for training sequences
@@ -5622,15 +5622,15 @@
                 const staffHeight = 80;
                 const lineSpacing = staffHeight / 4; // 20 pixels between consecutive lines
                 const trebleStaffTop = 40;
-                const bassStaffTop = 180;
+                const bassStaffTop = 160; // Reduced from 180 to bring staves closer (2 spaces apart)
                 
                 // Reference positions:
-                // C4 (Do central) at middle line between staves: y = 150
+                // C4 (Do central) at middle line between staves: y = 140
                 // E4 (Mi4) at treble bottom line (line 4): y = 120
-                // A3 (La3) at bass top line (line 0): y = 180
-                const middleLineY = 150; // C4 position
+                // A3 (La3) at bass top line (line 0): y = 160
+                const middleLineY = 140; // C4 position (midpoint between treble bottom 120 and bass top 160)
                 const trebleBottomLine = trebleStaffTop + (4 * lineSpacing); // 120 (E4)
-                const bassTopLine = bassStaffTop; // 180 (A3)
+                const bassTopLine = bassStaffTop; // 160 (A3)
                 
             const noteValue = (octave - 4) * 12 + noteIndex;
                 // Get the displayed note name (may be flat or sharp)
@@ -5837,12 +5837,12 @@
             const bassStaffTop = 180;
             
             // Reference positions:
-            // C4 (Do central) at middle line between staves: y = 150
+            // C4 (Do central) at middle line between staves: y = 140
             // E4 (Mi4) at treble bottom line (line 4): y = 120
-            // A3 (La3) at bass top line (line 0): y = 180
-            const middleLineY = 150; // C4 position
+            // A3 (La3) at bass top line (line 0): y = 160
+            const middleLineY = 140; // C4 position (midpoint between treble bottom 120 and bass top 160)
             const trebleBottomLine = trebleStaffTop + (4 * lineSpacing); // 120 (E4)
-            const bassTopLine = bassStaffTop; // 180 (A3)
+            const bassTopLine = bassStaffTop; // 160 (A3)
             
             const noteValue = (octave - 4) * 12 + noteIndex;
             // Get the displayed note name (may be flat or sharp) - check window.currentStaffNote for training sequences
@@ -6185,15 +6185,15 @@
             const staffHeight = 80;
             const lineSpacing = staffHeight / 4; // 20 pixels between consecutive lines
             const trebleStaffTop = 40;
-            const bassStaffTop = 180;
+            const bassStaffTop = 160; // Reduced from 180 to bring staves closer (2 spaces apart)
             
             // Reference positions:
-            // C4 (Do central) at middle line between staves: y = 150
+            // C4 (Do central) at middle line between staves: y = 140
             // E4 (Mi4) at treble bottom line (line 4): y = 120
-            // A3 (La3) at bass top line (line 0): y = 180
-            const middleLineY = 150; // C4 position
+            // A3 (La3) at bass top line (line 0): y = 160
+            const middleLineY = 140; // C4 position (midpoint between treble bottom 120 and bass top 160)
             const trebleBottomLine = trebleStaffTop + (4 * lineSpacing); // 120 (E4)
-            const bassTopLine = bassStaffTop; // 180 (A3)
+            const bassTopLine = bassStaffTop; // 160 (A3)
             
             // Map noteIndex to natural note position (0=C, 1=D, 2=E, 3=F, 4=G, 5=A, 6=B)
             // Natural notes: C(0), D(2), E(4), F(5), G(7), A(9), B(11)
@@ -6497,17 +6497,13 @@
             if (noteValue === 0) {
                 // C4 at middle line
                 yPosition = middleLineY;
-            } else if (noteValue === 2) {
-                // D4: same distance above C4 as B3 is below C4
-                // B3 is at y = 170 (bassTopLine - naturalNoteSpacing = 180 - 10)
-                // C4 is at y = 150 (middleLineY)
-                // Distance from C4 to B3: 170 - 150 = 20 pixels down
-                // So D4 should be 20 pixels up from C4: 150 - 20 = 130
-                const distanceC4ToB3 = (bassTopLine - naturalNoteSpacing) - middleLineY; // 20 pixels
-                yPosition = middleLineY - distanceC4ToB3; // 130
-            } else if (noteValue >= 4) {
-                // E4 and above in treble clef
-                if (noteValue === 4) {
+            } else if (noteValue >= 2) {
+                // D4 and above in treble clef
+                if (noteValue === 2) {
+                    // D4: 1 natural step above C4
+                    const stepsFromC4 = getNaturalStepsFromC4(noteValue); // Should be 1
+                    yPosition = middleLineY - (stepsFromC4 * naturalNoteSpacing); // 140 - 10 = 130
+                } else if (noteValue === 4) {
                     // E4: at treble bottom line
                     yPosition = trebleBottomLine; // 120
                 } else {
@@ -6520,14 +6516,14 @@
             } else if (noteValue === -1) {
                 // B3: 1 step up from A3 = 10px up (NOT down!)
                 // B3 is above A3 in the bass clef, so it should be higher (lower Y)
-                yPosition = bassTopLine - naturalNoteSpacing; // 170 (not 190!)
+                yPosition = bassTopLine - naturalNoteSpacing; // 150 (160 - 10)
             } else if (noteValue <= -3) {
                 // A3 and below in bass clef (including octave 2)
                 if (noteValue === -3) {
                     // A3: at bass top line
-                    yPosition = bassTopLine; // 180
+                    yPosition = bassTopLine; // 160
                 } else {
-                    // A3 is at bass top (180), count steps down from A3
+                    // A3 is at bass top (160), count steps down from A3
                     // Use noteIndex directly to calculate steps from A3 more accurately
                     // A3 has noteIndex 9, so we can calculate relative to A
                     const stepsFromA3 = getNaturalStepsFromA3UsingNoteIndex(noteValue, noteIndex, octave);
@@ -6653,7 +6649,7 @@
             const staffHeight = 80;
             const lineSpacing = staffHeight / 4; // 20
             const trebleStaffTop = 40;
-            const bassStaffTop = 180;
+            const bassStaffTop = 160; // Reduced from 180 to bring staves closer (2 spaces apart)
             const width = 800;
             const startX = 50;
             const endX = width - 50;
