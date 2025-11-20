@@ -886,6 +886,30 @@
             box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
         }
 
+        .listen-chord-btn {
+            padding: 12px 25px;
+            font-size: 1.1em;
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .listen-chord-btn:not([disabled]) {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .listen-chord-btn:not([disabled]):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+
         .other-chords-btn {
             padding: 12px 25px;
             font-size: 1.1em;
@@ -1327,6 +1351,7 @@
             <div class="controls">
                 <button class="clear-btn" onclick="clearAll()" id="clearBtn">Clear All</button>
                 <button class="insights-btn active" id="insightsBtn" onclick="showChordInfo()">Chord Info</button>
+                <button class="listen-chord-btn" id="listenBtn" onclick="playChord()" disabled>Escuchar</button>
                 <button class="other-chords-btn" id="otherChordsBtn" onclick="showOtherChords()">Otros Acordes</button>
             </div>
 
@@ -1649,7 +1674,7 @@
                 tryCommonTypes: 'Intenta tipos comunes como maj7, m, dim, sus4',
                 modalHelpTitle: 'Ayuda',
                 helpWhatIsThis: '❓ ¿Qué es esto?',
-                helpWhatIsThisText: 'Esto es una App para jugar con los acordes de piano. Encontrar acordes raros o identificar un acorde que nos salga en una partitura. Aún no suena. Pero sonará-. Cualquier error o sugerencia de mejora, a el "Betoven de garicochea".',
+                helpWhatIsThisText: 'Esto es una App para jugar con los acordes de piano. Encontrar acordes raros o identificar un acorde que nos salga en una partitura. Apretando el botón "Escuchar" podrás escuchar cómo suena el acorde. Cualquier error o sugerencia de mejora, a el "Betoven de garicochea".',
                 helpNotation: '🎵 Notación Musical',
                 helpNotationText: 'Haz clic en el botón "🎵 Do#, Mib" o "🎵 C#, Eb" en la esquina superior izquierda para cambiar entre notación italiana (Do, Re, Mi, Fa, Sol, La, Si) y notación anglosajona (C, D, E, F, G, A, B). ¡Todas las etiquetas, nombres de acordes y ejemplos se actualizarán automáticamente!',
                 helpIdentify: 'Identificar Acordes',
@@ -2492,7 +2517,15 @@
                     selectedNotes.add(noteName);
                     keyElement.classList.add('active');
                 }
-                
+
+                // Play the note sound
+                const noteMatch = noteName.match(/^(.+)(\d+)$/);
+                if (noteMatch) {
+                    const noteBaseName = noteMatch[1];
+                    const octave = parseInt(noteMatch[2]);
+                    playNote(noteBaseName, octave);
+                }
+
                 identifyChord();
             }
         }
@@ -2557,22 +2590,21 @@
                 const rootNote = noteNames[foundChord.root];
                 const chordType = foundChord.chordType;
                 let chordName = rootNote + chordType;
-                
+
                 // Add alternative names in parentheses if they exist
                 if (foundChord.alternativeNames && foundChord.alternativeNames.length > 0) {
                     const altNames = foundChord.alternativeNames.map(alt => rootNote + alt).join(', ');
                     chordName += ` (${altNames})`;
                 }
-                
+
                 const notes = foundChord.intervals.map(interval => noteNames[(foundChord.root + interval) % 12]).join(', ');
                 const description = getChordDescription(chordType);
-                
-                updateChordInfo(chordName, `${t.notes}: ${notes}`, description);
-                
-                // Store the chord with the anglo root for internal processing
+
+                // Store the chord FIRST, before updating UI
                 const angloNoteNames = notations.anglo;
                 const angloRoot = currentNotation === 'italian' ? (italianToAnglo[rootNote] || rootNote) : rootNote;
                 currentChord = { name: chordName, root: angloRoot, type: chordType };
+                updateChordInfo(chordName, `${t.notes}: ${notes}`, description);
                 insightsBtn.classList.add('active');
             } else {
                 const notes = noteIndexes.map(note => noteNames[note]).join(', ');
@@ -2759,7 +2791,7 @@
 
         function updateChordInfo(name, notes, type) {
             const chordNameElement = document.querySelector('.chord-name');
-            
+
             // Check if name contains alternative names in parentheses
             if (name.includes('(') && name.includes(')')) {
                 // Split the name into main part and alternatives
@@ -2770,9 +2802,15 @@
             } else {
                 chordNameElement.textContent = name;
             }
-            
+
             document.querySelector('.chord-notes').textContent = notes;
             document.querySelector('.chord-type').textContent = type;
+
+            // Enable/disable listen button based on whether we have a chord identified
+            const listenBtn = document.getElementById('listenBtn');
+            // Enable for any identified chord (2+ notes that form a valid chord)
+            const hasChord = currentChord !== null && selectedNotes.size >= 2;
+            listenBtn.disabled = !hasChord;
         }
 
         function escapeHtml(text) {
@@ -2781,6 +2819,71 @@
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;');
+        }
+
+        // Function to play chord: notes together twice, then arpeggiated
+        function playChord() {
+            if (!currentChord || selectedNotes.size === 0) return;
+
+            const ctx = initAudioContext();
+            if (!ctx) return;
+
+            // Get the notes from selectedNotes, extract base names and sort them
+            const chordNotes = Array.from(selectedNotes).map(note => {
+                const match = note.match(/^(.+)(\d+)$/);
+                return match ? match[1] : note;
+            }).sort(); // Sort alphabetically for consistent playback
+
+            const now = ctx.currentTime;
+            let delay = 0;
+
+            // Play chord together twice (octave 3)
+            for (let repeat = 0; repeat < 2; repeat++) {
+                chordNotes.forEach(noteName => {
+                    const frequency = noteToFrequency(noteName, 3);
+                    const oscillator = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+
+                    oscillator.frequency.value = frequency;
+                    oscillator.type = 'triangle';
+
+                    gainNode.gain.setValueAtTime(0, now + delay);
+                    gainNode.gain.linearRampToValueAtTime(0.5, now + delay + 0.05);
+                    gainNode.gain.linearRampToValueAtTime(0.3, now + delay + 0.3);
+                    gainNode.gain.linearRampToValueAtTime(0, now + delay + 0.5);
+
+                    oscillator.start(now + delay);
+                    oscillator.stop(now + delay + 0.5);
+                });
+                delay += 0.6; // Wait between chord repetitions
+            }
+
+            // Play arpeggiated (one note after another) - repeat twice
+            for (let repeat = 0; repeat < 2; repeat++) {
+                chordNotes.forEach((noteName, index) => {
+                    const frequency = noteToFrequency(noteName, 3);
+                    const oscillator = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+
+                    oscillator.frequency.value = frequency;
+                    oscillator.type = 'triangle';
+
+                    const noteDelay = delay + (repeat * chordNotes.length * 0.2) + (index * 0.2); // 0.2 seconds between notes, 0.6 seconds between repeats
+                    gainNode.gain.setValueAtTime(0, now + noteDelay);
+                    gainNode.gain.linearRampToValueAtTime(0.6, now + noteDelay + 0.05);
+                    gainNode.gain.linearRampToValueAtTime(0.4, now + noteDelay + 0.3);
+                    gainNode.gain.linearRampToValueAtTime(0, now + noteDelay + 0.6);
+
+                    oscillator.start(now + noteDelay);
+                    oscillator.stop(now + noteDelay + 0.6);
+                });
+            }
         }
 
 
