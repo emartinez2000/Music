@@ -2455,13 +2455,16 @@
                     
                     // Draw the note on the staff
                     drawPracticeNoteOnStaff(noteIndex, octave, xPosition, noteName);
-                    
+
+                    // Play the note sound
+                    playNote(noteName.replace(/\d+$/, ''), octave);
+
                     // Visual feedback: highlight key briefly
                     keyElement.classList.add('active');
                     setTimeout(() => {
                         keyElement.classList.remove('active');
                     }, 300);
-                    
+
                     return;
                 }
                 
@@ -3906,34 +3909,96 @@
             return audioContext;
         }
         
-        // Sound effect functions
-        function playSuccessSound() {
-            // Alegre y festivo - acorde mayor ascendente
+        // Function to convert note name and octave to frequency
+        function noteToFrequency(noteName, octave) {
+            // Convert note name to index using current notation (C=0, C#=1, D=2, ..., B=11)
+            const noteIndex = notations[currentNotation].indexOf(noteName);
+            if (noteIndex === -1) return 440; // Default to A4 if note not found
+
+            // Calculate frequency using A4 = 440 Hz as reference
+            // Formula: frequency = 440 * 2^((noteIndex - 9) / 12) * 2^(octave - 4)
+            // Where A=9 in our 0-based index (A is the 10th note: 0=C,1=C#,2=D,...,9=A)
+            const semitonesFromA4 = (noteIndex - 9) + (octave - 4) * 12;
+            return 440 * Math.pow(2, semitonesFromA4 / 12);
+        }
+
+        // Function to play a single note with enhanced volume
+        function playNote(noteName, octave, duration = 0.5) {
             const ctx = initAudioContext();
             if (!ctx) return; // Audio not available
-            const frequencies = [523.25, 659.25, 783.99]; // C5, E5, G5 (acorde mayor)
-            const duration = 0.3;
-            
-            frequencies.forEach((freq, index) => {
-                const oscillator = ctx.createOscillator();
-                const gainNode = ctx.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(ctx.destination);
-                
-                oscillator.frequency.value = freq;
-                oscillator.type = 'sine';
-                
-                // Envolvente ascendente y descendente
-                const now = ctx.currentTime;
-                const delay = index * 0.05; // Escalonado
-                gainNode.gain.setValueAtTime(0, now + delay);
-                gainNode.gain.linearRampToValueAtTime(0.3, now + delay + 0.05);
-                gainNode.gain.linearRampToValueAtTime(0, now + delay + duration);
-                
-                oscillator.start(now + delay);
-                oscillator.stop(now + delay + duration);
-            });
+
+            const frequency = noteToFrequency(noteName, octave);
+
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(ctx.destination);
+
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'triangle'; // Better presence than sine
+
+            // Enhanced envelope with higher volume, especially for bass notes
+            const now = ctx.currentTime;
+
+            // Higher volume for bass notes (octave 2-3), normal for higher notes
+            const baseVolume = (octave <= 3) ? 0.7 : 0.6; // Bass boost
+            const sustainVolume = (octave <= 3) ? 0.5 : 0.4; // Bass sustain boost
+
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(baseVolume, now + 0.03); // Faster attack
+            gainNode.gain.linearRampToValueAtTime(sustainVolume, now + 0.1); // Quick sustain
+            gainNode.gain.linearRampToValueAtTime(0, now + duration); // Release
+
+            oscillator.start(now);
+            oscillator.stop(now + duration);
+        }
+
+        // Sound effect functions
+        function playSuccessSound(correctNoteParam = null, correctOctave = null) {
+            // If correct note is provided, play that note instead of chord
+            if (correctNoteParam !== null && correctOctave !== null) {
+                // Check if correctNoteParam is a noteIndex (number) or noteName (string)
+                let correctNoteName;
+                if (typeof correctNoteParam === 'number') {
+                    // It's a noteIndex, convert to note name
+                    correctNoteName = noteNames[correctNoteParam];
+                } else {
+                    // It's already a note name
+                    correctNoteName = correctNoteParam;
+                }
+                // Play the correct note with enhanced volume
+                playNote(correctNoteName, correctOctave, 0.6); // Slightly longer duration
+            } else {
+                // Original behavior: play success chord
+                // Alegre y festivo - acorde mayor ascendente
+                const ctx = initAudioContext();
+                if (!ctx) return; // Audio not available
+
+                const frequencies = [523.25, 659.25, 783.99]; // C5, E5, G5 (acorde mayor)
+                const duration = 0.3;
+
+                frequencies.forEach((freq, index) => {
+                    const oscillator = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+
+                    oscillator.frequency.value = freq;
+                    oscillator.type = 'sine';
+
+                    // Envolvente ascendente y descendente - increased volume
+                    const now = ctx.currentTime;
+                    const delay = index * 0.05; // Escalonado
+                    gainNode.gain.setValueAtTime(0, now + delay);
+                    gainNode.gain.linearRampToValueAtTime(0.5, now + delay + 0.05); // Increased volume
+                    gainNode.gain.linearRampToValueAtTime(0, now + delay + duration);
+
+                    oscillator.start(now + delay);
+                    oscillator.stop(now + delay + duration);
+                });
+            }
         }
         
         function playFailureSound() {
@@ -5926,7 +5991,7 @@
             const staffHeight = 80;
             const lineSpacing = staffHeight / 4; // 20 pixels between consecutive lines
             const trebleStaffTop = 40;
-            const bassStaffTop = 180;
+            const bassStaffTop = 160; // Reduced from 180 to bring staves closer (2 spaces apart)
             
             // Reference positions:
             // C4 (Do central) at middle line between staves: y = 140
@@ -6188,8 +6253,9 @@
             }
             
             if (isCorrect) {
-                // Play success sound
-                playSuccessSound();
+                // Play success sound - now plays the correct note instead of chord
+                // Use the original noteIndex for correct frequency calculation
+                playSuccessSound(window.currentStaffNote.noteIndex, correctOctave);
                 
                 if (exerciseActive) {
                     // Correct answer during exercise
@@ -6273,12 +6339,13 @@
         function drawPracticeNoteOnStaff(noteIndex, octave, xPosition, noteName) {
             const svg = document.getElementById('staffSvg');
             if (!svg) return;
-            
+
+
             const staffHeight = 80;
             const lineSpacing = staffHeight / 4; // 20 pixels between consecutive lines
             const trebleStaffTop = 40;
             const bassStaffTop = 160; // Reduced from 180 to bring staves closer (2 spaces apart)
-            
+
             // Reference positions:
             // C4 (Do central) at middle line between staves: y = 140
             // E4 (Mi4) at treble bottom line (line 4): y = 120
@@ -6314,7 +6381,8 @@
             // Calculate note value from C4 using noteIndex directly (0-11 for semitones)
             // This ensures correct calculation for all notes including octave 2
             const noteValue = (octave - 4) * 12 + noteIndex;
-            
+
+
             // Calculate Y position based on natural notes (10 pixels per natural note)
             // Each natural note step = 10 pixels
             // The pentagram follows the natural scale, not semitones
@@ -6605,13 +6673,13 @@
                     const stepsFromE4 = stepsFromC4 - 2; // E4 is step 2 from C4
                     yPosition = trebleBottomLine - (stepsFromE4 * naturalNoteSpacing);
                 }
-            } else if (noteValue === -1) {
-                // B3: 1 step up from A3 = 10px up (NOT down!)
-                // B3 is above A3 in the bass clef, so it should be higher (lower Y)
-                yPosition = bassTopLine - naturalNoteSpacing; // 150 (160 - 10)
-            } else if (noteValue <= -3) {
-                // A3 and below in bass clef (including octave 2)
-                if (noteValue === -3) {
+            } else if (noteValue <= -1) {
+                // B3 and below in bass clef (including A#3, A3, octave 2, etc.)
+                if (noteValue === -1) {
+                    // B3: 1 step up from A3 = 10px up (NOT down!)
+                    // B3 is above A3 in the bass clef, so it should be higher (lower Y)
+                    yPosition = bassTopLine - naturalNoteSpacing; // 150 (160 - 10)
+                } else if (noteValue === -3) {
                     // A3: at bass top line
                     yPosition = bassTopLine; // 160
                 } else {
