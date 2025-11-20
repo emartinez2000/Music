@@ -763,6 +763,15 @@
             margin: 20px 0;
         }
 
+        /* Responsive video sizing */
+        @media (max-width: 768px) {
+            .staff-video-container > div {
+                width: 95% !important;
+                min-width: 350px !important;
+                max-width: none !important;
+            }
+        }
+
         .staff-feedback {
             font-size: 1.2em;
             margin: 20px auto;
@@ -1432,7 +1441,7 @@
 
                 <!-- Video iframe for staff tab -->
                 <div id="staffVideoContainer" class="staff-video-container" style="display: none; margin: 20px auto; text-align: center;">
-                    <div style="display: inline-block; width: 33%; min-width: 300px; max-width: 400px;">
+                    <div style="display: inline-block; width: 65%; min-width: 400px; max-width: 800px;">
                         <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                             <iframe src="https://www.youtube.com/embed/8bVJT9pf9YU?rel=0&modestbranding=1"
                                 title="Video explicativo del método de lectura de notas"
@@ -1442,8 +1451,8 @@
                                 style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 8px;">
                             </iframe>
                         </div>
-                        <p style="margin-top: 10px; font-size: 14px; color: #666; text-align: center;">
-                            Video explicativo del método Beethoven's Anchors
+                        <p style="margin-top: 10px; font-size: 18px; color: #666; text-align: center;">
+                            Método de las Anclas del Betoven de Garicochea
                         </p>
                     </div>
                 </div>
@@ -1581,7 +1590,7 @@
                 staffHelpExercisesText: 'Random notes will appear on the staff. You must identify them by pressing the corresponding piano key. In Speed 1 you have 5 attempts and 10 seconds to get it right. In Speed 2, 4 attempts and 8 seconds. This continues up to Speed 5 where you must get it right on the first try in under 3 seconds. The "Training" section generates special note patterns at each level to practice and become familiar.',
                 staffHelpLevels: 'Levels',
                 staffHelpLevelsText: 'Levels 1 to 5 go from lower difficulty with more aids to higher difficulty with no aids. Enjoy the different levels and speeds as you progress. You can either move up a level while keeping a moderate speed across all, or master a level until you can do it with your eyes closed and then move on.',
-                staffHelpWhatIsThisText: 'In this tab we will practice reading notes on the staff. We follow the world-famous "Beethoven’s Anchors" method. To learn what it’s about, click here (for now there is no link; in the future there will be a YouTube link).',
+                staffHelpWhatIsThisText: 'In this tab we will practice reading notes on the staff. We follow the world-famous "Beethoven\'s Anchors" method. To learn what it\'s about, you can <a href="#" onclick="showVideoInMainInterface(); return false;" style="color: #007bff; text-decoration: underline; cursor: pointer;">watch this explanatory video</a>.',
                 modalChordInfo: 'Chord Information',
                 chordStructure: '🎹 Chord Structure',
                 chordStructureNotes: 'Notes:',
@@ -1662,7 +1671,7 @@
                 staffHelpExercisesText: 'Aparecerán notas en el pentagrama de manera aleatoria. Hay que acertarlas pulsando la correspondiente tecla del piano. En Velocidad 1 se permiten 5 intentos y tienes 10 s para acertarla. En Velocidad 2, 4 intentos y 8 segundos. Así hasta Velocidad 5, en que hay que acertar a la primera en menos de 3 segundos. La sección "Entrenamiento" genera patrones especiales de notas en cada nivel para practicar y familiarizarse.',
                 staffHelpLevels: 'Niveles',
                 staffHelpLevelsText: 'Los niveles del 1 al 5 van de menor dificultad y más ayudas, a mayor dificultad y ninguna ayuda. Disfruta de los distintos niveles y distintas velocidades según vayas viendo. Puedes avanzar de nivel pero manteniendo una velocidad moderada en todos, o dominar un nivel hasta que lo hagas con los ojos cerrados y pasar al siguiente.',
-                staffHelpWhatIsThisText: 'En esta pestaña vamos a practicar la lectura de las notas en la partitura. Seguimos el mundialmente famoso método de "Las anclas de Betoven". Para saber de qué va, pincha aquí (por ahora no hay enlace; en el futuro habrá un enlace a YouTube).',
+                staffHelpWhatIsThisText: 'En esta pestaña vamos a practicar la lectura de las notas en la partitura. Seguimos el mundialmente famoso método de "Las anclas de Beethoven". Para saber de qué va, puedes <a href="#" onclick="showVideoInMainInterface(); return false;" style="color: #007bff; text-decoration: underline; cursor: pointer;">ver este video explicativo</a>.',
                 modalChordInfo: 'Información del Acorde',
                 chordStructure: '🎹 Estructura del Acorde',
                 chordStructureNotes: 'Notas:',
@@ -1864,7 +1873,14 @@
             const attemptsLabel = document.getElementById('attemptsLabel');
             const timeLabel = document.getElementById('timeLabel');
             
-            if (staffTitle) staffTitle.textContent = t.staffTitle;
+            // Set title with video link
+            if (staffTitle) {
+                if (currentLanguage === 'es') {
+                    staffTitle.innerHTML = 'Lectura de Pentagrama. <a href="#" onclick="scrollToVideo(); return false;" style="color: #007bff; text-decoration: underline;">Ver video Explicativo</a>';
+                } else {
+                    staffTitle.innerHTML = 'Staff Reading. <a href="#" onclick="scrollToVideo(); return false;" style="color: #007bff; text-decoration: underline;">Watch Explanatory Video</a>';
+                }
+            }
             if (staffPianoTitle) staffPianoTitle.textContent = t.staffPianoTitle;
             if (clearStaffBtn) clearStaffBtn.textContent = t.clearStaffBtn;
             if (levelSelectLabel) levelSelectLabel.textContent = t.levelLabel;
@@ -1927,11 +1943,6 @@
                         <button class="close" onclick="closeHelpModal()">&times;</button>
                     </div>
                     <div class="modal-body">
-                        <div class="insight-section">
-                            <h3>${t.staffHelpMethodExplanation}</h3>
-                            <p><a href="https://www.youtube.com/watch?v=8bVJT9pf9YU" target="_blank" rel="noopener noreferrer" style="color: #007bff; text-decoration: underline; cursor: pointer;">${t.staffHelpWatchVideo}</a></p>
-                        </div>
-                        
                         <div class="insight-section">
                             <h3>${t.helpWhatIsThis}</h3>
                             <p>${t.staffHelpWhatIsThisText}</p>
@@ -3674,6 +3685,37 @@
             document.getElementById('helpModal').style.display = 'none';
         }
 
+        // Function to show video in main interface from help modal
+        function showVideoInMainInterface() {
+            // Close help modal
+            closeHelpModal();
+
+            // Switch to staff tab
+            switchTab('staff');
+
+            // Scroll to video after a short delay to ensure tab switch is complete
+            setTimeout(function() {
+                const videoContainer = document.getElementById('staffVideoContainer');
+                if (videoContainer) {
+                    videoContainer.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }
+            }, 300);
+        }
+
+        // Function to scroll to video from title link
+        function scrollToVideo() {
+            const videoContainer = document.getElementById('staffVideoContainer');
+            if (videoContainer) {
+                videoContainer.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            }
+        }
+
 
 
         // Close modal when clicking outside of it
@@ -4528,6 +4570,9 @@
                 if (goBtn) goBtn.disabled = true;
                 updateCountersForPractice();
             }
+
+            // Update language-specific content
+            updateStaffLanguage();
         }
 
         function drawStaff() {
