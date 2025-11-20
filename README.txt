@@ -133,6 +133,28 @@ SUSPENDIDOS: Dosus2, Dosus4
 SÉXTAS: Do6, Dom6
 NOVENAS: Do9, Dom9, etc.
 
+Notas re4ferentes a la pestaña "Pentagrama"
+
+Nivel 1: seqA = "C4, D4, B3, C3, D3, B2, C5, D5, B4, G4, F4, F3, G3, G2, G3, G4, F4, F3, F4, F5", 
+seqB = "G2, G3, G4, A4, G3, A3, G2, A2, F3, F4, F5, E5, F4, E4, F3, E3, G3, D3, E3, F3";
+
+
+Nivel 1:
+Notas naturales (C, D, E, F, G, A, B) desde G2 hasta F5.
+
+Nivel 2:
+Notas naturales (C, D, E, F, G, A, B) desde F2 hasta G5.
+
+Nivel 3:
+Notas naturales (C, D, E, F, G, A, B) desde C2 hasta B5 (todas las naturales en octavas 2–5).
+Nivel 4:
+Todas las notas (incluidos sostenidos) desde C2 hasta B5 (cromático completo).
+Nivel 5:
+Igual que Nivel 4 (C2–B5 cromático), pero algunas alteraciones con sostenido pueden mostrarse como bemol aleatoriamente.
+
+
+
+
 TECNOLOGÍA
 ----------
 - HTML5, CSS3, JavaScript (Vanilla)
