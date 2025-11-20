@@ -11,7 +11,7 @@ Esta aplicación permite a los usuarios identificar acordes de piano de dos mane
 
 CARACTERÍSTICAS PRINCIPALES
 -------------------------
-- Piano virtual interactivo de 3 octavas
+- Piano virtual interactivo de 3 octavas con sonido (NUEVO v2.0)
 - Sistema de notación musical seleccionable:
   * Notación italiana: Do, Re, Mi, Fa, Sol, La, Si
   * Notación anglosajona: C, D, E, F, G, A, B
@@ -21,6 +21,11 @@ CARACTERÍSTICAS PRINCIPALES
   * Todas las etiquetas y textos se actualizan automáticamente
   * Información de acordes traducida completamente
   * Notación musical independiente del idioma de la interfaz
+- Pestaña Pentagrama (NUEVO v2.0):
+  * Lectura interactiva de notas en pentagrama
+  * Ejercicios con diferentes niveles de dificultad
+  * Retroalimentación sonora y sistema de puntuación
+  * Desarrollo del reconocimiento visual de notas
 - Botón "Otros Acordes" (NUEVO v1.2.0):
   * Explora acordes con una nota como tónica
   * Encuentra acordes que contienen 3 notas específicas
@@ -69,7 +74,7 @@ CÓMO USAR LA APLICACIÓN
 
 6. EXPLORAR "OTROS ACORDES" (NUEVO v1.2.0)
    - El botón "Otros Acordes" se activa automáticamente con 1 o 3 notas seleccionadas
-   
+
    CON 1 NOTA:
    - Selecciona una sola nota en el piano
    - Haz clic en "Otros Acordes"
@@ -77,7 +82,7 @@ CÓMO USAR LA APLICACIÓN
    - Clic simple: Previsualiza el acorde en azul
    - Doble clic: Selecciona el acorde completo
    - La nota original permanece en rojo
-   
+
    CON 3 NOTAS:
    - Selecciona tres notas en el piano
    - Haz clic en "Otros Acordes"
@@ -85,6 +90,17 @@ CÓMO USAR LA APLICACIÓN
    - Clic simple: Previsualiza notas adicionales en azul
    - Doble clic: Selecciona el acorde completo
    - Solo se ilumina una tecla por nota (la más central del teclado)
+
+7. APRENDER CON LA PESTAÑA PENTAGRAMA (NUEVO v2.0)
+   - Cambia a la pestaña "Pentagrama" en la parte superior de la aplicación
+   - Selecciona un nivel de dificultad (1-5)
+   - Aparecerán notas aleatorias en el pentagrama
+   - Haz clic en el nombre de la nota correspondiente en los botones inferiores
+   - Recibirás retroalimentación sonora inmediata:
+     * ¡Bravo! para aciertos
+     * ¡Uh! para errores
+   - El marcador mostrará tus aciertos y fallos
+   - Haz clic en "Terminar" cuando quieras finalizar el ejercicio
 
 RECURSOS EXTERNOS
 ----------------
@@ -180,12 +196,31 @@ Aplicación desarrollada para facilitar el aprendizaje de teoría musical y acor
 
 VERSIÓN
 -------
-1.4.0
+2.0
 
 HISTORIAL DE VERSIONES
 ----------------------
 
-VERSIÓN 1.4.0 (Actual)
+VERSIÓN 2.0.0 (Actual)
+---------------------
+✨ NUEVAS CARACTERÍSTICAS:
+
+🎼 PESTAÑA PENTAGRAMA:
+- Nueva pestaña dedicada al aprendizaje de lectura de pentagramas
+- Ejercicios interactivos con notas aleatorias
+- Diferentes niveles de dificultad progresivos
+- Retroalimentación sonora inmediata (acierto/error)
+- Sistema de puntuación con marcador de aciertos y fallos
+
+🎵 SONIDO INTERACTIVO:
+- Las notas individuales ahora suenan al hacer clic en el piano virtual
+- Los acordes completos reproducen todas sus notas simultáneamente
+- Retroalimentación auditiva para mejorar el aprendizaje musical
+- Ayuda a desarrollar el oído musical y la coordinación
+
+--------------------------------
+
+VERSIÓN 1.4.0
 ---------------------
 ✨ NUEVAS CARACTERÍSTICAS:
 
