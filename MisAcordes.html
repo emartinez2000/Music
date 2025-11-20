@@ -1442,6 +1442,7 @@
         </div>
     </div>
 
+
     <!-- Modal for Chord Information -->
     <div id="insightsModal" class="modal">
         <div class="modal-content">
@@ -1551,6 +1552,8 @@
                 helpClear: '🗑️ Clear Selection',
                 helpClearText: 'Use the "Clear All" button to deselect all keys and start over with a fresh selection.',
                 // Staff-specific help (EN)
+                staffHelpMethodExplanation: 'Method Explanation',
+                staffHelpWatchVideo: 'Watch explanatory video',
                 staffHelpExercises: 'Exercises',
                 staffHelpExercisesText: 'Random notes will appear on the staff. You must identify them by pressing the corresponding piano key. In Speed 1 you have 5 attempts and 10 seconds to get it right. In Speed 2, 4 attempts and 8 seconds. This continues up to Speed 5 where you must get it right on the first try in under 3 seconds. The "Training" section generates special note patterns at each level to practice and become familiar.',
                 staffHelpLevels: 'Levels',
@@ -1630,6 +1633,8 @@
                 helpClear: '🗑️ Limpiar Selección',
                 helpClearText: 'Usa el botón "Limpiar Todo" para deseleccionar todas las teclas y comenzar de nuevo con una selección limpia.',
                 // Staff-specific help (ES)
+                staffHelpMethodExplanation: 'Explicación del método',
+                staffHelpWatchVideo: 'Ver video explicativo',
                 staffHelpExercises: 'Ejercicios',
                 staffHelpExercisesText: 'Aparecerán notas en el pentagrama de manera aleatoria. Hay que acertarlas pulsando la correspondiente tecla del piano. En Velocidad 1 se permiten 5 intentos y tienes 10 s para acertarla. En Velocidad 2, 4 intentos y 8 segundos. Así hasta Velocidad 5, en que hay que acertar a la primera en menos de 3 segundos. La sección "Entrenamiento" genera patrones especiales de notas en cada nivel para practicar y familiarizarse.',
                 staffHelpLevels: 'Niveles',
@@ -1887,6 +1892,11 @@
                         <button class="close" onclick="closeHelpModal()">&times;</button>
                     </div>
                     <div class="modal-body">
+                        <div class="insight-section">
+                            <h3>${t.staffHelpMethodExplanation}</h3>
+                            <p><a href="https://www.youtube.com/watch?v=8bVJT9pf9YU" target="_blank" rel="noopener noreferrer" style="color: #007bff; text-decoration: underline; cursor: pointer;">${t.staffHelpWatchVideo}</a></p>
+                        </div>
+                        
                         <div class="insight-section">
                             <h3>${t.helpWhatIsThis}</h3>
                             <p>${t.staffHelpWhatIsThisText}</p>
@@ -3629,12 +3639,13 @@
             document.getElementById('helpModal').style.display = 'none';
         }
 
+
         // Close modal when clicking outside of it
         window.onclick = function(event) {
             const insightsModal = document.getElementById('insightsModal');
             const helpModal = document.getElementById('helpModal');
             const exerciseResultModal = document.getElementById('exerciseResultModal');
-            
+
             if (event.target === insightsModal) {
                 closeModal();
             }
