@@ -758,6 +758,11 @@
             box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
         }
 
+        /* Staff video container */
+        .staff-video-container {
+            margin: 20px 0;
+        }
+
         .staff-feedback {
             font-size: 1.2em;
             margin: 20px auto;
@@ -1424,6 +1429,24 @@
                 <div class="staff-controls">
                     <button class="clear-btn" onclick="clearStaffSelection()" id="clearStaffBtn">Limpiar Todo</button>
                 </div>
+
+                <!-- Video iframe for staff tab -->
+                <div id="staffVideoContainer" class="staff-video-container" style="display: none; margin: 20px auto; text-align: center;">
+                    <div style="display: inline-block; width: 33%; min-width: 300px; max-width: 400px;">
+                        <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                            <iframe src="https://www.youtube.com/embed/8bVJT9pf9YU?rel=0&modestbranding=1"
+                                title="Video explicativo del método de lectura de notas"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen
+                                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 8px;">
+                            </iframe>
+                        </div>
+                        <p style="margin-top: 10px; font-size: 14px; color: #666; text-align: center;">
+                            Video explicativo del método Beethoven's Anchors
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <!-- Footer Credit -->
@@ -1806,11 +1829,23 @@
                 document.getElementById('tabChords').classList.add('active');
                 document.getElementById('tabContentChords').classList.add('active');
                 document.getElementById('tabContentStaff').classList.remove('active');
+
+                // Hide staff video when switching to chords
+                const staffVideoContainer = document.getElementById('staffVideoContainer');
+                if (staffVideoContainer) {
+                    staffVideoContainer.style.display = 'none';
+                }
             } else {
                 document.getElementById('tabStaff').classList.add('active');
                 document.getElementById('tabContentStaff').classList.add('active');
                 document.getElementById('tabContentChords').classList.remove('active');
-                
+
+                // Show staff video when switching to staff tab
+                const staffVideoContainer = document.getElementById('staffVideoContainer');
+                if (staffVideoContainer) {
+                    staffVideoContainer.style.display = 'block';
+                }
+
                 // Initialize staff if not already done
                 if (!window.staffInitialized) {
                     initializeStaff();
@@ -3638,6 +3673,7 @@
         function closeHelpModal() {
             document.getElementById('helpModal').style.display = 'none';
         }
+
 
 
         // Close modal when clicking outside of it
